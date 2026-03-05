@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     ReactFlow,
     MiniMap,
@@ -22,57 +23,132 @@ import TriggerNode from '../components/nodes/TriggerNode';
 import ConditionNode from '../components/nodes/ConditionNode';
 import ActionNode from '../components/nodes/ActionNode';
 import AnimatedEdge from '../components/nodes/AnimatedEdge';
-import { Save, Play, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
+import { Save, Play, Pause, ChevronDown, ChevronRight, Sparkles, Loader2, RotateCcw } from 'lucide-react';
+import { apiGet, apiPost, apiPatch } from '../lib/api';
+import toast from 'react-hot-toast';
 
-const initialNodes: Node[] = [
-    {
+/* ─── Types ─── */
+
+interface WorkflowDefinition {
+    trigger: { type: string; config: Record<string, unknown> };
+    conditions: { field: string; operator: string; value: string }[];
+    actions: { type: string; config: Record<string, unknown> }[];
+}
+
+interface WorkflowResponse {
+    id: string;
+    name: string;
+    description: string | null;
+    status: string;
+    definition: Record<string, unknown>;
+    run_count: number;
+}
+
+/* ─── Helpers ─── */
+
+function definitionToNodes(def: WorkflowDefinition): { nodes: Node[]; edges: Edge[] } {
+    const nodes: Node[] = [];
+    const edges: Edge[] = [];
+    let y = 50;
+
+    // Trigger node
+    const triggerLabel = def.trigger.type.charAt(0).toUpperCase() + def.trigger.type.slice(1) + ' Trigger';
+    nodes.push({
         id: 'trigger-1',
         type: 'trigger',
-        position: { x: 250, y: 50 },
-        data: { label: 'Email Received', icon: 'email' },
-    },
-    {
-        id: 'condition-1',
-        type: 'condition',
-        position: { x: 230, y: 200 },
-        data: { label: 'From Manager?' },
-    },
-    {
-        id: 'action-1',
-        type: 'action',
-        position: { x: 100, y: 380 },
-        data: { label: 'Post to Slack', icon: 'slack' },
-    },
-    {
-        id: 'action-2',
-        type: 'action',
-        position: { x: 370, y: 380 },
-        data: { label: 'Archive Email', icon: 'email' },
-    },
-];
+        position: { x: 250, y },
+        data: { label: triggerLabel, icon: def.trigger.type },
+    });
+    let lastId = 'trigger-1';
+    y += 160;
 
-const initialEdges: Edge[] = [
-    { id: 'e-t1-c1', source: 'trigger-1', target: 'condition-1', type: 'animated' },
-    { id: 'e-c1-a1', source: 'condition-1', target: 'action-1', sourceHandle: 'yes', type: 'animated' },
-    { id: 'e-c1-a2', source: 'condition-1', target: 'action-2', sourceHandle: 'no', type: 'animated' },
-];
+    // Condition nodes
+    def.conditions.forEach((cond, i) => {
+        const id = `condition-${i + 1}`;
+        nodes.push({
+            id,
+            type: 'condition',
+            position: { x: 230, y },
+            data: { label: `${cond.field} ${cond.operator} ${cond.value}` },
+        });
+        edges.push({
+            id: `e-${lastId}-${id}`,
+            source: lastId,
+            target: id,
+            type: 'animated',
+        });
+        lastId = id;
+        y += 160;
+    });
 
-const sampleJSON = {
-    trigger: { type: 'email', config: { filter: 'from:manager@company.com' } },
-    condition: { type: 'check_sender', field: 'from', operator: 'equals', value: 'manager@company.com' },
-    actions: [
-        { type: 'slack_message', channel: '#notifications', message: 'New email from manager: {{subject}}' },
-        { type: 'archive_email', folder: 'Processed' },
-    ],
-};
+    // Action nodes
+    const actionStartX = def.actions.length > 1 ? 100 : 250;
+    const actionSpacing = 270;
+    def.actions.forEach((action, i) => {
+        const id = `action-${i + 1}`;
+        const label = action.type.charAt(0).toUpperCase() + action.type.slice(1) + ' Action';
+        nodes.push({
+            id,
+            type: 'action',
+            position: { x: actionStartX + i * actionSpacing, y },
+            data: { label, icon: action.type },
+        });
+        edges.push({
+            id: `e-${lastId}-${id}`,
+            source: lastId,
+            target: id,
+            sourceHandle: def.conditions.length > 0 && i === 0 ? 'yes' : def.conditions.length > 0 && i === 1 ? 'no' : undefined,
+            type: 'animated',
+        });
+    });
+
+    return { nodes, edges };
+}
+
+/* ─── Component ─── */
 
 export const WorkflowBuilder: React.FC = () => {
-    const [nodes, , onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-    const [nlInput, setNlInput] = useState('When I receive an email from my manager, post a message to Slack with the subject line. Otherwise, archive the email.');
+    const { id: workflowId } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const isEditing = workflowId && workflowId !== 'new';
+
+    const [nodes, setNodes, onNodesChange] = useNodesState([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+    const [nlInput, setNlInput] = useState('');
     const [jsonVisible, setJsonVisible] = useState(true);
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-    const [workflowName, setWorkflowName] = useState('Email to Slack Notifier');
+    const [workflowName, setWorkflowName] = useState('New Workflow');
+    const [workflowStatus, setWorkflowStatus] = useState('draft');
+    const [parsedDef, setParsedDef] = useState<WorkflowDefinition | null>(null);
+    const [parsing, setParsing] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [savedId, setSavedId] = useState<string | null>(workflowId && workflowId !== 'new' ? workflowId : null);
+
+    // Load existing workflow
+    useEffect(() => {
+        if (!isEditing) return;
+        let cancelled = false;
+        async function loadWorkflow() {
+            try {
+                const wf = await apiGet<WorkflowResponse>(`/api/workflows/${workflowId}`);
+                if (cancelled) return;
+                setWorkflowName(wf.name);
+                setWorkflowStatus(wf.status);
+                setSavedId(wf.id);
+                const def = wf.definition as unknown as WorkflowDefinition;
+                if (def?.trigger) {
+                    setParsedDef(def);
+                    const { nodes: n, edges: e } = definitionToNodes(def);
+                    setNodes(n);
+                    setEdges(e);
+                }
+            } catch (err) {
+                toast.error(err instanceof Error ? err.message : 'Failed to load workflow');
+            }
+        }
+        loadWorkflow();
+        return () => { cancelled = true; };
+    }, [isEditing, workflowId, setNodes, setEdges]);
 
     const nodeTypes = useMemo(() => ({
         trigger: TriggerNode,
@@ -96,6 +172,84 @@ export const WorkflowBuilder: React.FC = () => {
     const onPaneClick = useCallback(() => {
         setSelectedNode(null);
     }, []);
+
+    // Parse NL input
+    const handleParse = useCallback(async () => {
+        if (!nlInput.trim()) {
+            toast.error('Please describe your workflow first');
+            return;
+        }
+        setParsing(true);
+        try {
+            const def = await apiPost<WorkflowDefinition>('/api/parse/', { text: nlInput });
+            setParsedDef(def);
+            const { nodes: n, edges: e } = definitionToNodes(def);
+            setNodes(n);
+            setEdges(e);
+            toast.success('Workflow parsed successfully');
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Failed to parse workflow');
+        } finally {
+            setParsing(false);
+        }
+    }, [nlInput, setNodes, setEdges]);
+
+    // Save workflow
+    const handleSave = useCallback(async () => {
+        if (!parsedDef) {
+            toast.error('Parse a workflow first before saving');
+            return;
+        }
+        setSaving(true);
+        try {
+            if (savedId) {
+                await apiPatch(`/api/workflows/${savedId}`, {
+                    name: workflowName,
+                    definition: parsedDef,
+                });
+                toast.success('Workflow updated');
+            } else {
+                const created = await apiPost<WorkflowResponse>('/api/workflows/', {
+                    name: workflowName,
+                    definition: parsedDef,
+                });
+                setSavedId(created.id);
+                toast.success('Workflow created');
+                navigate(`/dashboard/workflows/${created.id}`, { replace: true });
+            }
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Failed to save');
+        } finally {
+            setSaving(false);
+        }
+    }, [parsedDef, savedId, workflowName, navigate]);
+
+    // Activate / Pause
+    const handleToggleActive = useCallback(async () => {
+        if (!savedId) {
+            toast.error('Save the workflow first');
+            return;
+        }
+        try {
+            const endpoint = workflowStatus === 'active' ? 'pause' : 'activate';
+            const wf = await apiPost<WorkflowResponse>(`/api/workflows/${savedId}/${endpoint}`);
+            setWorkflowStatus(wf.status);
+            toast.success(wf.status === 'active' ? 'Workflow activated' : 'Workflow paused');
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Failed to update status');
+        }
+    }, [savedId, workflowStatus]);
+
+    // Run manually
+    const handleRun = useCallback(async () => {
+        if (!savedId) return;
+        try {
+            await apiPost(`/api/workflows/${savedId}/run`);
+            toast.success('Workflow run triggered');
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Run failed');
+        }
+    }, [savedId]);
 
     return (
         <AnimatedPage style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 64px)' }}>
@@ -125,16 +279,24 @@ export const WorkflowBuilder: React.FC = () => {
                             width: '300px',
                         }}
                     />
-                    <Badge variant="info">Draft</Badge>
+                    <Badge variant={workflowStatus === 'active' ? 'success' : workflowStatus === 'paused' ? 'warning' : 'info'}>
+                        {workflowStatus.charAt(0).toUpperCase() + workflowStatus.slice(1)}
+                    </Badge>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                    <Button variant="ghost" size="sm">
-                        <Save size={14} />
-                        Save
+                    <Button variant="ghost" size="sm" onClick={handleSave} disabled={saving}>
+                        {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />}
+                        {saving ? 'Saving...' : 'Save'}
                     </Button>
-                    <Button variant="primary" size="sm">
-                        <Play size={14} />
-                        Activate
+                    {savedId && (
+                        <Button variant="ghost" size="sm" onClick={handleRun}>
+                            <RotateCcw size={14} />
+                            Run
+                        </Button>
+                    )}
+                    <Button variant="primary" size="sm" onClick={handleToggleActive}>
+                        {workflowStatus === 'active' ? <Pause size={14} /> : <Play size={14} />}
+                        {workflowStatus === 'active' ? 'Pause' : 'Activate'}
                     </Button>
                 </div>
             </div>
@@ -174,94 +336,79 @@ export const WorkflowBuilder: React.FC = () => {
                         }}
                     />
                     <p style={{ color: '#475569', fontSize: '11px' }}>{nlInput.length} / 500 characters</p>
-                    <Button variant="primary" style={{ width: '100%' }}>
-                        <Sparkles size={14} />
-                        Parse Workflow
+                    <Button variant="primary" style={{ width: '100%' }} onClick={handleParse} disabled={parsing}>
+                        {parsing ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={14} />}
+                        {parsing ? 'Parsing...' : 'Parse Workflow'}
                     </Button>
 
                     {/* JSON Preview */}
-                    <div>
-                        <button
-                            onClick={() => setJsonVisible(!jsonVisible)}
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                color: '#94a3b8',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                padding: '4px 0',
-                                fontFamily: "'DM Sans', sans-serif",
-                            }}
-                        >
-                            {jsonVisible ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                            Parsed JSON
-                        </button>
-                        {jsonVisible && (
-                            <Card style={{ padding: '12px', marginTop: '8px', background: '#0a0a0f' }}>
-                                <pre
-                                    style={{
-                                        fontFamily: "'JetBrains Mono', monospace",
-                                        fontSize: '11px',
-                                        color: '#94a3b8',
-                                        lineHeight: 1.6,
-                                        overflow: 'auto',
-                                        margin: 0,
-                                        whiteSpace: 'pre-wrap',
-                                        wordBreak: 'break-word',
-                                    }}
-                                >
-                                    {JSON.stringify(sampleJSON, null, 2)
-                                        .replace(/"([^"]+)":/g, (_, key) => `"${key}":`)
-                                        .split('\n')
-                                        .map((line, i) => {
-                                            // Simple syntax highlighting
-                                            const highlighted = line
-                                                .replace(/"([^"]+)"(?=:)/g, '<key>"$1"</key>')
-                                                .replace(/: "([^"]+)"/g, ': <str>"$1"</str>');
-                                            return (
-                                                <span key={i} dangerouslySetInnerHTML={{
-                                                    __html: highlighted
-                                                        .replace(/<key>/g, '<span style="color:#818cf8">')
-                                                        .replace(/<\/key>/g, '</span>')
-                                                        .replace(/<str>/g, '<span style="color:#34d399">')
-                                                        .replace(/<\/str>/g, '</span>')
-                                                }} />
-                                            );
-                                        })
-                                        .reduce((acc: React.ReactNode[], el, i) => {
-                                            if (i > 0) acc.push('\n');
-                                            acc.push(el);
-                                            return acc;
-                                        }, [])
-                                    }
-                                </pre>
-                            </Card>
-                        )}
-                    </div>
+                    {parsedDef && (
+                        <div>
+                            <button
+                                onClick={() => setJsonVisible(!jsonVisible)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#94a3b8',
+                                    cursor: 'pointer',
+                                    fontSize: '13px',
+                                    fontWeight: 500,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '4px 0',
+                                    fontFamily: "'DM Sans', sans-serif",
+                                }}
+                            >
+                                {jsonVisible ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                Parsed JSON
+                            </button>
+                            {jsonVisible && (
+                                <Card style={{ padding: '12px', marginTop: '8px', background: '#0a0a0f' }}>
+                                    <pre
+                                        style={{
+                                            fontFamily: "'JetBrains Mono', monospace",
+                                            fontSize: '11px',
+                                            color: '#94a3b8',
+                                            lineHeight: 1.6,
+                                            overflow: 'auto',
+                                            margin: 0,
+                                            whiteSpace: 'pre-wrap',
+                                            wordBreak: 'break-word',
+                                        }}
+                                    >
+                                        {JSON.stringify(parsedDef, null, 2)}
+                                    </pre>
+                                </Card>
+                            )}
+                        </div>
+                    )}
 
                     {/* Parsed Fields */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Badge variant="trigger">Trigger</Badge>
-                            <span style={{ fontSize: '13px', color: '#f1f5f9' }}>Email Received</span>
+                    {parsedDef && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Badge variant="trigger">Trigger</Badge>
+                                <span style={{ fontSize: '13px', color: '#f1f5f9' }}>
+                                    {parsedDef.trigger.type.charAt(0).toUpperCase() + parsedDef.trigger.type.slice(1)}
+                                </span>
+                            </div>
+                            {parsedDef.conditions.map((c, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Badge variant="warning">Condition</Badge>
+                                    <span style={{ fontSize: '13px', color: '#f1f5f9' }}>{c.field} {c.operator} {c.value}</span>
+                                </div>
+                            ))}
+                            {parsedDef.actions.map((a, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Badge variant="info">Action</Badge>
+                                    <span style={{ fontSize: '13px', color: '#f1f5f9' }}>
+                                        {a.type.charAt(0).toUpperCase() + a.type.slice(1)}
+                                    </span>
+                                </div>
+                            ))}
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Badge variant="warning">Condition</Badge>
-                            <span style={{ fontSize: '13px', color: '#f1f5f9' }}>From Manager</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Badge variant="info">Action</Badge>
-                            <span style={{ fontSize: '13px', color: '#f1f5f9' }}>Post to Slack</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Badge variant="info">Action</Badge>
-                            <span style={{ fontSize: '13px', color: '#f1f5f9' }}>Archive Email</span>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Center Panel — React Flow Canvas */}
