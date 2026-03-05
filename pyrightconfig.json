@@ -1,0 +1,17 @@
+{
+    "venvPath": "/Users/disha/Documents/program files/ai-task-automator-NLP/backend",
+    "venv": "venv",
+    "pythonVersion": "3.14",
+    "pythonPlatform": "Darwin",
+    "executionEnvironments": [
+        {
+            "root": "backend",
+            "venvPath": "/Users/disha/Documents/program files/ai-task-automator-NLP/backend",
+            "venv": "venv",
+            "extraPaths": [
+                "/Users/disha/Documents/program files/ai-task-automator-NLP/backend"
+            ],
+            "pythonVersion": "3.14"
+        }
+    ]
+}
