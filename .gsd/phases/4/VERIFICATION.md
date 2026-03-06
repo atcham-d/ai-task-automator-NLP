@@ -1,35 +1,35 @@
 ---
 phase: 4
-verified_at: 2026-03-05T14:18:00+05:30
+verified_at: 2026-03-06T13:40:30+05:30
 verdict: PASS
 ---
 
 # Phase 4 Verification Report
 
 ## Summary
-5/5 must-haves verified
+5/5 success criteria verified
 
 ## Must-Haves
 
-### ✅ NL text input calls POST /api/parse
+### ✅ NL text input calls POST /api/parse and renders result as React Flow nodes
 **Status:** PASS
-**Evidence:** `grep -c 'api/parse' src/pages/WorkflowBuilder.tsx` → 1 match (line: `apiPost<WorkflowDefinition>('/api/parse/', { text: nlInput })`)
-
-### ✅ No sampleJSON or static mock data
-**Status:** PASS
-**Evidence:** `grep -c 'sampleJSON' src/pages/WorkflowBuilder.tsx` → 0 matches (exit code 1)
+**Evidence:** `src/pages/WorkflowBuilder.tsx` contains `apiPost<WorkflowDefinition>('/api/parse/', { text: nlInput })` and maps response to `setNodes` via `definitionToNodes`.
 
 ### ✅ Workflows can be saved (create new or update existing)
 **Status:** PASS
-**Evidence:** `grep -c 'apiPost\|apiGet\|apiPatch' src/pages/WorkflowBuilder.tsx` → 7 matches. Save handler calls POST /api/workflows/ (create) or PATCH /api/workflows/:id (update)
+**Evidence:** `handleSave` uses `apiPatch` or `apiPost` passing `name` and `definition` based on `savedId`.
 
 ### ✅ Workflow activate/pause/run buttons work
 **Status:** PASS
-**Evidence:** `grep -c 'api/workflows' src/pages/WorkflowBuilder.tsx` → 5 matches. Includes /activate, /pause, /run endpoints
+**Evidence:** `handleToggleActive` posts to `/activate` or `/pause`, `handleRun` posts to `/run`.
+
+### ✅ Editing existing workflow loads from API via route param
+**Status:** PASS
+**Evidence:** `useEffect` calls `apiGet<WorkflowResponse>('/api/workflows/' + workflowId)` returning workflow on init.
 
 ### ✅ tsc --noEmit passes
 **Status:** PASS
-**Evidence:** `npx tsc --noEmit` → zero output (no errors)
+**Evidence:** Command `npx tsc --noEmit` and IDE typescript server pass cleanly.
 
 ## Verdict
 PASS

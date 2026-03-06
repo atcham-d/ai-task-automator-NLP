@@ -23,8 +23,8 @@ import TriggerNode from '../components/nodes/TriggerNode';
 import ConditionNode from '../components/nodes/ConditionNode';
 import ActionNode from '../components/nodes/ActionNode';
 import AnimatedEdge from '../components/nodes/AnimatedEdge';
-import { Save, Play, Pause, ChevronDown, ChevronRight, Sparkles, Loader2, RotateCcw } from 'lucide-react';
-import { apiGet, apiPost, apiPatch } from '../lib/api';
+import { Save, Play, Pause, ChevronDown, ChevronRight, Sparkles, Loader2, RotateCcw, Trash2 } from 'lucide-react';
+import { apiGet, apiPost, apiPatch, apiDelete } from '../lib/api';
 import toast from 'react-hot-toast';
 
 /* ─── Types ─── */
@@ -112,8 +112,8 @@ export const WorkflowBuilder: React.FC = () => {
     const navigate = useNavigate();
     const isEditing = workflowId && workflowId !== 'new';
 
-    const [nodes, setNodes, onNodesChange] = useNodesState([]);
-    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+    const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const [nlInput, setNlInput] = useState('');
     const [jsonVisible, setJsonVisible] = useState(true);
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
@@ -251,6 +251,19 @@ export const WorkflowBuilder: React.FC = () => {
         }
     }, [savedId]);
 
+    // Delete workflow
+    const handleDelete = useCallback(async () => {
+        if (!savedId) return;
+        if (!window.confirm('Are you sure you want to delete this workflow?')) return;
+        try {
+            await apiDelete(`/api/workflows/${savedId}`);
+            toast.success('Workflow deleted');
+            navigate('/dashboard', { replace: true });
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Failed to delete');
+        }
+    }, [savedId, navigate]);
+
     return (
         <AnimatedPage style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 64px)' }}>
             {/* Top Bar */}
@@ -284,6 +297,11 @@ export const WorkflowBuilder: React.FC = () => {
                     </Badge>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
+                    {savedId && (
+                        <Button variant="ghost" size="sm" onClick={handleDelete} title="Delete Workflow" style={{ color: '#ef4444' }}>
+                            <Trash2 size={14} />
+                        </Button>
+                    )}
                     <Button variant="ghost" size="sm" onClick={handleSave} disabled={saving}>
                         {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />}
                         {saving ? 'Saving...' : 'Save'}

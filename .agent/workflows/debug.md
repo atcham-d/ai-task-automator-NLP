@@ -1,6 +1,5 @@
 ---
 description: Systematic debugging with persistent state
-argument-hint: "[description of issue]"
 ---
 
 # /debug Workflow
@@ -109,6 +108,22 @@ Based on evidence, list possible causes:
 | 2 | {cause 2} | 15% | UNTESTED |
 | 3 | {cause 3} | 5% | UNTESTED |
 ```
+
+---
+
+## 4.5 Claude Reasoning 
+
+When evidence is unclear or multiple hypotheses exist,
+send the collected evidence and hypotheses to Claude.
+
+Claude should:
+
+- analyze logs
+- identify most likely root cause
+- propose minimal fix
+- warn about side effects
+
+Claude must NOT directly modify files
 
 ---
 

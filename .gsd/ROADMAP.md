@@ -24,13 +24,13 @@
 **Files**: `src/pages/LoginPage.tsx`, `src/pages/SignupPage.tsx`, `src/pages/AuthCallback.tsx`
 
 ### Phase 3: Dashboard Home
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Wire DashboardHome to real workflow data (list, stats, recent activity).
 **Depends on**: Phase 2
 **Files**: `src/pages/DashboardHome.tsx`
 
 ### Phase 4: Workflow Builder
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Wire WorkflowBuilder to NLP parse endpoint, render React Flow nodes from API response, implement workflow CRUD (create, update, delete, activate, pause, run).
 **Depends on**: Phase 3
 **Files**: `src/pages/WorkflowBuilder.tsx`, `src/components/nodes/`
