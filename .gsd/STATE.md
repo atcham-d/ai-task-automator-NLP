@@ -1,30 +1,24 @@
 # STATE.md — Project Memory
 
-> Last updated: 2026-03-05
+> Last updated: 2026-03-06
 
 ## Current Position
-
-**Phase**: 5 (Logs Page)
-**Task**: Ready for execution
-**Status**: Ready for `/execute 5`
-
-## Completed
-- Phase 1: Auth Foundation ✅ (already built)
-- Phase 2: Auth Pages ✅ (already wired)
-- Phase 3: Dashboard Home ✅ (wired and verified)
-- Phase 4: Workflow Builder ✅ (wired, React Flow works, CRUD active)
-
-## Next Steps
-1. `/execute 5` — Wire LogsPage to real execution log data
+- **Phase**: 5 (Logs Page)
+- **Task**: Wiring UI to backend execution logs
+- **Status**: Paused at 2026-03-06 19:50
 
 ## Last Session Summary
-Codebase mapped via `/map`, project initialized via `/new-project`, all 9 phases planned via `/plan`.
+Executed `/live-check` for Phase 4 Workflow Builder. Ran `/debug` session to fix test suite route mismatches (`/workflows/new` -> `/dashboard/workflows/new`). Auth configuration blocked full UI test automation, requiring manual configuration of Supabase Email Auth. Began execution of Phase 5 by reviewing `LogsPage.tsx` and API endpoints.
 
-Key findings:
-- Phases 1–2 already complete (auth foundation + auth pages fully wired)
-- Phases 3–5 use mock data that needs replacing (mockWorkflows, sampleJSON, mockLogs)
-- Phase 6 (Settings) is static UI shell with no API calls
-- Phase 7 (Integrations) needs a brand-new page
-- Phase 8 (UX Polish) adds skeletons, toasts, error boundaries
-- Phase 9 (NLP) is backend-only parser improvements
-- `tsc --noEmit` passes clean (zero TypeScript errors)
+## In-Progress Work
+- Ready to replace `mockLogs` in `LogsPage.tsx` with real API calls using `apiGet('/api/logs')`.
+- Files modified: None yet in Phase 5.
+- Tests status: Backend `pytest` and frontend `tsc --noEmit` pass.
+
+## Blockers
+- To fully automate UI tests with `browser_subagent`, the Supabase Email provider MUST be enabled in the dashboard.
+
+## Next Steps
+1. `/execute 5` — Wire `LogsPage.tsx` and implement filtering.
+2. Verify Phase 5.
+3. Proceed to Phase 6 (Settings Page).
