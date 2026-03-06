@@ -177,13 +177,25 @@ Ralph will:
 
 4. If validation fails:
 
-   Send error logs and changed files to Claude Debug Agent.
+Send error logs and modified files to Claude Debug Agent.
 
-   Claude Debug Agent will:
-   - analyze the failure
-   - suggest minimal fix
-   - apply patch
-   - rerun verification
+Claude Debug Agent will:
+
+1. analyze failure
+2. fix code
+3. rerun validation
+4. return corrected patch
+
+4a.Debug Retry Guard
+
+Maximum retries: 3
+
+If verification still fails after 3 attempts:
+
+1. Stop current task execution
+2. Record failure in `.gsd/STATE.md`
+3. Log error details to phase logs
+4. Recommend `/pause` for fresh debugging session
 
 5. If verification passes:
 
