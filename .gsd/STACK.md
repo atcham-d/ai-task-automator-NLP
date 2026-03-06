@@ -43,3 +43,18 @@
 |----------|---------|----------|
 | VITE_SUPABASE_URL | API Gateway | Frontend `.env` |
 | VITE_SUPABASE_ANON_KEY | Public auth | Frontend `.env` |
+
+## Outdated Packages
+
+| Package | Current | Latest | Risk |
+|---------|---------|--------|------|
+| `@eslint/js` (npm) | 9.39.3 | 10.0.1 | Low |
+| `@types/node` (npm) | 24.11.0 | 25.3.5 | Low |
+| `eslint` (npm) | 9.39.3 | 10.0.2 | Low |
+| `eslint-plugin-react-refresh` (npm) | 0.4.26 | 0.5.2 | Low |
+| `globals` (npm) | 16.5.0 | 17.4.0 | Low |
+| `cachetools` (pip) | 6.2.6 | 7.0.3 | Low |
+| `charset-normalizer` (pip) | 3.4.4 | 3.4.5 | Low |
+| `mmh3` (pip) | 5.2.0 | 5.2.1 | Low |
+| `pydantic_core` (pip) | 2.41.5 | 2.42.0 | Low |
+| `websockets` (pip) | 15.0.1 | 16.0 | Low |
