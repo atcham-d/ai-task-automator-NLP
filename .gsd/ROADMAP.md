@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-> **Current Phase**: 3 (Dashboard Home)
+> **Current Phase**: 6 (Settings Page)
 > **Milestone**: v1.0 — Full frontend-backend integration
 
 ## Must-Haves (from SPEC)
@@ -36,13 +36,13 @@
 **Files**: `src/pages/WorkflowBuilder.tsx`, `src/components/nodes/`
 
 ### Phase 5: Logs Page
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Wire LogsPage to real execution log data with filters, pagination, and detail view.
 **Depends on**: Phase 3
 **Files**: `src/pages/LogsPage.tsx`
 
 ### Phase 6: Settings Page
-**Status**: ⬜ Not Started
+**Status**: 🚧 In Progress
 **Objective**: Wire SettingsPage to profile update, password change, and notification preferences endpoints.
 **Depends on**: Phase 2
 **Files**: `src/pages/SettingsPage.tsx`
@@ -63,3 +63,11 @@
 **Objective**: Improve backend NLP parser accuracy for complex multi-step workflow descriptions.
 **Depends on**: Phase 4
 **Files**: `backend/app/nlp/parser.py`
+
+### Phase 10: Milestone 1.0 Gap Closure
+**Status**: ⬜ Not Started
+**Objective**: Address verification and documentation gaps from Milestone 1.0 Audit.
+
+**Gaps to Close:**
+- [ ] [Gap-1] Formalize Phase 4 Gap Verification (nlInput loading)
+- [ ] [Gap-2] Complete Phase 6 browser verification (Settings UI interactions)
