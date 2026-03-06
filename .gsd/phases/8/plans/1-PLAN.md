@@ -24,7 +24,7 @@ Add loading skeletons, toast notifications for actions, error boundaries, and fo
     2. Show "Something went wrong" with retry button
     3. Match existing Tailwind dark theme
   </action>
-  <verify>npx tsc --noEmit</verify>
+  <verify>npm run lint && npx tsc --noEmit && npm run build</verify>
   <done>ErrorBoundary component exists and handles runtime errors</done>
 </task>
 
@@ -40,7 +40,7 @@ Add loading skeletons, toast notifications for actions, error boundaries, and fo
     - Do NOT change existing layout or Tailwind classes
     - Use react-hot-toast which is already configured
   </action>
-  <verify>npx tsc --noEmit</verify>
+  <verify>npm run lint && npx tsc --noEmit && npm run build</verify>
   <done>All pages have polish: skeletons, toasts, validation</done>
 </task>
 
@@ -50,7 +50,7 @@ Add loading skeletons, toast notifications for actions, error boundaries, and fo
   <action>
     Wrap the Routes element in ErrorBoundary
   </action>
-  <verify>npx tsc --noEmit</verify>
+  <verify>npm run lint && npx tsc --noEmit && npm run build</verify>
   <done>App catches and displays runtime errors gracefully</done>
 </task>
 

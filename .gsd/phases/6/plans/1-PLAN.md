@@ -43,7 +43,7 @@ Wire the static SettingsPage.tsx to real backend endpoints for profile update, p
     7. Add loading states, success/error toasts
     - Do NOT change Tailwind CSS classes or layout
   </action>
-  <verify>npx tsc --noEmit</verify>
+  <verify>npm run lint && npx tsc --noEmit && npm run build</verify>
   <done>All settings sections save to real API, zero TypeScript errors</done>
 </task>
 

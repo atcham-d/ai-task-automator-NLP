@@ -44,7 +44,7 @@ Replace `mockLogs` in LogsPage.tsx with real API calls to GET `/api/logs`. Wire 
     - Do NOT change Tailwind CSS classes
     - Do NOT change table/card layout structure
   </action>
-  <verify>npx tsc --noEmit</verify>
+  <verify>npm run lint && npx tsc --noEmit && npm run build</verify>
   <done>LogsPage displays real execution logs, filters work, zero TypeScript errors</done>
 </task>
 

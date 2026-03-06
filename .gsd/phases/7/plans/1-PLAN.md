@@ -42,7 +42,7 @@ Create a new IntegrationsPage.tsx that lets users manage service integrations (S
     7. Use same Tailwind dark theme as other pages
     8. Add loading/error/empty states
   </action>
-  <verify>npx tsc --noEmit</verify>
+  <verify>npm run lint && npx tsc --noEmit && npm run build</verify>
   <done>IntegrationsPage renders, all CRUD operations work</done>
 </task>
 
@@ -54,7 +54,7 @@ Create a new IntegrationsPage.tsx that lets users manage service integrations (S
     2. In Sidebar.tsx: add "Integrations" nav link with plug/connection icon
     - Match existing route/sidebar patterns exactly
   </action>
-  <verify>npx tsc --noEmit</verify>
+  <verify>npm run lint && npx tsc --noEmit && npm run build</verify>
   <done>IntegrationsPage accessible from sidebar navigation</done>
 </task>
 
