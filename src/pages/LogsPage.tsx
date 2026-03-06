@@ -1,110 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiGet } from '../lib/api';
 import { AnimatedPage, StaggerContainer, StaggerItem } from '../components/AnimatedPage';
 import { Badge } from '../components/Badge';
 import { Card } from '../components/Card';
 import { ChevronDown, ChevronRight, Filter } from 'lucide-react';
 
-interface LogEntry {
+interface LogResponse {
     id: string;
-    workflowName: string;
-    triggeredAt: string;
-    duration: string;
-    status: 'success' | 'failed';
-    detail: string;
+    workflow_id: string;
+    workflow_name?: string;
+    triggered_at: string;
+    trigger_type?: string;
+    duration_ms?: number;
+    status: string;
+    output?: Record<string, unknown>;
+    error?: string;
 }
 
-const mockLogs: LogEntry[] = [
-    {
-        id: '1',
-        workflowName: 'Email to Slack Notifier',
-        triggeredAt: '2026-03-04 23:45:12',
-        duration: '1.2s',
-        status: 'success',
-        detail: `[23:45:12] Trigger fired: New email from manager@company.com
-[23:45:12] Subject: "Q1 Board Deck Review"
-[23:45:12] Condition check: sender == manager@company.com → TRUE
-[23:45:13] Action: Posting to Slack #notifications
-[23:45:13] Slack API response: 200 OK
-[23:45:13] Workflow completed successfully`,
-    },
-    {
-        id: '2',
-        workflowName: 'Daily Report Generator',
-        triggeredAt: '2026-03-04 22:00:00',
-        duration: '3.8s',
-        status: 'success',
-        detail: `[22:00:00] Schedule trigger fired: daily-9am-report
-[22:00:01] Fetching data from analytics API...
-[22:00:02] Data received: 1,247 records
-[22:00:03] Generating PDF report...
-[22:00:03] Sending report via email to team@company.com
-[22:00:04] Email sent successfully`,
-    },
-    {
-        id: '3',
-        workflowName: 'Webhook Data Processor',
-        triggeredAt: '2026-03-04 20:15:33',
-        duration: '0.5s',
-        status: 'failed',
-        detail: `[20:15:33] Webhook received: POST /api/webhook/process
-[20:15:33] Payload size: 2.4KB
-[20:15:33] Error: Failed to parse JSON payload
-[20:15:33] TypeError: Cannot read property 'data' of undefined
-[20:15:33] Stack trace: at processWebhook (worker.js:45)
-[20:15:33] Workflow failed after 0.5s`,
-    },
-    {
-        id: '4',
-        workflowName: 'Customer Onboarding Flow',
-        triggeredAt: '2026-03-04 18:30:00',
-        duration: '2.1s',
-        status: 'success',
-        detail: `[18:30:00] Trigger fired: New user signup
-[18:30:00] User: jane@startup.io
-[18:30:01] Action: Sending welcome email
-[18:30:01] Action: Creating CRM record
-[18:30:02] Action: Posting to #new-customers Slack
-[18:30:02] Workflow completed successfully`,
-    },
-    {
-        id: '5',
-        workflowName: 'Invoice Reminder System',
-        triggeredAt: '2026-03-04 16:00:00',
-        duration: '1.8s',
-        status: 'success',
-        detail: `[16:00:00] Schedule trigger fired: invoice-check
-[16:00:00] Checking overdue invoices...
-[16:00:01] Found 3 overdue invoices
-[16:00:01] Sending reminder to client-a@example.com
-[16:00:01] Sending reminder to client-b@example.com
-[16:00:02] Sending reminder to client-c@example.com
-[16:00:02] Workflow completed successfully`,
-    },
-    {
-        id: '6',
-        workflowName: 'Email to Slack Notifier',
-        triggeredAt: '2026-03-04 14:22:45',
-        duration: '0.3s',
-        status: 'failed',
-        detail: `[14:22:45] Trigger fired: New email from unknown@spam.co
-[14:22:45] Condition check: sender == manager@company.com → FALSE
-[14:22:45] Error: No fallback action configured
-[14:22:45] Workflow failed`,
-    },
-];
+interface Workflow {
+    id: string;
+    name: string;
+}
 
 export const LogsPage: React.FC = () => {
     const [expandedRow, setExpandedRow] = useState<string | null>(null);
     const [statusFilter, setStatusFilter] = useState<'all' | 'success' | 'failed'>('all');
     const [workflowFilter, setWorkflowFilter] = useState<string>('all');
+    const [logs, setLogs] = useState<LogResponse[]>([]);
+    const [workflows, setWorkflows] = useState<Workflow[]>([]);
+    const [page, setPage] = useState(1);
+    const [isLoading, setIsLoading] = useState(true);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-    const uniqueWorkflows = [...new Set(mockLogs.map((l) => l.workflowName))];
+    useEffect(() => {
+        const fetchWorkflows = async () => {
+            try {
+                const data = await apiGet<Workflow[]>('/api/workflows');
+                setWorkflows(data);
+            } catch (err: unknown) {
+                console.error("Failed to load workflows:", err);
+            }
+        };
+        fetchWorkflows();
+    }, []);
 
-    const filteredLogs = mockLogs.filter((log) => {
-        if (statusFilter !== 'all' && log.status !== statusFilter) return false;
-        if (workflowFilter !== 'all' && log.workflowName !== workflowFilter) return false;
-        return true;
-    });
+    useEffect(() => {
+        const fetchLogs = async () => {
+            setIsLoading(true);
+            setErrorMsg(null);
+            try {
+                const limit = 50;
+                const offset = (page - 1) * limit;
+                let query = `?limit=${limit}&offset=${offset}`;
+                if (statusFilter !== 'all') query += `&status=${statusFilter}`;
+                if (workflowFilter !== 'all') query += `&workflow_id=${workflowFilter}`;
+
+                const data = await apiGet<LogResponse[]>(`/api/logs${query}`);
+                setLogs(data);
+            } catch (err: unknown) {
+                setErrorMsg(err instanceof Error ? err.message : 'Failed to load logs');
+                setLogs([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchLogs();
+    }, [statusFilter, workflowFilter, page]);
 
     const selectStyle: React.CSSProperties = {
         background: '#0a0a0f',
@@ -145,8 +106,8 @@ export const LogsPage: React.FC = () => {
                         style={selectStyle}
                     >
                         <option value="all">All Workflows</option>
-                        {uniqueWorkflows.map((w) => (
-                            <option key={w} value={w}>{w}</option>
+                        {workflows.map((w) => (
+                            <option key={w.id} value={w.id}>{w.name}</option>
                         ))}
                     </select>
                     <select
@@ -193,94 +154,106 @@ export const LogsPage: React.FC = () => {
                     </div>
 
                     {/* Table Rows */}
-                    {filteredLogs.map((log) => (
-                        <StaggerItem key={log.id}>
-                            <div>
-                                <div
-                                    onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
-                                    style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: '2fr 1.5fr 0.8fr 0.8fr 0.5fr',
-                                        padding: '14px 20px',
-                                        borderBottom: '1px solid rgba(30,30,46,0.5)',
-                                        cursor: 'pointer',
-                                        transition: 'background 0.2s',
-                                        alignItems: 'center',
-                                        fontSize: '14px',
-                                        color: '#f1f5f9',
-                                    }}
-                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(99,102,241,0.03)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                >
-                                    <span style={{ fontWeight: 500 }}>{log.workflowName}</span>
-                                    <span style={{ color: '#94a3b8', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px' }}>
-                                        {log.triggeredAt}
-                                    </span>
-                                    <span style={{ color: '#94a3b8', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px' }}>
-                                        {log.duration}
-                                    </span>
-                                    <Badge variant={log.status === 'success' ? 'success' : 'error'}>
-                                        {log.status === 'success' ? 'Success' : 'Failed'}
-                                    </Badge>
-                                    <span style={{ color: '#475569', display: 'flex', justifyContent: 'flex-end' }}>
-                                        {expandedRow === log.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                                    </span>
-                                </div>
-
-                                {/* Expanded detail */}
-                                {expandedRow === log.id && (
-                                    <div
-                                        style={{
-                                            padding: '16px 20px',
-                                            borderBottom: '1px solid rgba(30,30,46,0.5)',
-                                            background: '#0a0a0f',
-                                        }}
-                                    >
-                                        <pre
-                                            style={{
-                                                fontFamily: "'JetBrains Mono', monospace",
-                                                fontSize: '12px',
-                                                lineHeight: 1.6,
-                                                color: '#94a3b8',
-                                                margin: 0,
-                                                whiteSpace: 'pre-wrap',
-                                                wordBreak: 'break-word',
-                                            }}
-                                        >
-                                            {log.detail}
-                                        </pre>
-                                    </div>
-                                )}
-                            </div>
-                        </StaggerItem>
-                    ))}
-
-                    {filteredLogs.length === 0 && (
+                    {isLoading ? (
+                        <div style={{ padding: '48px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+                            <div style={{ display: 'inline-block', width: '20px', height: '20px', border: '2px solid #6366f1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
+                            <div>Loading logs...</div>
+                            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                        </div>
+                    ) : errorMsg ? (
+                        <div style={{ padding: '48px 20px', textAlign: 'center', color: '#ef4444', fontSize: '14px' }}>
+                            {errorMsg}
+                        </div>
+                    ) : logs.length === 0 ? (
                         <div style={{ padding: '48px 20px', textAlign: 'center', color: '#475569', fontSize: '14px' }}>
                             No logs match your filters.
                         </div>
+                    ) : (
+                        logs.map((log) => (
+                            <StaggerItem key={log.id}>
+                                <div>
+                                    <div
+                                        onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
+                                        style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: '2fr 1.5fr 0.8fr 0.8fr 0.5fr',
+                                            padding: '14px 20px',
+                                            borderBottom: '1px solid rgba(30,30,46,0.5)',
+                                            cursor: 'pointer',
+                                            transition: 'background 0.2s',
+                                            alignItems: 'center',
+                                            fontSize: '14px',
+                                            color: '#f1f5f9',
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(99,102,241,0.03)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                    >
+                                        <span style={{ fontWeight: 500 }}>{log.workflow_name || log.workflow_id}</span>
+                                        <span style={{ color: '#94a3b8', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px' }}>
+                                            {new Date(log.triggered_at).toLocaleString()}
+                                        </span>
+                                        <span style={{ color: '#94a3b8', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px' }}>
+                                            {log.duration_ms !== undefined && log.duration_ms !== null ? `${(log.duration_ms / 1000).toFixed(2)}s` : '-'}
+                                        </span>
+                                        <Badge variant={log.status === 'success' ? 'success' : 'error'}>
+                                            {log.status === 'success' ? 'Success' : 'Failed'}
+                                        </Badge>
+                                        <span style={{ color: '#475569', display: 'flex', justifyContent: 'flex-end' }}>
+                                            {expandedRow === log.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                                        </span>
+                                    </div>
+
+                                    {/* Expanded detail */}
+                                    {expandedRow === log.id && (
+                                        <div
+                                            style={{
+                                                padding: '16px 20px',
+                                                borderBottom: '1px solid rgba(30,30,46,0.5)',
+                                                background: '#0a0a0f',
+                                            }}
+                                        >
+                                            <pre
+                                                style={{
+                                                    fontFamily: "'JetBrains Mono', monospace",
+                                                    fontSize: '12px',
+                                                    lineHeight: 1.6,
+                                                    color: '#94a3b8',
+                                                    margin: 0,
+                                                    whiteSpace: 'pre-wrap',
+                                                    wordBreak: 'break-word',
+                                                }}
+                                            >
+                                                {log.error ? log.error : JSON.stringify(log.output, null, 2)}
+                                            </pre>
+                                        </div>
+                                    )}
+                                </div>
+                            </StaggerItem>
+                        ))
                     )}
                 </div>
 
                 {/* Pagination */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '24px' }}>
-                    {[1, 2, 3].map((page) => (
+                    {[page > 1 ? page - 1 : null, page, logs.length === 50 ? page + 1 : null].filter(Boolean).map((pageNum) => (
                         <button
-                            key={page}
+                            key={pageNum as number}
+                            onClick={() => setPage(pageNum as number)}
+                            disabled={isLoading}
                             style={{
                                 width: '36px',
                                 height: '36px',
                                 borderRadius: '8px',
-                                border: page === 1 ? '1px solid #6366f1' : '1px solid #1e1e2e',
-                                background: page === 1 ? 'rgba(99,102,241,0.1)' : 'transparent',
-                                color: page === 1 ? '#818cf8' : '#94a3b8',
-                                cursor: 'pointer',
+                                border: pageNum === page ? '1px solid #6366f1' : '1px solid #1e1e2e',
+                                background: pageNum === page ? 'rgba(99,102,241,0.1)' : 'transparent',
+                                color: pageNum === page ? '#818cf8' : '#94a3b8',
+                                cursor: isLoading ? 'not-allowed' : 'pointer',
                                 fontSize: '13px',
                                 fontWeight: 500,
                                 transition: 'all 0.2s',
                             }}
                         >
-                            {page}
+                            {pageNum}
                         </button>
                     ))}
                 </div>

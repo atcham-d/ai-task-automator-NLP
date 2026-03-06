@@ -22,8 +22,8 @@ export const LoginPage: React.FC = () => {
             await login(email, password);
             toast.success('Welcome back!');
             navigate('/dashboard');
-        } catch (err: any) {
-            toast.error(err.message || 'Invalid email or password');
+        } catch (err: unknown) {
+            toast.error(err instanceof Error ? err.message : 'Invalid email or password');
         } finally {
             setLoading(false);
         }
@@ -32,8 +32,8 @@ export const LoginPage: React.FC = () => {
     const handleGoogleSignIn = async () => {
         try {
             await googleSignIn();
-        } catch (err: any) {
-            toast.error(err.message || 'Google sign-in failed');
+        } catch (err: unknown) {
+            toast.error(err instanceof Error ? err.message : 'Google sign-in failed');
         }
     };
 

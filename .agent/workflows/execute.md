@@ -1,6 +1,5 @@
 ---
 description: The Engineer — Execute a specific phase with focused context
-argument-hint: "<phase-number> [--gaps-only]"
 ---
 
 # /execute Workflow
@@ -14,6 +13,11 @@ You are a GSD executor orchestrator. You manage wave-based parallel execution of
 - Spawn focused execution for each plan
 - Verify phase goal after all plans complete
 - Update roadmap and state on completion
+"ralph_role"}
+Ralph Loop is the primary execution agent.
+
+The orchestrator never edits code directly.
+All task execution must be delegate to Ralph
 </role>
 
 <objective>
@@ -157,17 +161,37 @@ Wave 2: {plan-3}
 For each wave in order:
 
 ### 6a. Execute Plans in Wave
+
 For each plan in the current wave:
 
-1. **Load plan context** — Read only the PLAN.md file
-2. **Execute tasks** — Follow `<task>` blocks in order
-3. **Verify each task** — Run `<verify>` commands
-4. **Commit per task:**
-   ```bash
+1. Load plan context — Read only the PLAN.md file
+2. Execute tasks via Ralph Loop
+Send PLAN.md to Ralph.
+Ralph will:
+	•	read  blocks
+	•	implement required code changes
+	•	run validation commands
+3. Verify each task — Run <verify> commands
+     Run:
+     tsc --noEmit
+
+4. If validation fails:
+
+   Send error logs and changed files to Claude Debug Agent.
+
+   Claude Debug Agent will:
+   - analyze the failure
+   - suggest minimal fix
+   - apply patch
+   - rerun verification
+
+5. If verification passes:
+
+   Commit per task:
    git add -A
    git commit -m "feat(phase-{N}): {task-name}"
-   ```
-5. **Create SUMMARY.md** — Document what was done
+
+6. Create SUMMARY.md documenting completion
 
 ### 6b. Verify Wave Complete
 Check all plans in wave have SUMMARY.md files.

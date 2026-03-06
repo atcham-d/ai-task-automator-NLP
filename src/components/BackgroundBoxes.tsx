@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
 
 interface BackgroundBoxesProps {
     rows?: number;
@@ -9,7 +9,7 @@ export const BackgroundBoxes: React.FC<BackgroundBoxesProps> = ({
     rows = 20,
     cols = 30,
 }) => {
-    const boxes = useMemo(() => {
+    const [boxes] = useState(() => {
         const items: { id: number; delay: number; duration: number }[] = [];
         for (let i = 0; i < rows * cols; i++) {
             items.push({
@@ -19,7 +19,7 @@ export const BackgroundBoxes: React.FC<BackgroundBoxesProps> = ({
             });
         }
         return items;
-    }, [rows, cols]);
+    });
 
     return (
         <>

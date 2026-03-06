@@ -27,8 +27,8 @@ export const SignupPage: React.FC = () => {
             await signup(email, password, name);
             toast.success('Account created! Welcome to FlowAI');
             navigate('/dashboard');
-        } catch (err: any) {
-            toast.error(err.message || 'Signup failed');
+        } catch (err: unknown) {
+            toast.error(err instanceof Error ? err.message : 'Signup failed');
         } finally {
             setLoading(false);
         }
@@ -37,8 +37,8 @@ export const SignupPage: React.FC = () => {
     const handleGoogleSignIn = async () => {
         try {
             await googleSignIn();
-        } catch (err: any) {
-            toast.error(err.message || 'Google sign-in failed');
+        } catch (err: unknown) {
+            toast.error(err instanceof Error ? err.message : 'Google sign-in failed');
         }
     };
 
