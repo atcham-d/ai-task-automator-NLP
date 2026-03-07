@@ -1,5 +1,31 @@
 # JOURNAL.md
 
+## Session: 2026-03-08 00:10
+
+### Objective
+Complete Milestone 1.0 (Integrations & UX Polish) and perform final archival.
+
+### Accomplished
+- **Backend (Phase 8)**: Expanded `IntegrationService` with schema-driven validation and mock storage.
+- **Frontend (Phase 9)**: Developed the Integrations App Directory and a dynamic, Zod-powered configuration modal.
+- **UX (Phase 10)**: Implemented loaders, error states, and toast notifications globally.
+- **Integration Fixes**: Resolved MacOS `fetch` IPv4 loopback issues and fixed a missing `updated_at` field in backend responses.
+- **Archival**: Closed Milestone 1.0, reset `ROADMAP.md` for v2.0, and moved all previous phase history to the milestone archive.
+
+### Verification
+- [x] Full CRUD for Integrations verified via browser automation.
+- [x] Zero TypeScript errors in `tsc --noEmit`.
+- [x] Milestone 1.0 Audit report generated (PASS).
+- [x] Repository tagged `v1.0`.
+
+### Paused Because
+Milestone 1.0 is successfully completed.
+
+### Handoff Notes
+The foundation is solid. Next session should focus on the v2.0 Roadmap, starting with improving the NLP parser's handle on multi-step triggers.
+
+---
+
 ## Session: 2026-03-07 01:45
 
 ### Objective
