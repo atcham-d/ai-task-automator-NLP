@@ -40,6 +40,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Check for dev bypass token first
+        if (import.meta.env.VITE_DEV_BYPASS === 'true') {
+            const bypassToken = localStorage.getItem('sb-bypass-token');
+            if (bypassToken === 'DEV_BYPASS_TOKEN') {
+                setSession(MOCK_SESSION);
+                setUser(MOCK_USER);
+                setLoading(false);
+                return;
+            }
+        }
+
         // Get initial session
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
