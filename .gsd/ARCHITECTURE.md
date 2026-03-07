@@ -4,64 +4,32 @@
 
 ## Overview
 
-AI Task Automator (NLP Workflow Builder) is a full-stack application that translates natural language descriptions into automated workflows. The frontend provides a visual builder using React Flow, while the backend utilizes FastAPI and an NLP engine to parse intents and manage background job execution scheduling for workflow automation. Supabase is used for Authentication and Database storage.
+AI Task Automator (NLP Workflow Builder) is a full-stack application that translates natural language descriptions into automated workflows. The frontend provides a visual builder using React Flow, while the backend leverages a custom NLP parser (with optional LLM fallback) to decompose tasks.
 
-```text
-┌─────────────────────────────────────────┐
-│     Frontend (React Router SPA)         │
-├─────────────────────────────────────────┤
-│    API Layer (api.ts / FastAPI)         │
-├─────────────────────────────────────────┤
-│    Postgres DB + Auth (Supabase)        │
-└─────────────────────────────────────────┘
-```
+## Key Directories
 
-## Components
+### `frontend/` (React + Vite)
+- `src/components/`: Reusable UI elements (Card, Button, Input) and React Flow custom nodes (`TriggerNode`, `ActionNode`, `ConditionNode`).
+- `src/pages/`: Main application views (`DashboardHome`, `WorkflowBuilder`, `LogsPage`, `SettingsPage`, Auth pages).
+- `src/context/`: Global state management (`AuthContext` with Supabase).
+- `src/lib/`: API clients and Supabase initialization (`api.ts`, `supabase.ts`).
 
-### Frontend (React/Vite)
-- **Purpose:** Provide the UI for authentication, dashboard, and the visual workflow builder.
-- **Location:** `frontend/src/`
-- **Dependencies:** React 19, React Flow (`@xyflow/react`), Tailwind CSS, Supabase JS, react-router-dom, react-hot-toast, framer-motion.
+### `backend/` (FastAPI)
+- `app/api/routes/`: REST endpoints (`workflows.py`, `parse.py`, `logs.py`, `auth.py`, `integrations.py`, `profile.py`).
+- `app/nlp/`: The natural language parsing engine (`parser.py`). Parses text into actionable schemas mapped to specific integrations.
+- `app/schemas/`: Pydantic models for validation (`workflow.py`, `integration.py`).
+- `app/scheduler/`: APScheduler integration for executing workflows (`scheduler.py`).
 
-### Backend (FastAPI)
-- **Purpose:** Handle user authentication lifecycle, NLP parsing of workflow commands, and execution/scheduling of triggers and actions.
-- **Location:** `backend/app/`
-- **Dependencies:** FastAPI, Pydantic, APScheduler, httpx, supabase-py.
+### `.gsd/` (Project Management)
+- Directory containing the roadmap, rules, milestone tracking, and phase execution plans (GSD Methodology).
 
-### Database (Supabase)
-- **Purpose:** Store users, workflows, integration configurations, and execution logs.
-- **Location:** Cloud/Self-Hosted (interacted via Supabase Client).
+## Core Data Models
 
-## Data Flow
+- **Workflow**: `id`, `name`, `description`, `trigger`, `steps` (array of actions/conditions), `is_active`.
+- **WorkflowExecution**: Tracks the run state of a workflow (`id`, `workflow_id`, `status`, `logs`).
+- **Profile**: Stores user notification preferences and UI settings.
 
-1. User interacts with `<WorkflowBuilder />` and inputs NLP command.
-2. Frontend `api.ts` sends the command to the FastAPI backend.
-3. Backend `nlp/parser.py` evaluates the NLP string, producing a structured JSON representation (triggers and actions).
-4. FastAPI returns JSON payload; Frontend transforms JSON into React Flow nodes and renders the canvas.
-5. User saves workflow; Backend stores workflow in Supabase.
-6. `APScheduler` runs background jobs executing defined actions and logging results to Supabase.
-
-### 🔐 Development Auth Bypass
-To unblock development during Supabase rate-limiting, a bypass system is implemented:
-- **Backend:** `deps.py` returns a mock `MOCK_USER` if `DEV_BYPASS_TOKEN` is provided. `workflow_service.py` and `integration_service.py` contain local in-memory dictionaries `_dev_workflows` and `_dev_integrations` to mock CRUD storage for the bypass user.
-- **Frontend:** `AuthContext.tsx` detects the bypass token, bypasses `setSession` if `import.meta.env.VITE_DEV_BYPASS === 'true'`, and persists the token in `localStorage`.
-
-## Integration Points
-
-| Service | Type | Purpose |
-|---------|------|---------|
-| Supabase | Database/Auth | Persistence layer for users, workflows, settings, and auth state. |
-| Slack / Discord / Webhook | Actions | Third-party services integration tested by IntegrationService |
-
-## Technical Debt
-
-- [ ] Transition in-memory dictionaries for bypass storage to a persistent dev schema or real Supabase integration for all users when rate limits clear.
-- [ ] Implement actual email and webhook integrations (currently stubbed out in parser/services).
-- [ ] Add extensive Error Boundaries and Loading states for resilience (Phase 10 UX Polish).
-- [ ] Address lingering TODOs scattered in scripts (`search_repo.sh`, `runbook.md`) and project rules.
-
-## Conventions
-
-**Naming:** React components are PascalCase, Backend modules are snake_case.
-**Structure:** Frontend is feature-grouped under pages/components. Backend is layer-grouped (`api/routes`, `core`, `models`, `services`, `nlp`).
-**Testing:** TypeScript compilation (`tsc --noEmit`), Backend uses Pytest.
+## Latest Updates
+- **React Flow Fixes**: Resolved z-index handler conflicts and implemented `AnimatedEdge` in `WorkflowBuilder`. (See `docs/react-flow-fixes.md`)
+- **Backend Auth & Profile**: Shifted auth handling firmly to Supabase JWT validation. Implemented `VITE_DEV_BYPASS` for UI local testing over bypass accounts.
+- **Phase 12**: Completed gap closure for verifying parser E2E via Cypress, capturing UI evidence, and perfecting multi-tab session persistency.

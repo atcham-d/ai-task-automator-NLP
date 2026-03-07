@@ -8,64 +8,36 @@
 |------------|---------|---------|
 | Node.js | v20+ | Frontend build toolchain (Vite) |
 | Python | 3.11+ | Backend API and NLP execution |
+| PostgreSQL | Latest | Database (via Supabase) |
 
-## Dependencies
+## Frontend (`frontend/`)
 
-### Production (Frontend)
-| Package | Version | Purpose |
-|---------|---------|---------|
-| @supabase/supabase-js | ^2.98.0 | Supabase DB/Auth Client |
-| @tailwindcss/vite | ^4.2.1 | Tailwind styling |
-| @xyflow/react | ^12.10.1 | React Flow builder UI |
-| framer-motion | ^12.35.0 | UI Animations |
-| lucide-react | ^0.577.0 | Iconography |
-| react / react-dom | ^19.2.0 | Core UI framework |
-| react-hot-toast | ^2.6.0 | Toast notifications |
-| react-router-dom | ^7.13.1 | App routing |
-| tailwindcss | ^4.2.1 | Styling |
+- **Framework**: React 18 + Vite
+- **Language**: TypeScript
+- **Styling**: Standard CSS Modules + Inline styles (Transitioning to standardized UI components)
+- **State Management**: React Context (`AuthContext`)
+- **Routing**: React Router DOM (v6)
+- **Diagrams**: React Flow (`@xyflow/react`)
+- **Testing**: Cypress (E2E for Workflows)
+- **Notifications**: React Hot Toast
+- **Icons**: Lucide React
 
-### Production (Backend)
-| Package | Version | Purpose |
-|---------|---------|---------|
-| fastapi | >=0.111.0 | Web Application Framework |
-| uvicorn | >=0.29.0 | ASGI Server |
-| pydantic | >=2.11.0 | Data Validation |
-| supabase | >=2.4.3 | Postgres & Auth client |
-| httpx | >=0.27.0 | Async HTTP client (for integrations) |
-| apscheduler | >=3.10.4 | Background job scheduling |
-| passlib / python-jose | >=1.7.4 | Cryptography / JWT |
+## Backend (`backend/`)
 
-### Development (Frontend)
-| Package | Version | Purpose |
-|---------|---------|---------|
-| typescript | ~5.9.3 | Type checking |
-| vite | ^7.3.1 | Bundler and dev server |
-| eslint | ^9.39.1 | Linting |
+- **Framework**: FastAPI
+- **Language**: Python 3.11
+- **Data Validation**: Pydantic v2
+- **Authentication**: Custom JWT middleware verifying Supabase tokens
+- **Task Scheduling**: APScheduler
+- **NLP**: Custom heuristic parser (Spacy/NLTK mapped with custom fallbacks)
 
-## Infrastructure
+## Infrastructure / Services
 
-| Service | Provider | Purpose |
-|---------|----------|---------|
-| Database, Auth | Supabase | Postgres relational data and JWT user management |
+- **Database & Auth**: Supabase (PostgreSQL, GoTrue Auth)
+- **Deployment**: Localhost (currently local development focused) 
 
-## Configuration
+## Security & Best Practices
 
-| Variable | Purpose | Location |
-|----------|---------|----------|
-| `VITE_SUPABASE_URL` | Connect to DB | `frontend/.env` |
-| `VITE_SUPABASE_ANON_KEY` | Connect to DB | `frontend/.env` |
-| `VITE_DEV_BYPASS` | Ensure Bypass is strictly DEV ONLY | `frontend/.env` |
-| `SUPABASE_URL` | Connect to DB (Admin) | `backend/.env` |
-| `SUPABASE_KEY` | Connect to DB (Admin) | `backend/.env` |
-| `ENABLE_AUTH_BYPASS` | Allow backend local debug mock user | `backend/.env` |
-
-## Outdated Packages
-
-| Package | Current | Latest | Risk |
-|---------|---------|--------|------|
-| pip | 25.3 | 26.0.1 | Low |
-| pydantic_core | 2.41.5 | 2.42.0 | Low |
-| cachetools | 6.2.6 | 7.0.3 | Medium |
-| @eslint/js | 9.39.3 | 10.0.1 | Medium |
-| @types/node | 24.11.0 | 25.3.5 | Medium |
-| eslint | 9.39.3 | 10.0.3 | Medium |
+- Standard CORS configured in FastAPI.
+- Environment variables (`.env`) used strictly for API keys, Supabase URLs, and `VITE_DEV_BYPASS=true` for local development.
+- Explicit type validation layer in Python using Pydantic preventing malformed NLP structures from reaching the DB.
