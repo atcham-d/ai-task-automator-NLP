@@ -10,7 +10,7 @@ from pydantic import BaseModel
 class IntegrationCreate(BaseModel):
     """Request body for creating a new integration."""
 
-    type: str  # slack | discord | smtp | webhook
+    type: str  # slack | discord | smtp | webhook | notion | sheets | airtable | trello
     name: str
     config: Dict[str, Any]
 

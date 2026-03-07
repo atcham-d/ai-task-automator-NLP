@@ -29,7 +29,7 @@ async def create_integration(
     body: IntegrationCreate, user: dict = Depends(get_current_user)
 ):
     """Create a new integration (Slack, Discord, SMTP, or Webhook)."""
-    return integration_service.create(user["id"], body)
+    return integration_service.create(user["id"], user["token"], body)
 
 
 @router.patch("/{integration_id}", response_model=IntegrationResponse)

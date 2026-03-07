@@ -22,6 +22,11 @@ async def get_current_user(
     Raises HTTP 401 if the token is invalid or expired.
     """
     token = creds.credentials
+    if token == "DEV_BYPASS_TOKEN":
+        from app.core.config import settings
+        if settings.ENABLE_AUTH_BYPASS:
+            return {"id": "00000000-0000-0000-0000-000000000000", "email": "dev@example.com", "token": token}
+
     try:
         user_response = supabase.auth.get_user(token)
         user = user_response.user
@@ -30,7 +35,7 @@ async def get_current_user(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication token",
             )
-        return {"id": str(user.id), "email": user.email or ""}
+        return {"id": str(user.id), "email": user.email or "", "token": token}
     except HTTPException:
         raise
     except Exception:

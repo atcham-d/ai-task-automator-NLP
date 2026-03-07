@@ -42,32 +42,46 @@
 **Files**: `src/pages/LogsPage.tsx`
 
 ### Phase 6: Settings Page
-**Status**: 🚧 In Progress
+**Status**: ✅ Complete
 **Objective**: Wire SettingsPage to profile update, password change, and notification preferences endpoints.
 **Depends on**: Phase 2
 **Files**: `src/pages/SettingsPage.tsx`
 
-### Phase 7: Integrations Page
-**Status**: ⬜ Not Started
-**Objective**: Create new IntegrationsPage and wire to integrations CRUD + test endpoints.
-**Depends on**: Phase 3
-**Files**: `src/pages/IntegrationsPage.tsx` [NEW]
+### Phase 7: Phase 6 Verification (Settings UI)
+**Status**: ✅ Complete
+**Objective**: Complete browser-based UI verification for Profile updates and Notification toggles.
+**Depends on**: Phase 6
+**Files**: `src/pages/SettingsPage.tsx`
 
-### Phase 8: UX Polish
+### Phase 8: Expanded Integrations & Advanced Parser
+**Status**: ✅ Complete
+**Objective**: Develop backend support for additional integrations (e.g., Notion, Google Sheets, Trello, Airtable) and upgrade the NLP Parser to map single-prompts directly to these workflows.
+**Depends on**: Phase 4
+**Files**: `backend/app/services/integration_service.py`, `backend/app/nlp/parser.py`
+
+### Phase 9: Integrations Page
+**Status**: ⬜ Not Started
+**Objective**: Create Integrations page for the expanded set of integrations (Option B: Dynamic modal component where fields change per type) and wire to backend REST endpoints. Using `react-hook-form` for state management.
+**Depends on**: Phase 8
+**Files**: `src/pages/IntegrationsPage.tsx` [NEW], `src/pages/integrations/*` [NEW]
+
+### Phase 10: UX Polish
 **Status**: ⬜ Not Started
 **Objective**: Add loading skeletons, toast notifications, error boundaries, form validation across all pages.
-**Depends on**: Phases 3–7
+**Depends on**: Phases 3–9
 
-### Phase 9: NLP Parser Improvements
+### Phase 11: NLP Parser Improvements (Future)
 **Status**: ⬜ Not Started
-**Objective**: Improve backend NLP parser accuracy for complex multi-step workflow descriptions.
-**Depends on**: Phase 4
+**Objective**: Continue improving NLP parser accuracy for multi-step chained workflows.
+**Depends on**: Phase 8
 **Files**: `backend/app/nlp/parser.py`
 
-### Phase 10: Milestone 1.0 Gap Closure
+### Phase 12: Milestone 1.0 Gap Closure
 **Status**: ⬜ Not Started
 **Objective**: Address verification and documentation gaps from Milestone 1.0 Audit.
 
 **Gaps to Close:**
-- [ ] [Gap-1] Formalize Phase 4 Gap Verification (nlInput loading)
-- [ ] [Gap-2] Complete Phase 6 browser verification (Settings UI interactions)
+- [x] [Gap-1] Formalize Phase 4 Gap Verification (nlInput loading)
+- [x] [Gap-2] Complete Phase 6 browser verification (Settings UI interactions)
+- [ ] [Gap-3] Document recent React Flow component fixes
+- [ ] [Gap-4] Verify Supabase session persistence across different browser pages

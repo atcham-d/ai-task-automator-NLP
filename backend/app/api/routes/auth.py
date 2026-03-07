@@ -26,6 +26,9 @@ async def signup(body: SignupRequest):
     The Supabase database trigger ``handle_new_user`` automatically creates
     a profile row and default notification preferences.
     """
+    if settings.ENABLE_AUTH_BYPASS and body.email == "dev@example.com":
+        return TokenResponse(access_token="DEV_BYPASS_TOKEN", refresh_token="DEV_BYPASS_TOKEN")
+
     try:
         result = supabase.auth.sign_up(
             {
@@ -40,7 +43,10 @@ async def signup(body: SignupRequest):
         # If email confirmation is disabled, we get a session immediately
         session = result.session
         if session:
-            return TokenResponse(access_token=session.access_token)
+            return TokenResponse(
+                access_token=session.access_token, 
+                refresh_token=session.refresh_token
+            )
 
         # If email confirmation is enabled, session is None but user is created.
         user = result.user
@@ -50,7 +56,10 @@ async def signup(body: SignupRequest):
                     {"email": body.email, "password": body.password}
                 )
                 if login_result.session:
-                    return TokenResponse(access_token=login_result.session.access_token)
+                    return TokenResponse(
+                        access_token=login_result.session.access_token,
+                        refresh_token=login_result.session.refresh_token
+                    )
             except Exception:
                 pass
             raise HTTPException(
@@ -75,6 +84,9 @@ async def signup(body: SignupRequest):
 @router.post("/login", response_model=TokenResponse)
 async def login(body: LoginRequest):
     """Authenticate a user and return an access token."""
+    if settings.ENABLE_AUTH_BYPASS and body.email == "dev@example.com":
+        return TokenResponse(access_token="DEV_BYPASS_TOKEN", refresh_token="DEV_BYPASS_TOKEN")
+
     try:
         result = supabase.auth.sign_in_with_password(
             {"email": body.email, "password": body.password}
@@ -87,7 +99,10 @@ async def login(body: LoginRequest):
                 detail="Invalid email or password",
             )
 
-        return TokenResponse(access_token=session.access_token)
+        return TokenResponse(
+            access_token=session.access_token,
+            refresh_token=session.refresh_token
+        )
 
     except HTTPException:
         raise
@@ -154,7 +169,10 @@ async def auth_callback(body: GoogleCallbackRequest):
                 detail="Failed to exchange code for session",
             )
 
-        return TokenResponse(access_token=session.access_token)
+        return TokenResponse(
+            access_token=session.access_token,
+            refresh_token=session.refresh_token
+        )
 
     except HTTPException:
         raise

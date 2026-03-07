@@ -175,6 +175,10 @@ def _detect_actions(lower_text: str, original_text: str) -> List[Action]:
     http_pattern = re.compile(
         r"(post|call|request|hit|send).*(api|url|endpoint|http)"
     )
+    trello_pattern = re.compile(r"trello|card|board")
+    notion_pattern = re.compile(r"notion|page|database")
+    sheets_pattern = re.compile(r"sheets|spreadsheet|row")
+    airtable_pattern = re.compile(r"airtable|record|base")
 
     if slack_pattern.search(lower_text):
         channel_match = re.search(r"#(\w+)", lower_text)
@@ -213,6 +217,57 @@ def _detect_actions(lower_text: str, original_text: str) -> List[Action]:
                     "to": recipient,
                     "subject": "FlowAI Notification",
                     "body": original_text,
+                },
+            )
+        )
+
+    if trello_pattern.search(lower_text):
+        actions.append(
+            Action(
+                type=ActionType.TRELLO,
+                config={
+                    "board_id": "",
+                    "list_id": "",
+                    "name": _extract_message(original_text, "trello"),
+                    "desc": ""
+                },
+            )
+        )
+
+    if notion_pattern.search(lower_text):
+        actions.append(
+            Action(
+                type=ActionType.NOTION,
+                config={
+                    "database_id": "",
+                    "title": _extract_message(original_text, "notion"),
+                    "content": ""
+                },
+            )
+        )
+
+    if sheets_pattern.search(lower_text):
+        actions.append(
+            Action(
+                type=ActionType.SHEETS,
+                config={
+                    "spreadsheet_id": "",
+                    "range": "Sheet1!A:A",
+                    "values": [_extract_message(original_text, "sheets")]
+                },
+            )
+        )
+
+    if airtable_pattern.search(lower_text):
+        actions.append(
+            Action(
+                type=ActionType.AIRTABLE,
+                config={
+                    "base_id": "",
+                    "table_name": "",
+                    "fields": {
+                        "Name": _extract_message(original_text, "airtable")
+                    }
                 },
             )
         )

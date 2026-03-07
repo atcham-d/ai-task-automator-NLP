@@ -1,21 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnimatedPage, StaggerContainer, StaggerItem } from '../components/AnimatedPage';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
-import { User, Lock, Link2, AlertTriangle, Bell, Mail } from 'lucide-react';
+import { User, Lock, AlertTriangle, Bell, Mail, Loader2, Save } from 'lucide-react';
+import { apiGet, apiPatch, apiDelete } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
-const ToggleSwitch: React.FC<{ defaultChecked?: boolean; onChange?: (checked: boolean) => void }> = ({
-    defaultChecked = false,
+/* ─── Types ─── */
+
+interface ProfileData {
+    id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+    email: string;
+}
+
+interface NotificationPrefs {
+    notify_on_failure: boolean;
+    notify_on_success: boolean;
+    weekly_digest: boolean;
+    notification_email: string | null;
+}
+
+const ToggleSwitch: React.FC<{ checked?: boolean; onChange?: (checked: boolean) => void }> = ({
+    checked = false,
     onChange,
 }) => {
-    const [checked, setChecked] = useState(defaultChecked);
-
     return (
         <button
             type="button"
             onClick={() => {
-                setChecked(!checked);
                 onChange?.(!checked);
             }}
             style={{
@@ -50,6 +66,121 @@ const ToggleSwitch: React.FC<{ defaultChecked?: boolean; onChange?: (checked: bo
 };
 
 export const SettingsPage: React.FC = () => {
+    const { logout } = useAuth();
+
+    // Data states
+    const [profile, setProfile] = useState<ProfileData | null>(null);
+    const [notifications, setNotifications] = useState<NotificationPrefs | null>(null);
+
+    // Form states
+    const [fullName, setFullName] = useState('');
+    const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' });
+
+    // Status states
+    const [loading, setLoading] = useState(true);
+    const [savingProfile, setSavingProfile] = useState(false);
+    const [savingPassword, setSavingPassword] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
+    // Initial fetch
+    useEffect(() => {
+        let cancelled = false;
+        async function loadData() {
+            try {
+                setLoading(true);
+                const [prof, prefs] = await Promise.all([
+                    apiGet<ProfileData>('/api/profile/'),
+                    apiGet<NotificationPrefs>('/api/profile/notifications'),
+                ]);
+                if (cancelled) return;
+                setProfile(prof);
+                setFullName(prof.full_name || '');
+                setNotifications(prefs);
+            } catch (err) {
+                toast.error(err instanceof Error ? err.message : 'Failed to load settings');
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        }
+        loadData();
+        return () => { cancelled = true; };
+    }, []);
+
+    const handleUpdateProfile = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSavingProfile(true);
+        try {
+            const updated = await apiPatch<ProfileData>('/api/profile/', { full_name: fullName });
+            setProfile(updated);
+            toast.success('Profile updated');
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Update failed');
+        } finally {
+            setSavingProfile(false);
+        }
+    };
+
+    const handleUpdatePassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (passwords.next !== passwords.confirm) {
+            toast.error('New passwords do not match');
+            return;
+        }
+        setSavingPassword(true);
+        try {
+            await apiPatch('/api/profile/password', {
+                current_password: passwords.current,
+                new_password: passwords.next,
+            });
+            toast.success('Password changed successfully');
+            setPasswords({ current: '', next: '', confirm: '' });
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Failed to change password');
+        } finally {
+            setSavingPassword(false);
+        }
+    };
+
+    const handleToggleNotification = async (key: keyof NotificationPrefs) => {
+        if (!notifications) return;
+        const newValue = !notifications[key];
+        const prev = { ...notifications };
+
+        // Optimistic update
+        setNotifications({ ...notifications, [key]: newValue });
+
+        try {
+            await apiPatch('/api/profile/notifications', { [key]: newValue });
+            toast.success('Preference updated');
+        } catch (err) {
+            setNotifications(prev);
+            toast.error(err instanceof Error ? err.message : 'Failed to update preference');
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (!window.confirm('CRITICAL: This will permanently delete your account and all associated data. Are you absolutely sure?')) {
+            return;
+        }
+        setDeleting(true);
+        try {
+            await apiDelete('/api/profile/');
+            toast.success('Account deleted');
+            await logout();
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Failed to delete account');
+            setDeleting(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+                <Loader2 size={40} style={{ color: '#6366f1', animation: 'spin 1s linear infinite' }} />
+            </div>
+        );
+    }
+
     return (
         <AnimatedPage>
             <h1
@@ -94,13 +225,30 @@ export const SettingsPage: React.FC = () => {
                                 Profile
                             </h2>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <Input label="Full Name" defaultValue="Disha Sharma" />
-                            <Input label="Email" type="email" defaultValue="disha@example.com" />
-                            <Button variant="primary" size="sm" style={{ alignSelf: 'flex-start' }}>
+                        <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <Input
+                                label="Full Name"
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                            />
+                            <Input
+                                label="Email Address"
+                                type="email"
+                                value={profile?.email || ''}
+                                disabled
+                                placeholder="Loading..."
+                            />
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                size="sm"
+                                disabled={savingProfile}
+                                style={{ alignSelf: 'flex-start' }}
+                            >
+                                {savingProfile ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                                 Update Profile
                             </Button>
-                        </div>
+                        </form>
                     </Card>
                 </StaggerItem>
 
@@ -133,65 +281,42 @@ export const SettingsPage: React.FC = () => {
                                 Security
                             </h2>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <Input label="Current Password" type="password" placeholder="••••••••" />
-                            <Input label="New Password" type="password" placeholder="••••••••" />
-                            <Input label="Confirm New Password" type="password" placeholder="••••••••" />
-                            <Button variant="primary" size="sm" style={{ alignSelf: 'flex-start' }}>
+                        <form onSubmit={handleUpdatePassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <Input
+                                label="Current Password"
+                                type="password"
+                                placeholder="••••••••"
+                                required
+                                value={passwords.current}
+                                onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
+                            />
+                            <Input
+                                label="New Password"
+                                type="password"
+                                placeholder="••••••••"
+                                required
+                                value={passwords.next}
+                                onChange={(e) => setPasswords({ ...passwords, next: e.target.value })}
+                            />
+                            <Input
+                                label="Confirm New Password"
+                                type="password"
+                                placeholder="••••••••"
+                                required
+                                value={passwords.confirm}
+                                onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                            />
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                size="sm"
+                                disabled={savingPassword}
+                                style={{ alignSelf: 'flex-start' }}
+                            >
+                                {savingPassword ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
                                 Change Password
                             </Button>
-                        </div>
-                    </Card>
-                </StaggerItem>
-
-                {/* Connected Integrations */}
-                <StaggerItem>
-                    <Card>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                            <div
-                                style={{
-                                    width: '36px',
-                                    height: '36px',
-                                    borderRadius: '10px',
-                                    background: 'rgba(99,102,241,0.15)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#6366f1',
-                                }}
-                            >
-                                <Link2 size={18} />
-                            </div>
-                            <h2
-                                style={{
-                                    fontFamily: "'Syne', sans-serif",
-                                    fontSize: '18px',
-                                    fontWeight: 700,
-                                    color: '#f1f5f9',
-                                }}
-                            >
-                                Connected Integrations
-                            </h2>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <Input
-                                label="Slack Webhook URL"
-                                placeholder="https://hooks.slack.com/services/..."
-                                defaultValue="https://hooks.slack.com/services/T01/B02/xyz123"
-                            />
-                            <Input
-                                label="SMTP Host"
-                                placeholder="smtp.gmail.com"
-                                defaultValue="smtp.gmail.com"
-                            />
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                <Input label="SMTP Port" placeholder="587" defaultValue="587" />
-                                <Input label="SMTP User" placeholder="you@gmail.com" defaultValue="disha@gmail.com" />
-                            </div>
-                            <Button variant="primary" size="sm" style={{ alignSelf: 'flex-start' }}>
-                                Save Integrations
-                            </Button>
-                        </div>
+                        </form>
                     </Card>
                 </StaggerItem>
 
@@ -226,9 +351,9 @@ export const SettingsPage: React.FC = () => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {[
-                                { label: 'Email on workflow failure', icon: <Mail size={14} />, defaultOn: true },
-                                { label: 'Daily execution summary', icon: <Bell size={14} />, defaultOn: true },
-                                { label: 'Weekly analytics report', icon: <Bell size={14} />, defaultOn: false },
+                                { label: 'Email on workflow failure', key: 'notify_on_failure' as const, icon: <Mail size={14} /> },
+                                { label: 'Notification on execution success', key: 'notify_on_success' as const, icon: <Bell size={14} /> },
+                                { label: 'Weekly analytics report', key: 'weekly_digest' as const, icon: <Bell size={14} /> },
                             ].map((item, i) => (
                                 <div
                                     key={i}
@@ -244,7 +369,10 @@ export const SettingsPage: React.FC = () => {
                                         <span style={{ color: '#475569' }}>{item.icon}</span>
                                         <span style={{ fontSize: '14px', color: '#f1f5f9' }}>{item.label}</span>
                                     </div>
-                                    <ToggleSwitch defaultChecked={item.defaultOn} />
+                                    <ToggleSwitch
+                                        checked={notifications?.[item.key] || false}
+                                        onChange={() => handleToggleNotification(item.key)}
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -283,8 +411,14 @@ export const SettingsPage: React.FC = () => {
                         <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '16px' }}>
                             Once you delete your account, there is no going back. All your workflows, logs, and settings will be permanently removed.
                         </p>
-                        <Button variant="danger" size="sm">
-                            Delete Account
+                        <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={handleDeleteAccount}
+                            disabled={deleting}
+                        >
+                            {deleting ? <Loader2 size={14} className="animate-spin" /> : <AlertTriangle size={14} />}
+                            {deleting ? 'Deleting...' : 'Delete Account'}
                         </Button>
                     </Card>
                 </StaggerItem>

@@ -25,18 +25,29 @@ Build the main `IntegrationsPage` which lists actively connected integrations an
     - Render a Top Section: "Configured Integrations" (list of active integrations fetched from backend). Includes an Edit button (opens Modal in update mode) and Delete button.
     - Render a Bottom Section: "Available Integrations" (grid using `AVAILABLE_INTEGRATIONS` from `integrationSchemas.ts`).
     - Clicking an available integration opens `IntegrationModal` in create mode with the selected `IntegrationType`.
-    - Upon Modal success, refresh the active integrations list.
+    - Upon Modal `onSuccess`, MUST trigger a refresh of the active integrations list.
   </action>
   <verify>tsc --noEmit</verify>
   <done>IntegrationsPage correctly displays active and available integrations and toggles the Modal state.</done>
 </task>
 
 <task type="auto">
+  <name>Add Sidebar Link</name>
+  <files>frontend/src/components/layout/Sidebar.tsx</files>
+  <action>
+    - Add a new navigation link in the Sidebar pointing to `/dashboard/integrations`.
+    - Use the `Link` component from `lucide-react` as the icon (or another suitable icon).
+  </action>
+  <verify>tsc --noEmit</verify>
+  <done>Sidebar contains the new Integrations link.</done>
+</task>
+
+<task type="auto">
   <name>Add Route to App.tsx</name>
   <files>frontend/src/App.tsx</files>
   <action>
-    - Import `IntegrationsPage`.
-    - Add `<Route path="/dashboard/integrations" element={<IntegrationsPage />} />` under the `<DashboardLayout>` routes.
+    - Ensure `import IntegrationsPage from './pages/IntegrationsPage';` is added.
+    - Add `<Route path="integrations" element={<IntegrationsPage />} />` under the `<Route path="/dashboard" element={<DashboardLayout />}>` parent route. Do NOT use `/dashboard/integrations` as the path since it's a child route.
   </action>
   <verify>tsc --noEmit</verify>
   <done>The route is correctly mapped and accessible inside the authenticated layout.</done>

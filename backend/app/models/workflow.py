@@ -21,6 +21,10 @@ class ActionType(str, Enum):
     SLACK = "slack"
     DISCORD = "discord"
     EMAIL = "email"
+    NOTION = "notion"
+    SHEETS = "sheets"
+    AIRTABLE = "airtable"
+    TRELLO = "trello"
 
 
 class WorkflowStatus(str, Enum):

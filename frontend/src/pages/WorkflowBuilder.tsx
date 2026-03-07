@@ -135,6 +135,7 @@ export const WorkflowBuilder: React.FC = () => {
                 setWorkflowName(wf.name);
                 setWorkflowStatus(wf.status);
                 setSavedId(wf.id);
+                if (wf.description) setNlInput(wf.description);
                 const def = wf.definition as unknown as WorkflowDefinition;
                 if (def?.trigger) {
                     setParsedDef(def);
@@ -205,12 +206,14 @@ export const WorkflowBuilder: React.FC = () => {
             if (savedId) {
                 await apiPatch(`/api/workflows/${savedId}`, {
                     name: workflowName,
+                    description: nlInput,
                     definition: parsedDef,
                 });
                 toast.success('Workflow updated');
             } else {
                 const created = await apiPost<WorkflowResponse>('/api/workflows/', {
                     name: workflowName,
+                    description: nlInput,
                     definition: parsedDef,
                 });
                 setSavedId(created.id);

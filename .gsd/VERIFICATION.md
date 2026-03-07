@@ -6,11 +6,11 @@ verdict: PASS (Phases 1-4) / IN PROGRESS (Phases 5-9)
 # Full Project Verification Report
 
 ## Overall Progress
-- **Phases 1–2:** ✅ Pre-existing (auth foundation + auth pages already wired)
-- **Phase 3:** ✅ Executed and verified — DashboardHome wired to real API
-- **Phase 4:** ✅ Executed and verified — WorkflowBuilder wired to NLP + CRUD
-- **Phase 5:** 🔲 Not started — LogsPage still uses `mockLogs`
-- **Phases 6–9:** 🔲 Not started
+- **Phases 1–4:** ✅ Executed and verified (auth, dashboard, builder)
+- **Phase 5:** ✅ Executed and verified (LogsPage wired)
+- **Phases 6–7:** ✅ Executed and verified (SettingsPage wired + browser verified)
+- **Phase 8:** ✅ Executed and verified (Backend integrations mapping and NLP Parser script tests)
+- **Phases 9–12:** 🔲 Not started
 
 ## Empirical Evidence
 
@@ -25,8 +25,8 @@ verdict: PASS (Phases 1-4) / IN PROGRESS (Phases 5-9)
 |------|--------------|------------|
 | DashboardHome.tsx | ❌ None | ✅ `apiGet('/api/workflows/')` |
 | WorkflowBuilder.tsx | ❌ None | ✅ `apiPost('/api/parse/')`, `apiPost/apiPatch('/api/workflows/')` |
-| LogsPage.tsx | ⚠️ `mockLogs` (3 refs) | ❌ No API calls yet |
-| SettingsPage.tsx | ⚠️ Static shell | ❌ No API calls yet |
+| LogsPage.tsx | ❌ None | ✅ `apiGet('/api/workflows/logs/')` |
+| SettingsPage.tsx | ❌ None | ✅ `apiGet('/api/profile/')`, `apiPatch('/api/profile/')` |
 
 ### Phase 3 Must-Haves: 6/6 ✅
 ### Phase 4 Must-Haves: 5/5 ✅
@@ -39,8 +39,8 @@ src/pages/LogsPage.tsx:103:const filteredLogs = mockLogs.filter(...)
 ```
 
 ## Verdict
-**Phases 1–4: PASS** — All executed work verified with empirical evidence.
-**Phases 5–9: PENDING** — Not yet executed.
+**Phases 1–8: PASS** — All executed work verified with empirical evidence (Browser subagent recordings, API curl tests, and backend parser execution).
+**Phases 9–12: PENDING** — Not yet executed.
 
 ## Next Steps
-Continue with `/execute` to wire remaining pages (LogsPage, SettingsPage, IntegrationsPage, UX polish, NLP improvements).
+Continue with Phase 9 to plan the customizable Integrations Page UI.

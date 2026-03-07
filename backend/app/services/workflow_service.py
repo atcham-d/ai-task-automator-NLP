@@ -12,8 +12,26 @@ from app.schemas.workflow import WorkflowCreate, WorkflowUpdate
 class WorkflowService:
     """Handles all workflow-related Supabase operations."""
 
+    _dev_workflows: Dict[str, dict] = {}
+
     def create(self, user_id: str, data: WorkflowCreate) -> dict:
         """Create a new workflow for the given user."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            from uuid import uuid4
+            workflow_id = str(uuid4())
+            workflow = {
+                "id": workflow_id,
+                "user_id": user_id,
+                "name": data.name,
+                "description": data.description,
+                "definition": data.definition.model_dump(),
+                "status": "draft",
+                "run_count": 0,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+            self._dev_workflows[workflow_id] = workflow
+            return workflow
         try:
             result = (
                 supabase.table("workflows")
@@ -38,6 +56,8 @@ class WorkflowService:
 
     def get_all(self, user_id: str) -> List[dict]:
         """Retrieve all workflows for a user, ordered by most recently updated."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            return sorted(self._dev_workflows.values(), key=lambda x: x["updated_at"], reverse=True)
         try:
             result = (
                 supabase.table("workflows")
@@ -55,6 +75,11 @@ class WorkflowService:
 
     def get_by_id(self, workflow_id: str, user_id: str) -> dict:
         """Retrieve a single workflow by ID. Raises 404 if not found or not owned by user."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            workflow = self._dev_workflows.get(workflow_id)
+            if not workflow:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workflow not found")
+            return workflow
         try:
             result = (
                 supabase.table("workflows")

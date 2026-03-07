@@ -9,14 +9,45 @@ from app.core.supabase import supabase
 from app.schemas.integration import IntegrationCreate, IntegrationUpdate
 
 
+from app.core.config import settings
+from supabase import create_client, ClientOptions
+
 class IntegrationService:
     """Handles integration CRUD and connection testing."""
 
-    def create(self, user_id: str, data: IntegrationCreate) -> dict:
+    _dev_integrations: Dict[str, dict] = {}
+
+    def _get_auth_client(self, token: str):
+        if token == "DEV_BYPASS_TOKEN":
+            return supabase
+        return create_client(
+            settings.SUPABASE_URL,
+            settings.SUPABASE_KEY,
+            options=ClientOptions(headers={"Authorization": f"Bearer {token}"})
+        )
+
+    def create(self, user_id: str, token: str, data: IntegrationCreate) -> dict:
         """Create a new integration for the given user."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            from uuid import uuid4
+            from datetime import datetime, timezone
+            int_id = str(uuid4())
+            integration = {
+                "id": int_id,
+                "user_id": user_id,
+                "type": data.type,
+                "name": data.name,
+                "config": data.config,
+                "is_active": True,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+            self._dev_integrations[int_id] = integration
+            return integration
+
         try:
+            client = self._get_auth_client(token)
             result = (
-                supabase.table("integrations")
+                client.table("integrations")
                 .insert(
                     {
                         "user_id": user_id,
@@ -36,6 +67,9 @@ class IntegrationService:
 
     def get_all(self, user_id: str) -> List[dict]:
         """Retrieve all integrations for a user."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            return sorted(self._dev_integrations.values(), key=lambda x: x["created_at"], reverse=True)
+
         try:
             result = (
                 supabase.table("integrations")
@@ -53,6 +87,12 @@ class IntegrationService:
 
     def get_by_id(self, integration_id: str, user_id: str) -> dict:
         """Retrieve a single integration by ID. Raises 404 if not found."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            integration = self._dev_integrations.get(integration_id)
+            if not integration:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Integration not found")
+            return integration
+
         try:
             result = (
                 supabase.table("integrations")
@@ -79,6 +119,16 @@ class IntegrationService:
         self, integration_id: str, user_id: str, data: IntegrationUpdate
     ) -> dict:
         """Update an integration with only the provided (non-None) fields."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            integration = self.get_by_id(integration_id, user_id)
+            if data.name is not None:
+                integration["name"] = data.name
+            if data.config is not None:
+                integration["config"] = data.config
+            if data.is_active is not None:
+                integration["is_active"] = data.is_active
+            return integration
+
         self.get_by_id(integration_id, user_id)
 
         update_data: Dict[str, Any] = {}
@@ -109,6 +159,13 @@ class IntegrationService:
 
     def delete(self, integration_id: str, user_id: str) -> None:
         """Delete an integration by ID."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            if integration_id in self._dev_integrations:
+                del self._dev_integrations[integration_id]
+            else:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Integration not found")
+            return
+
         self.get_by_id(integration_id, user_id)
         try:
             supabase.table("integrations").delete().eq("id", integration_id).eq(

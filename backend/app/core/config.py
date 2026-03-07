@@ -18,6 +18,9 @@ class Settings(BaseSettings):
 
     # CORS — stored as comma-separated string, accessed via .cors_origins
     ALLOWED_ORIGINS: str = "http://localhost:5173"
+    
+    # Development Bypass
+    ENABLE_AUTH_BYPASS: bool = False
 
     @property
     def cors_origins(self) -> list[str]:

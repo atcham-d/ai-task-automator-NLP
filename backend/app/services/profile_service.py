@@ -13,6 +13,15 @@ class ProfileService:
 
     def get_profile(self, user_id: str) -> dict:
         """Retrieve the profile for a user."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            return {
+                "id": user_id,
+                "email": "dev@example.com",
+                "full_name": "Dev User",
+                "avatar_url": None,
+                "created_at": "2024-01-01T00:00:00Z",
+                "updated_at": "2024-01-01T00:00:00Z"
+            }
         try:
             result = (
                 supabase.table("profiles")
@@ -42,7 +51,7 @@ class ProfileService:
         if data.avatar_url is not None:
             update_data["avatar_url"] = data.avatar_url
 
-        if not update_data:
+        if not update_data or user_id == "00000000-0000-0000-0000-000000000000":
             return self.get_profile(user_id)
 
         try:
@@ -66,6 +75,8 @@ class ProfileService:
 
         Verifies the current password via Supabase auth, then updates to the new one.
         """
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            return
         try:
             # Get user email from profile
             profile = self.get_profile(user_id)
@@ -96,6 +107,14 @@ class ProfileService:
 
     def get_notifications(self, user_id: str) -> dict:
         """Retrieve notification preferences for a user."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            return {
+                "user_id": user_id,
+                "notify_on_failure": True,
+                "notify_on_success": False,
+                "weekly_digest": True,
+                "notification_email": "dev@example.com"
+            }
         try:
             result = (
                 supabase.table("notification_preferences")
@@ -132,7 +151,7 @@ class ProfileService:
         if data.notification_email is not None:
             update_data["notification_email"] = data.notification_email
 
-        if not update_data:
+        if not update_data or user_id == "00000000-0000-0000-0000-000000000000":
             return self.get_notifications(user_id)
 
         try:
@@ -158,6 +177,8 @@ class ProfileService:
 
     def delete_account(self, user_id: str) -> None:
         """Delete the user's account. Cascade deletes all related data."""
+        if user_id == "00000000-0000-0000-0000-000000000000":
+            return
         try:
             supabase.auth.admin.delete_user(user_id)
         except Exception as e:

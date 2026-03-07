@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 async function getAuthHeaders(): Promise<Record<string, string>> {
     const { data } = await supabase.auth.getSession();
-    const token = data.session?.access_token;
+    const token = data.session?.access_token || localStorage.getItem('sb-bypass-token');
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
     };
