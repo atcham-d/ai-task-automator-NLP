@@ -3,35 +3,30 @@
 > Last updated: 2026-03-07
 
 ## Gap Closure Mode
-Addressing 2 gaps from milestone v1.0 audit.
+Addressing newly identified gaps from Milestone 1.0 audit. Phase 8 (Integrations) has been executed but requires full Live Check.
 
 ## Current Position
-- **Phase**: 7 (Phase 6 Verification)
-- **Task**: Browser UI Interaction Verification
-- **Status**: Paused at 2026-03-07 00:45
-
-## Last Session Summary
-Performed a comprehensive Milestone 1.0 Audit, identifying verification gaps in Phase 4 (description loading) and Phase 6 (Settings UI). Inserted a new Phase 7 specifically for Phase 6 verification and renumbered the roadmap (now Phase 11 for final gap closure). Confirmed with user that Supabase Email provider is enabled.
-
-## In-Progress Work
-- `SettingsPage.tsx`: Real API wiring for Profile, Security, and Notifications is complete and build-verified.
-- `WorkflowBuilder.tsx`: Fix for `nlInput` loading is confirmed in code.
-- `task.md`: Updated to reflect renumbering.
-- Tests status: `tsc --noEmit` passing. Browser-level verification pending.
-
-## Blockers
-- None. Supabase setup confirmed.
+- **Phase**: 8 (UX Polish / Integrations)
+- **Task**: Debugging frontend login 401 Unauthorized during `/live-check all phases`
+- **Status**: Paused at 2026-03-07 14:52
 
 ## Context Dump
-The separation of Phase 6 (Coding) and Phase 7 (Verification) ensures that we don't proceed to new features (Integrations) without confirmed UI parity.
+### Accomplishments
+- Verified Phase 6, 7 natively or via bypass previously.
+- Ran Automated UI Live Check for Phases 1-8. Hit a blocker at the Login screen.
+- Debugged `401 Unauthorized`. Discovered the backend `TokenResponse` schema was dropping `refresh_token`, causing frontend session hydration to fail. **Fixed**.
+- Found that test user credentials (`api.test.v2@example.com`) are definitively invalid/unconfirmed on the Supabase instance.
+- Verified that the codebase routes work properly using the local `dev@example.com` bypass.
 
-### Decisions Made
-- Roadmap Renumbering: Shifted Integrations/UX/NLP to make room for critical verification phases.
+### Blockers
+- **Supabase Rate Limit**: "Signup failed: email rate limit exceeded". We cannot create new test accounts or rely on email confirmations from this IP currently. This completely blocks the automated browser test from validating *real* Supabase Auth.
 
-### Approaches Tried
-- Fresh account signup: Used to ensure clean data for Settings test, but interrupted by timeouts/rate limits. Next session should try again or use existing `d@d.com`.
+### Next Steps
+1. Determine how to get a valid, un-rate-limited test user in the Supabase database (e.g. inject it via Admin CLI, use the Supabase Dashboard, or wait out the rate limit).
+2. Continue the remaining Phase checks in `/live-check all phases`.
+3. Plan Phase 9: Create distinct UI pages for each integration type (Option A) and wire to backend bypass.
 
-## Next Steps
-1. Execute Phase 7: `/execute 7` to perform automated browser testing of the Settings Page.
-2. Verify Phase 4 `nlInput` loading gap.
-3. Move to Phase 8 (Integrations Page).
+## Last Session Summary
+- Debugged login failures for automated UI checks.
+- Fixed `refresh_token` extraction in `app/schemas/auth.py`.
+- Documented Supabase rate limiting blocker in `.gsd/DEBUG.md`.

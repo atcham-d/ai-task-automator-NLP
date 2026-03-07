@@ -1,40 +1,25 @@
-# Debug Session: Phase 4 Live Check Router & Auth
+# Debug Session: Phase 8 Frontend Login Failure
 
 ## Symptom
-Phase 4 `/live-check` fails because the test script attempts to navigate to `/workflows/new` (which is a 404 since it's nested under `/dashboard/workflows/new`) and the Email/Password Auth Provider is disabled in Supabase, preventing the automation subagent from creating a test user.
+Login consistently fails with `401 Unauthorized` using valid credentials. New signups fail with `400 Bad Request`. Access to the dashboard and all inner workflows is completely blocked.
 
-**When:** During automated browser UI verification.
-**Expected:** The browser test script should point to the correct route and be able to authenticate.
-**Actual:** Navigation hits a blank screen due to missing route, and Supabase blocks test account creation.
+**When:** Submitting the login form or signup form via the React frontend.
+**Expected:** The app should successfully accept valid credentials, return a session via Supabase `signInWithPassword()`, and redirect to `/dashboard`.
+**Actual:** The frontend fails to establish an authenticated session.
 
 ## Evidence
-From previous `browser_subagent` execution:
-1. Route `http://localhost:5173/workflows/new` gave console warning "No routes matched location".
-2. Attempting to create user returned 400: `Unsupported provider: provider is not enabled`.
+- `api/auth/signup` returned `400 Bad Request: Email is already registered` because the test email "api.test.v2@example.com" was already present from backend tests.
+- `AuthContext.tsx` takes the response of `fetch('/api/auth/login')` and calls `supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token || '' })`.
+- `backend/app/schemas/auth.py` defines `TokenResponse` which ONLY includes `access_token` and `token_type`. FastAPI strips out `refresh_token` entirely.
 
 ## Hypotheses
 | # | Hypothesis | Likelihood | Status |
 |---|------------|------------|--------|
-| 1 | `live-check.md` workflow has the wrong URL for Phase 4. | 100% | UNTESTED |
-| 2 | Supabase project does not have Email Provider enabled. | 100% | CONFIRMED |
+| 1 | Missing `refresh_token` in `TokenResponse` causes `setSession()` to fail, preventing login. | 95% | UNTESTED |
+| 2 | Browser automation mistyped the password or added trailing spaces. | 5% | UNTESTED |
 
 ## Attempts
-
 ### Attempt 1
-**Testing:** H1 — `live-check.md` workflow has the wrong URL.
-**Action:** Edit `.agent/workflows/live-check.md` to point to `/dashboard/workflows/new`.
-**Result:** URL mismatch fixed in test scripts.
-**Conclusion:** CONFIRMED.
-
-### Attempt 2
-**Testing:** H2 — Supabase does not have Email Provider enabled.
-**Action:** Verified from 400 error response `Unsupported provider`.
-**Result:** Cannot automate auth via API without valid active provider or JWT.
-**Conclusion:** CONFIRMED.
-
-## Resolution
-**Root Cause:** Deprecated route in test script & missing Email auth provider configuration.
-**Fix:** Updated `.agent/workflows/live-check.md` to match app routing (`/dashboard/..`).
-**Verified:** Code inspection confirms routing fix. Auth verification blocked by external configuration.
-**Action Required:** User must manually enable Email Auth Provider in Supabase settings or perform manual testing via Google OAuth.
-
+**Testing:** H1 — Missing refresh_token breaks frontend session.
+**Action:** Add `refresh_token: Optional[str] = None` to `TokenResponse` schema and update backend auth routes to populate it.
+**Result:** Pending.
