@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
+    error?: string;
 }
 
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -41,17 +42,18 @@ const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>)
 };
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ label, style, ...props }, ref) => {
+    ({ label, error, style, ...props }, ref) => {
         return (
             <div>
                 {label && <label style={labelStyle}>{label}</label>}
                 <input
                     ref={ref}
-                    style={{ ...inputBaseStyle, ...style }}
+                    style={{ ...inputBaseStyle, ...style, borderColor: error ? '#ef4444' : '#1e1e2e' }}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     {...props}
                 />
+                {error && <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{error}</div>}
             </div>
         );
     }

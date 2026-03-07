@@ -12,6 +12,7 @@ import { DashboardHome } from './pages/DashboardHome';
 import { WorkflowBuilder } from './pages/WorkflowBuilder';
 import { LogsPage } from './pages/LogsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import IntegrationsPage from './pages/IntegrationsPage';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
               <Route path="workflows/new" element={<WorkflowBuilder />} />
               <Route path="workflows/:id" element={<WorkflowBuilder />} />
               <Route path="logs" element={<LogsPage />} />
+              <Route path="integrations" element={<IntegrationsPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
           </Routes>

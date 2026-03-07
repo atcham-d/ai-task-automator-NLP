@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, GitBranch, ScrollText, Settings, LogOut, Zap, User } from 'lucide-react';
+import { LayoutDashboard, GitBranch, ScrollText, Settings, LogOut, Zap, User, Blocks } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface SidebarLink {
@@ -13,6 +13,7 @@ const links: SidebarLink[] = [
     { label: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard size={18} /> },
     { label: 'Workflows', to: '/dashboard/workflows/new', icon: <GitBranch size={18} /> },
     { label: 'Logs', to: '/dashboard/logs', icon: <ScrollText size={18} /> },
+    { label: 'Integrations', to: '/dashboard/integrations', icon: <Blocks size={18} /> },
     { label: 'Settings', to: '/dashboard/settings', icon: <Settings size={18} /> },
 ];
 

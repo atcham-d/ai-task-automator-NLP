@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { INTEGRATION_SCHEMAS, IntegrationType } from '../lib/integrationSchemas';
-import { integrationsApi, Integration } from '../lib/api';
+import type { IntegrationType } from '../lib/integrationSchemas';
+import { INTEGRATION_SCHEMAS } from '../lib/integrationSchemas';
+import type { Integration } from '../lib/api';
+import { integrationsApi } from '../lib/api';
 import toast from 'react-hot-toast';
 import { Button } from './Button';
 import { Input } from './Input';
@@ -105,16 +107,16 @@ export const IntegrationModal: React.FC<IntegrationModalProps> = ({
                         return (
                             <div key={key}>
                                 <Controller
-                                    name={key}
+                                    name={key as any}
                                     control={control}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
-                                            value={field.value || ''}
+                                            value={(field.value as string | number) || ''}
                                             label={label}
                                             type={isSecret ? 'password' : 'text'}
                                             placeholder={`Enter ${label}...`}
-                                            error={errors[key]?.message as string}
+                                            error={(errors as any)[key]?.message as string}
                                         />
                                     )}
                                 />
@@ -123,7 +125,7 @@ export const IntegrationModal: React.FC<IntegrationModalProps> = ({
                     })}
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
-                        <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
+                        <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
                             Cancel
                         </Button>
                         <Button type="submit" variant="primary" disabled={isSubmitting}>
