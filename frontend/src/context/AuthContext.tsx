@@ -5,6 +5,23 @@ import { supabase } from '../lib/supabase';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+const MOCK_USER = {
+    id: '00000000-0000-0000-0000-000000000000',
+    email: 'dev@example.com',
+    app_metadata: {},
+    user_metadata: { full_name: 'Dev User' },
+    aud: 'authenticated',
+    created_at: '2024-01-01T00:00:00Z',
+} as any;
+
+const MOCK_SESSION = {
+    access_token: 'DEV_BYPASS_TOKEN',
+    token_type: 'bearer',
+    expires_in: 3600,
+    refresh_token: '',
+    user: MOCK_USER,
+} as any;
+
 interface AuthContextType {
     user: User | null;
     session: Session | null;
@@ -51,6 +68,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || 'Login failed');
 
+        if (import.meta.env.VITE_DEV_BYPASS === 'true' && data.access_token === 'DEV_BYPASS_TOKEN') {
+            localStorage.setItem('sb-bypass-token', 'DEV_BYPASS_TOKEN');
+            setSession(MOCK_SESSION);
+            setUser(MOCK_USER);
+            return;
+        }
+
         // Set the session in Supabase client so getSession() works
         await supabase.auth.setSession({
             access_token: data.access_token,
@@ -66,6 +90,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || 'Signup failed');
+
+        if (import.meta.env.VITE_DEV_BYPASS === 'true' && data.access_token === 'DEV_BYPASS_TOKEN') {
+            localStorage.setItem('sb-bypass-token', 'DEV_BYPASS_TOKEN');
+            setSession(MOCK_SESSION);
+            setUser(MOCK_USER);
+            return;
+        }
 
         await supabase.auth.setSession({
             access_token: data.access_token,
@@ -87,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = useCallback(async () => {
         await supabase.auth.signOut();
+        localStorage.removeItem('sb-bypass-token');
         setUser(null);
         setSession(null);
     }, []);
