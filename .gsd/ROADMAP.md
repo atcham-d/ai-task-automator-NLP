@@ -21,6 +21,14 @@
 **Status**: ⬜ Not Started
 **Objective**: Memoize components and optimize re-renders in React Flow.
 
+### Phase 3: Gap Closure
+**Status**: ⬜ Not Started
+**Objective**: Address gaps from milestone audit v1.0
+
+**Gaps to Close:**
+- [ ] Verify Supabase session persistence across different browser pages
+- [ ] Determine how to handle SMTP passwords and similar secure configurations
+
 ---
 
 ## Completed Milestones
