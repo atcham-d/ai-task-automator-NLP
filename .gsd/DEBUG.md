@@ -1,0 +1,25 @@
+# Debug Session: Phase 8 Frontend Login Failure
+
+## Symptom
+Login consistently fails with `401 Unauthorized` using valid credentials. New signups fail with `400 Bad Request`. Access to the dashboard and all inner workflows is completely blocked.
+
+**When:** Submitting the login form or signup form via the React frontend.
+**Expected:** The app should successfully accept valid credentials, return a session via Supabase `signInWithPassword()`, and redirect to `/dashboard`.
+**Actual:** The frontend fails to establish an authenticated session.
+
+## Evidence
+- `api/auth/signup` returned `400 Bad Request: Email is already registered` because the test email "api.test.v2@example.com" was already present from backend tests.
+- `AuthContext.tsx` takes the response of `fetch('/api/auth/login')` and calls `supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token || '' })`.
+- `backend/app/schemas/auth.py` defines `TokenResponse` which ONLY includes `access_token` and `token_type`. FastAPI strips out `refresh_token` entirely.
+
+## Hypotheses
+| # | Hypothesis | Likelihood | Status |
+|---|------------|------------|--------|
+| 1 | Missing `refresh_token` in `TokenResponse` causes `setSession()` to fail, preventing login. | 95% | UNTESTED |
+| 2 | Browser automation mistyped the password or added trailing spaces. | 5% | UNTESTED |
+
+## Attempts
+### Attempt 1
+**Testing:** H1 — Missing refresh_token breaks frontend session.
+**Action:** Add `refresh_token: Optional[str] = None` to `TokenResponse` schema and update backend auth routes to populate it.
+**Result:** Pending.
