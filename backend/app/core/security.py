@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta, timezone
 
+from cryptography.fernet import Fernet
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
@@ -31,7 +32,15 @@ def create_access_token(data: dict) -> str:
 
 
 def decode_token(token: str) -> dict:
-    """Decode and verify a JWT token. Raises JWTError on failure."""
+    """
+    Decode and verify a JWT token.
+    
+    Returns:
+        dict: Decoded JWT payload.
+    
+    Raises:
+        JWTError: If token decoding or verification fails.
+    """
     try:
         payload = jwt.decode(
             token, settings.SUPABASE_JWT_SECRET, algorithms=[settings.ALGORITHM]
@@ -39,3 +48,31 @@ def decode_token(token: str) -> dict:
         return payload
     except JWTError:
         raise
+
+
+def encrypt_secret(plaintext: str) -> str:
+    """
+    Encrypts a plaintext secret into a Fernet token.
+    
+    Parameters:
+        plaintext (str): The secret string to encrypt.
+    
+    Returns:
+        ciphertext (str): URL-safe base64-encoded Fernet token representing the encrypted secret.
+    """
+    f = Fernet(settings.ENCRYPTION_KEY.encode())
+    return f.encrypt(plaintext.encode()).decode()
+
+
+def decrypt_secret(ciphertext: str) -> str:
+    """
+    Decrypts a Fernet ciphertext and returns the original plaintext.
+    
+    Parameters:
+        ciphertext (str): Fernet token (URL-safe base64 string) to decrypt.
+    
+    Returns:
+        plaintext (str): Decrypted plaintext string.
+    """
+    f = Fernet(settings.ENCRYPTION_KEY.encode())
+    return f.decrypt(ciphertext.encode()).decode()
