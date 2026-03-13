@@ -1,11 +1,11 @@
 ---
-phase: 3
-plan: secret-management
+phase: 1
+plan: security-management
 wave: 1
 gap_closure: false
 ---
 
-# Plan 3: Secret Management
+# Plan 1: Security Hardening (Secret Management)
 
 ## Problem
 SMTP and Integration secrets are currently handled as plain strings in the config. A structured security approach is needed before moving to multi-user or production scaling.

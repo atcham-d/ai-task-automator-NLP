@@ -1,39 +1,37 @@
 ---
-phase: 5
+phase: 2
 plan: session-persistence
 wave: 1
 gap_closure: false
 ---
 
-# Plan 5: Session Persistence
+# Plan 2: Session Persistence
 
 ## Problem
 While basic auth works, the edge case of session persistence across all pages under real Supabase conditions needs more rigorous verification. Supabase sessions might not persist correctly across different browser pages or after a hard refresh.
 
-## Root Cause
-Potential missing hydration logic in the `AuthContext` or improper setup of cookies/local storage for session tokens.
-
 ## Pre-conditions
 - Supabase email rate limit must not be active.
 - Use existing test account (stored in `.gsd/test-credentials.md`).
-- If rate-limited: wait 1 hour, or use Supabase Dashboard to manually confirm a new account.
+- If rate-limited: wait 1 hour, or manually confirm in Supabase Dashboard → Authentication → Users.
 - **Do NOT** create new accounts during live-check.
 
 ## Tasks
 
 <task type="auto">
-  <name>Fix Supabase Session Persistence</name>
+  <name>Verify and Fix Session Persistence</name>
   <files>
     frontend/src/context/AuthContext.tsx
-    frontend/src/App.tsx
+    frontend/src/components/ProtectedRoute.tsx
   </files>
   <action>
-    Review the `AuthContext` implementation to ensure `supabase.auth.getSession()` and `supabase.auth.onAuthStateChange()` are correctly used to hydrate and maintain the user's session state on initial load. Ensure that the updated session is stored appropriately and persists across hard refreshes.
+    Refine the auth hydration logic.
     
     Steps:
-    1. Verify current `AuthContext` logic for session initialization.
-    2. Add necessary checks for `onAuthStateChange` to keep context up to date.
-    3. Ensure protected routes correctly await session initialization before redirecting.
+    1. Verify `onAuthStateChange` correctly hydrating session on page load in `AuthContext.tsx`.
+    2. Confirm `ProtectedRoute` waits for loading state before redirecting.
+    3. Ensure no manual `localStorage` token writes are present (let Supabase handle it).
+    4. Confirm loading guard `if (loading) return <Spinner />` in `ProtectedRoute.tsx` comes before session check.
   </action>
   <verify>
     Verify by starting the frontend and logging in. Open a new tab and ensure the user remains logged in.

@@ -6,46 +6,48 @@
 
 ## Must-Haves (Milestone 2.0)
 
+- [ ] AES-256 field-level encryption for secrets (Integrations/SMTP)
+- [ ] Verified session persistence under real Supabase credentials
 - [ ] NLP Parser chained action support
 - [ ] Memoization for large graphs (React Flow)
-- [ ] AES-256 field-level encryption for secrets (Integrations/SMTP)
 - [ ] Desktop/Mobile/Tablet responsiveness polish
-- [ ] Verified session persistence under real Supabase credentials
 
 ## Phases (Milestone 2.0)
 
-### Phase 1: NLP Parser Improvements
-**Status**: ⬜ Not Started
-**Objective**: Improve NLP parser accuracy for multi-step chained workflows.
-**Files**: `backend/app/nlp/parser.py`
-
-### Phase 2: Performance Optimization
-**Status**: ⬜ Not Started
-**Objective**: Memoize components and optimize re-renders in React Flow.
-
-### Phase 3: Secret Management
+### Phase 1: Security Hardening (Secret Management)
 **Status**: ⬜ Not Started
 **Objective**: Design and implement encryption for SMTP passwords and integration API keys.
-**Files**: `backend/app/services/integration_service.py`, `backend/app/core/security.py`
-**Approach**: AES-256 field-level encryption on backend before Supabase write.
-**Priority**: 🔴 High — blocks real user onboarding
+**Files**: `backend/app/services/integration_service.py`, `backend/app/core/security.py`, `backend/app/core/config.py`
+**Approach**: AES-256 field-level encryption on backend before Supabase write. Key management via Fernet.
+**Priority**: 🔴 High — blocks real user onboarding (execute first)
 
-### Phase 4: Responsive Design Polish
-**Status**: ⬜ Not Started
-**Objective**: Audit and fix layout breakpoints across all pages for mobile and tablet.
-**Files**: `frontend/src/pages/*.tsx`, `frontend/src/components/*.tsx`
-**Key targets**:
-  - Sidebar collapse on mobile (<768px)
-  - WorkflowBuilder canvas on tablet
-  - IntegrationsPage grid reflow
-  - DashboardHome card stacking
-
-### Phase 5: Session Persistence Verification
+### Phase 2: Session Persistence Verification
 **Status**: ⬜ Not Started
 **Objective**: Verify Supabase session hydration across tabs and page refresh under real credentials.
 **Files**: `frontend/src/context/AuthContext.tsx`, `frontend/src/components/ProtectedRoute.tsx`
-**Note**: Previously tested only with dev bypass — needs real Supabase account verification.
+**Approach**: Confirm `onAuthStateChange` hydration and `ProtectedRoute` loading guards. No manual localStorage writes.
 **Priority**: 🟡 Medium
+
+### Phase 3: NLP Parser Improvements
+**Status**: ⬜ Not Started
+**Objective**: Improve NLP parser accuracy for multi-step chained workflows.
+**Files**: `backend/app/nlp/parser.py`
+**Approach**: Update prompt/parsing for better node dependency recognition.
+
+### Phase 4: Performance Optimization
+**Status**: ⬜ Not Started
+**Objective**: Memoize components and optimize re-renders in React Flow.
+**Files**: `frontend/src/pages/WorkflowBuilder.tsx`, `frontend/src/components/FlowNodes/*.tsx`
+
+### Phase 5: Responsive Design Polish
+**Status**: ⬜ Not Started
+**Objective**: Audit and fix layout breakpoints across all pages for mobile and tablet.
+**Files**: `frontend/src/pages/*.tsx`, `frontend/src/components/*.tsx`
+**Key targets**: Sidebar collapse, canvas scaling, grid reflow, card stacking.
+
+---
+
+## Completed Milestones
 
 ---
 
