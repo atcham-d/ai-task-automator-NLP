@@ -10,7 +10,12 @@ from app.schemas.integration import IntegrationCreate, IntegrationUpdate
 
 
 from app.core.config import settings
+from app.core.security import encrypt_secret, decrypt_secret
 from supabase import create_client, ClientOptions
+
+def is_secret_field(key: str) -> bool:
+    """Check if a field name indicates a secret value."""
+    return any(s in key.lower() for s in ['password', 'token', 'key', 'secret'])
 
 class IntegrationService:
     """Handles integration CRUD and connection testing."""
@@ -37,7 +42,10 @@ class IntegrationService:
                 "user_id": user_id,
                 "type": data.type,
                 "name": data.name,
-                "config": data.config,
+                "config": {
+                    k: encrypt_secret(v) if is_secret_field(k) else v
+                    for k, v in data.config.items()
+                },
                 "is_active": True,
                 "created_at": datetime.now(timezone.utc).isoformat(),
                 "updated_at": datetime.now(timezone.utc).isoformat(),
@@ -54,7 +62,10 @@ class IntegrationService:
                         "user_id": user_id,
                         "type": data.type,
                         "name": data.name,
-                        "config": data.config,
+                        "config": {
+                            k: encrypt_secret(v) if is_secret_field(k) else v
+                            for k, v in data.config.items()
+                        },
                     }
                 )
                 .execute()
@@ -79,7 +90,14 @@ class IntegrationService:
                 .order("created_at", desc=True)
                 .execute()
             )
-            return result.data
+            integrations = result.data
+            for integration in integrations:
+                if "config" in integration and integration["config"]:
+                    integration["config"] = {
+                        k: decrypt_secret(v) if is_secret_field(k) and isinstance(v, str) else v
+                        for k, v in integration["config"].items()
+                    }
+            return integrations
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -107,7 +125,13 @@ class IntegrationService:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Integration not found",
                 )
-            return result.data[0]
+            integration = result.data[0]
+            if "config" in integration and integration["config"]:
+                integration["config"] = {
+                    k: decrypt_secret(v) if is_secret_field(k) and isinstance(v, str) else v
+                    for k, v in integration["config"].items()
+                }
+            return integration
         except HTTPException:
             raise
         except Exception as e:
@@ -139,7 +163,10 @@ class IntegrationService:
         if data.name is not None:
             update_data["name"] = data.name
         if data.config is not None:
-            update_data["config"] = data.config
+            update_data["config"] = {
+                k: encrypt_secret(v) if is_secret_field(k) else v
+                for k, v in data.config.items()
+            }
         if data.is_active is not None:
             update_data["is_active"] = data.is_active
 
@@ -154,7 +181,13 @@ class IntegrationService:
                 .eq("user_id", user_id)
                 .execute()
             )
-            return result.data[0]
+            integration = result.data[0]
+            if "config" in integration and integration["config"]:
+                integration["config"] = {
+                    k: decrypt_secret(v) if is_secret_field(k) and isinstance(v, str) else v
+                    for k, v in integration["config"].items()
+                }
+            return integration
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

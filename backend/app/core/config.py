@@ -13,6 +13,7 @@ class Settings(BaseSettings):
 
     # JWT
     SECRET_KEY: str = "2706306f1bdbb7a35f5a9b9a7bb015645ceda841769e4a002ddde4be62d89c94"
+    ENCRYPTION_KEY: str = "placeholder_key_if_not_in_env"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
@@ -30,6 +31,7 @@ class Settings(BaseSettings):
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
+        "extra": "ignore",
     }
 
 

@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta, timezone
 
+from cryptography.fernet import Fernet
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
@@ -39,3 +40,15 @@ def decode_token(token: str) -> dict:
         return payload
     except JWTError:
         raise
+
+
+def encrypt_secret(plaintext: str) -> str:
+    """Encrypt a secret string using Fernet (AES-256)."""
+    f = Fernet(settings.ENCRYPTION_KEY.encode())
+    return f.encrypt(plaintext.encode()).decode()
+
+
+def decrypt_secret(ciphertext: str) -> str:
+    """Decrypt a secret string using Fernet (AES-256)."""
+    f = Fernet(settings.ENCRYPTION_KEY.encode())
+    return f.decrypt(ciphertext.encode()).decode()
