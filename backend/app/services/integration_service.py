@@ -14,7 +14,12 @@ from app.core.security import encrypt_secret, decrypt_secret
 from supabase import create_client, ClientOptions
 
 def is_secret_field(key: str) -> bool:
-    """Check if a field name indicates a secret value."""
+    """
+    Determine whether a field name likely represents a secret.
+    
+    Returns:
+        True if `key` contains any of the secret-related substrings 'password', 'token', 'key', or 'secret' (case-insensitive), False otherwise.
+    """
     return any(s in key.lower() for s in ['password', 'token', 'key', 'secret'])
 
 class IntegrationService:
@@ -32,7 +37,22 @@ class IntegrationService:
         )
 
     def create(self, user_id: str, token: str, data: IntegrationCreate) -> dict:
-        """Create a new integration for the given user."""
+        """
+        Create a new integration for the given user.
+        
+        Encrypts secret-like fields in `data.config` before storing. In development mode (special all-zero user_id) the integration is stored in an in-memory dev store; otherwise the integration row is inserted into the persistent "integrations" table.
+        
+        Parameters:
+            user_id (str): ID of the user owning the integration.
+            token (str): Authorization token used to create an authenticated client for persistence.
+            data (IntegrationCreate): Integration payload containing `type`, `name`, and `config` keys.
+        
+        Returns:
+            dict: The created integration record.
+        
+        Raises:
+            HTTPException: With status 500 if the integration cannot be created.
+        """
         if user_id == "00000000-0000-0000-0000-000000000000":
             from uuid import uuid4
             from datetime import datetime, timezone
@@ -78,7 +98,17 @@ class IntegrationService:
             )
 
     def get_all(self, user_id: str) -> List[dict]:
-        """Retrieve all integrations for a user."""
+        """
+        Return all integrations for the given user.
+        
+        For the development bypass user (all-zero UUID) returns in-memory integrations sorted by created_at descending. For production, queries the integrations table and decrypts values of config fields identified as secrets before returning.
+        
+        Returns:
+            List[dict]: A list of integration records with secret config fields decrypted when applicable.
+        
+        Raises:
+            HTTPException: If fetching integrations fails.
+        """
         if user_id == "00000000-0000-0000-0000-000000000000":
             return sorted(self._dev_integrations.values(), key=lambda x: x["created_at"], reverse=True)
 
@@ -105,7 +135,21 @@ class IntegrationService:
             )
 
     def get_by_id(self, integration_id: str, user_id: str) -> dict:
-        """Retrieve a single integration by ID. Raises 404 if not found."""
+        """
+        Retrieve a single integration for the given user by integration ID.
+        
+        If the integration has a `config` mapping, secret-like fields (e.g., keys matched by is_secret_field) are decrypted before being returned. When `user_id` equals "00000000-0000-0000-0000-000000000000" the method reads from the in-memory development store.
+        
+        Parameters:
+            integration_id (str): ID of the integration to retrieve.
+            user_id (str): ID of the owner user (special all-zero UUID selects the dev store).
+        
+        Returns:
+            dict: The integration record with secret fields in `config` decrypted.
+        
+        Raises:
+            HTTPException: 404 if the integration is not found; 500 on other retrieval errors.
+        """
         if user_id == "00000000-0000-0000-0000-000000000000":
             integration = self._dev_integrations.get(integration_id)
             if not integration:
