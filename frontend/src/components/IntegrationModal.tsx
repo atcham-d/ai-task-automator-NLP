@@ -58,13 +58,18 @@ export const IntegrationModal: React.FC<IntegrationModalProps> = ({
         setIsSubmitting(true);
         try {
             if (existingIntegration) {
-                await integrationsApi.update(existingIntegration.id, { config: data });
+                const { name, ...configData } = data;
+                await integrationsApi.update(existingIntegration.id, {
+                    name: name,
+                    config: configData
+                });
                 toast.success('Integration updated successfully');
             } else {
+                const { name, ...configData } = data;
                 await integrationsApi.create({
-                    name: type.charAt(0).toUpperCase() + type.slice(1),
+                    name: name || (type.charAt(0).toUpperCase() + type.slice(1)),
                     type,
-                    config: data,
+                    config: configData,
                     is_active: true,
                 });
                 toast.success('Integration connected successfully');

@@ -40,6 +40,7 @@ class IntegrationService:
                 "config": data.config,
                 "is_active": True,
                 "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
             }
             self._dev_integrations[int_id] = integration
             return integration
@@ -127,6 +128,9 @@ class IntegrationService:
                 integration["config"] = data.config
             if data.is_active is not None:
                 integration["is_active"] = data.is_active
+            
+            from datetime import datetime, timezone
+            integration["updated_at"] = datetime.now(timezone.utc).isoformat()
             return integration
 
         self.get_by_id(integration_id, user_id)

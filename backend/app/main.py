@@ -35,6 +35,7 @@ app = FastAPI(
 )
 
 # ── CORS ──
+logger.info(f"Allowed CORS origins: {settings.cors_origins}")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,

@@ -77,8 +77,8 @@ export interface Integration {
 }
 
 export const integrationsApi = {
-    getAll: () => apiGet<Integration[]>('/api/integrations/'),
-    create: (data: Omit<Integration, 'id' | 'user_id'>) => apiPost<Integration>('/api/integrations/', data),
+    getAll: () => apiGet<Integration[]>('/api/integrations'),
+    create: (data: Omit<Integration, 'id' | 'user_id'>) => apiPost<Integration>('/api/integrations', data),
     update: (id: string, data: Partial<Integration>) => apiPatch<Integration>(`/api/integrations/${id}`, data),
     delete: (id: string) => apiDelete(`/api/integrations/${id}`),
     test: (id: string) => apiPost<{ status: string; message: string }>(`/api/integrations/${id}/test`),

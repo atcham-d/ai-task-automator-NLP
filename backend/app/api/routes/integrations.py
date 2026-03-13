@@ -16,14 +16,14 @@ from app.services.integration_service import integration_service
 router = APIRouter(prefix="/api/integrations", tags=["integrations"])
 
 
-@router.get("/", response_model=List[IntegrationResponse])
+@router.get("", response_model=List[IntegrationResponse])
 async def list_integrations(user: dict = Depends(get_current_user)):
     """Retrieve all integrations for the authenticated user."""
     return integration_service.get_all(user["id"])
 
 
 @router.post(
-    "/", response_model=IntegrationResponse, status_code=status.HTTP_201_CREATED
+    "", response_model=IntegrationResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_integration(
     body: IntegrationCreate, user: dict = Depends(get_current_user)

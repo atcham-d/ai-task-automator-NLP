@@ -22,3 +22,18 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.agent/
+.agent-backup/
+.gemini/
+.gsd/
+.gsd-update-temp/
+
+adapters/
+docs/
+
+# Project docs
+GSD-STYLE.md
+model_capabilities*
+PRD.md
+PROJECT_RULES*
