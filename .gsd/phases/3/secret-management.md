@@ -1,11 +1,11 @@
 ---
 phase: 3
-plan: fix-secret-management
+plan: secret-management
 wave: 1
-gap_closure: true
+gap_closure: false
 ---
 
-# Fix: Secret Management
+# Plan 3: Secret Management
 
 ## Problem
 SMTP and Integration secrets are currently handled as plain strings in the config. A structured security approach is needed before moving to multi-user or production scaling.
@@ -13,21 +13,31 @@ SMTP and Integration secrets are currently handled as plain strings in the confi
 ## Root Cause
 Early development focus prioritized functionality over security for service credentials. Secrets are stored in plain text rather than encrypted at rest or fetched from a secure vault.
 
+## Migration Strategy
+**Option A: Wipe and re-save.**
+- DELETE all rows from `integrations` table before deploying encryption.
+- Simplest and safest for prototype phase.
+
 ## Tasks
 
 <task type="auto">
   <name>Implement Secure Secret Management</name>
   <files>
     backend/app/services/integration_service.py
-    backend/app/config.py
+    backend/app/core/config.py
+    backend/.env
+    .gitignore
   </files>
   <action>
-    Design and implement a structured security approach for managing integration credentials. Ensure secrets are encrypted at rest or utilize Supabase Vault/KMS equivalent.
+    Implement AES-256 field-level encryption.
     
     Steps:
-    1. Research Supabase Vault or Python-based encryption libraries (e.g., `cryptography.fernet`).
-    2. Update `integration_service.py` to encrypt credentials before saving to the database and decrypt them when needed in memory.
-    3. Remove any hardcoded plain text secrets from configuration files.
+    1. Generate key: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`.
+    2. Store as `ENCRYPTION_KEY` in `backend/.env`.
+    3. Update `backend/app/core/config.py` to include `encryption_key: str`.
+    4. Ensure `.gitignore` ignores `backend/.env`.
+    5. Update `integration_service.py` to encrypt/decrypt using the key.
+    6. Wipe `integrations` table rows.
   </action>
   <verify>
     Run backend test suite to confirm integrations can still be mock-tested. Check database to ensure secrets are stored encrypted.

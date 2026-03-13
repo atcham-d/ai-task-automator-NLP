@@ -1,14 +1,16 @@
 # ROADMAP.md
 
-> **Current Phase**: 0 (Planning Next Milestone)
-> **Milestone**: v2.0 — Optimization & Advanced Features
+> **Current Phase**: 0 (Planning)
+> **Milestone**: v2.0 — Production Hardening + Feature Depth
+> **Goal**: Improving NLP accuracy for complex chains, securing platform credentials, and polishing UX for production readiness.
 
 ## Must-Haves (Milestone 2.0)
 
 - [ ] NLP Parser chained action support
 - [ ] Memoization for large graphs (React Flow)
-- [ ] Centralized secret management for integrations
-- [ ] Desktop/Mobile responsiveness polish
+- [ ] AES-256 field-level encryption for secrets (Integrations/SMTP)
+- [ ] Desktop/Mobile/Tablet responsiveness polish
+- [ ] Verified session persistence under real Supabase credentials
 
 ## Phases (Milestone 2.0)
 
@@ -21,13 +23,29 @@
 **Status**: ⬜ Not Started
 **Objective**: Memoize components and optimize re-renders in React Flow.
 
-### Phase 3: Gap Closure
+### Phase 3: Secret Management
 **Status**: ⬜ Not Started
-**Objective**: Address gaps from milestone audit v1.0
+**Objective**: Design and implement encryption for SMTP passwords and integration API keys.
+**Files**: `backend/app/services/integration_service.py`, `backend/app/core/security.py`
+**Approach**: AES-256 field-level encryption on backend before Supabase write.
+**Priority**: 🔴 High — blocks real user onboarding
 
-**Gaps to Close:**
-- [ ] Verify Supabase session persistence across different browser pages
-- [ ] Determine how to handle SMTP passwords and similar secure configurations
+### Phase 4: Responsive Design Polish
+**Status**: ⬜ Not Started
+**Objective**: Audit and fix layout breakpoints across all pages for mobile and tablet.
+**Files**: `frontend/src/pages/*.tsx`, `frontend/src/components/*.tsx`
+**Key targets**:
+  - Sidebar collapse on mobile (<768px)
+  - WorkflowBuilder canvas on tablet
+  - IntegrationsPage grid reflow
+  - DashboardHome card stacking
+
+### Phase 5: Session Persistence Verification
+**Status**: ⬜ Not Started
+**Objective**: Verify Supabase session hydration across tabs and page refresh under real credentials.
+**Files**: `frontend/src/context/AuthContext.tsx`, `frontend/src/components/ProtectedRoute.tsx`
+**Note**: Previously tested only with dev bypass — needs real Supabase account verification.
+**Priority**: 🟡 Medium
 
 ---
 

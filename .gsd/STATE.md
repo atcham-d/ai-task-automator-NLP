@@ -8,8 +8,9 @@
 - **Repository Tag**: v1.0
 
 ## Current Position
-- **Phase**: 3 (Gap Closure)
-- **Status**: Addressing 2 gaps from milestone audit v1.0.
+- **Milestone**: v2.0 — Production Hardening + Feature Depth
+- **Phase**: 0 (Planning)
+- **Status**: Milestone 2.0 planned. Next: Execution of Phase 1 or 3.
 
 ## Last Session Summary
 - **Phase 8 & 9 Executed**: Implemented the full backend and frontend for the Integrations Hub, supporting 6+ service types with a dynamic configuration modal.
@@ -35,3 +36,15 @@
 1. **Milestone 2.0 Planning**: Decompose "NLP Parser Improvements" into executable sub-phases.
 2. **Secret Management**: Design and implement encryption for integration credentials.
 3. **Performance**: Audit React Flow performance on workflows with >20 nodes.
+
+## Milestone 2.0 — Planned Phases
+
+| # | Phase | Priority |
+|---|-------|----------|
+| 1 | Secret encryption (AES-256 for SMTP + integration configs) | 🔴 High |
+| 2 | Supabase session persistence — real conditions verification + fix | 🟡 Medium |
+| 3 | React Flow memoization for graphs >20 nodes | 🟡 Medium |
+| 4 | NLP chained actions (multi-step workflows from single prompt) | 🟢 Feature |
+| 5 | Google OAuth credential setup + E2E test | 🟢 Feature |
+| 6 | Production deploy (Vercel + Render + custom domain) | 🟢 Feature |
+

@@ -1,17 +1,23 @@
 ---
-phase: 3
-plan: fix-session-persistence
+phase: 5
+plan: session-persistence
 wave: 1
-gap_closure: true
+gap_closure: false
 ---
 
-# Fix: Session Persistence
+# Plan 5: Session Persistence
 
 ## Problem
 While basic auth works, the edge case of session persistence across all pages under real Supabase conditions needs more rigorous verification. Supabase sessions might not persist correctly across different browser pages or after a hard refresh.
 
 ## Root Cause
 Potential missing hydration logic in the `AuthContext` or improper setup of cookies/local storage for session tokens.
+
+## Pre-conditions
+- Supabase email rate limit must not be active.
+- Use existing test account (stored in `.gsd/test-credentials.md`).
+- If rate-limited: wait 1 hour, or use Supabase Dashboard to manually confirm a new account.
+- **Do NOT** create new accounts during live-check.
 
 ## Tasks
 
