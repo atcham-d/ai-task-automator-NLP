@@ -18,6 +18,7 @@
 - **Code Hygiene**: Removed all TypeScript errors (`tsc --noEmit` passes).
 - **Archival**: Moved all Phase 1-12 documentation to `.gsd/milestones/v1.0/`.
 - **Git Tag**: Created tag `v1.0`.
+- **Codebase Mapping**: Completed initial mapping of components and dependencies (`ARCHITECTURE.md` and `STACK.md` generated).
 
 ## In-Progress Work
 - No active code changes. Baseline is clean and verified.
@@ -28,6 +29,7 @@
 
 ## Blockers
 - **Supabase Rate Limits**: Still intermittently affecting signup/email flows from some IPs; dev bypass used to verify logic successfully.
+- **Google OAuth**: Initiation logic is implemented, but it appears configured credentials (Client ID/Secret) are missing in the Supabase Dashboard, preventing successful connection.
 
 ## Next Steps
 1. **Milestone 2.0 Planning**: Decompose "NLP Parser Improvements" into executable sub-phases.
