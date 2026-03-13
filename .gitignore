@@ -26,7 +26,7 @@ dist-ssr
 .agent/
 .agent-backup/
 .gemini/
-.gsd/
+# .gsd/ (unignored for GSD history)
 .gsd-update-temp/
 
 adapters/
