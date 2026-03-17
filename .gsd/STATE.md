@@ -12,6 +12,11 @@
 - **Status**: ✅ Phase 1 (Security Hardening) complete and verified. Next: Phase 2.
 
 ## Last Session Summary
+Codebase mapping complete.
+- 6 core components identified (Vite, FastAPI, Supabase, React Flow, NLP Parser, Scheduler)
+- Full dependency inventory updated in STACK.md
+- Technical debt identified in SMTP testing and config defaults
+- ARCHITECTURE.md generated with system data flows
 - **Phase 8 & 9 Executed**: Implemented the full backend and frontend for the Integrations Hub, supporting 6+ service types with a dynamic configuration modal.
 - **Phase 10 Executed**: Added loading skeletons, toasts, and error boundaries across the application for high UX polish.
 - **Milestone 1.0 Finalized**: Performed a full audit and E2E browser verification of all core pages.
