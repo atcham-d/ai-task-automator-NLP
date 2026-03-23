@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-> **Current Phase**: 3 (NLP Parser)
+> **Current Phase**: 4 (Responsive Design Polish)
 > **Milestone**: v2.0 — Production Hardening + Feature Depth
 > **Goal**: Improving NLP accuracy for complex chains, securing platform credentials, and polishing UX for production readiness.
 
@@ -8,7 +8,7 @@
 
 - [ ] AES-256 field-level encryption for secrets (Integrations/SMTP)
 - [x] Verified session persistence under real Supabase credentials
-- [ ] NLP Parser chained action support
+- [x] NLP Parser chained action support
 - [ ] Memoization for large graphs (React Flow)
 - [ ] Desktop/Mobile/Tablet responsiveness polish
 
@@ -31,7 +31,7 @@
 ## Milestone 2.0 — Remaining Phases (Revised Priority)
 
 ### Phase 3: NLP Parser Improvements
-**Status**: IN PROGRESS
+**Status**: ✅ Complete
 **Priority**: Complete this week
 
 ### Phase 4: Responsive Design Polish  
