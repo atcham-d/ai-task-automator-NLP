@@ -12,6 +12,7 @@ class TriggerType(str, Enum):
     SCHEDULE = "schedule"
     WEBHOOK = "webhook"
     EMAIL = "email"
+    TRELLO = "trello"
 
 
 class ActionType(str, Enum):
@@ -21,6 +22,7 @@ class ActionType(str, Enum):
     SLACK = "slack"
     DISCORD = "discord"
     EMAIL = "email"
+    SMTP = "smtp"
     NOTION = "notion"
     SHEETS = "sheets"
     AIRTABLE = "airtable"

@@ -18,8 +18,12 @@ Login consistently fails with `401 Unauthorized` using valid credentials. New si
 | 1 | Missing `refresh_token` in `TokenResponse` causes `setSession()` to fail, preventing login. | 95% | UNTESTED |
 | 2 | Browser automation mistyped the password or added trailing spaces. | 5% | UNTESTED |
 
-## Attempts
-### Attempt 1
-**Testing:** H1 — Missing refresh_token breaks frontend session.
-**Action:** Add `refresh_token: Optional[str] = None` to `TokenResponse` schema and update backend auth routes to populate it.
-**Result:** Pending.
+## Resolution
+
+**Root Cause:** The test credentials found in the codebase (`ApiPassword123!`) did not match the actual encrypted passwords in the Supabase `auth.users` table for the confirmed users.
+
+**Fix:** Manually reset the password for `testuser@flowai.dev` to `super-secret-password-123` via SQL update using `pgcrypto`.
+
+**Verified:** Successfully authenticated using a local Python script and the `supabase-py` client.
+
+**Regression Check:** Backend and Frontend servers remain healthy.

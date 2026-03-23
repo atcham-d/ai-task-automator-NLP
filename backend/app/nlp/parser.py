@@ -28,30 +28,30 @@ DAY_MAP = {
 
 
 def parse_nl_to_workflow(text: str) -> WorkflowDefinition:
-    """Parse a natural language description into a structured WorkflowDefinition.
-
-    Uses regex pattern matching to detect trigger type and action types from
-    the input text. This is a rule-based MVP — future versions will use a
-    fine-tuned T5/BART model.
-
-    Args:
-        text: Natural language workflow description.
-
-    Returns:
-        A WorkflowDefinition with the detected trigger, conditions, and actions.
-    """
+    """Parse a natural language description into a structured WorkflowDefinition."""
     lower_text = text.lower()
 
-    trigger = _detect_trigger(lower_text, text)
+    # Isolate trigger part from action part for better precision
+    trigger_part = text
+    action_part = text
+    
+    # Split at first comma ONLY (don't split at 'then' yet as it's semantic for actions)
+    if any(k in lower_text[:30] for k in ["when", "if", "every", "at ", "each", "daily", "on "]):
+        split_match = re.search(r",", lower_text)
+        if split_match:
+            idx = split_match.start()
+            trigger_part = text[:idx].strip()
+            action_part = text[idx+1:].strip()
+
+    trigger = _detect_trigger(trigger_part.lower(), trigger_part)
     conditions = _detect_conditions(lower_text, text)
-    actions = _detect_actions(lower_text, text)
+    actions = _detect_actions(action_part.lower(), action_part)
 
     return WorkflowDefinition(
         trigger=trigger,
         conditions=conditions,
         actions=actions,
     )
-
 
 def _parse_time_to_hour(time_str: str) -> str:
     """Convert a time string like '9am', '5pm', '14', '2:30pm' to a 24h hour."""
@@ -80,6 +80,7 @@ def _detect_day_of_week(lower_text: str) -> str:
     return "*"  # every day
 
 
+
 def _detect_trigger(lower_text: str, original_text: str) -> Trigger:
     """Detect the workflow trigger from natural language text."""
     schedule_pattern = re.compile(
@@ -87,6 +88,7 @@ def _detect_trigger(lower_text: str, original_text: str) -> Trigger:
     )
     email_pattern = re.compile(r"(receive|get|when).*(email|mail)")
     webhook_pattern = re.compile(r"webhook|api call|incoming request")
+    trello_pattern = re.compile(r"trello")
 
     if schedule_pattern.search(lower_text):
         # Parse time
@@ -111,24 +113,29 @@ def _detect_trigger(lower_text: str, original_text: str) -> Trigger:
 
         return Trigger(
             type=TriggerType.SCHEDULE,
-            config={"cron": cron, "description": original_text},
+            config={"cron": cron, "description": original_text, "source": "nl_parser"},
         )
     elif email_pattern.search(lower_text):
         from_match = re.search(r"from\s+([^\s,]+)", lower_text)
-        config = {"filter": ""}
+        config = {"filter": "", "source": "nl_parser"}
         if from_match:
             config["filter"] = f"from:{from_match.group(1)}"
         return Trigger(type=TriggerType.EMAIL, config=config)
+    elif trello_pattern.search(lower_text):
+        return Trigger(
+            type=TriggerType.TRELLO,
+            config={"description": "Trello card trigger", "source": "nl_parser"},
+        )
     elif webhook_pattern.search(lower_text):
         return Trigger(
             type=TriggerType.WEBHOOK,
-            config={"path": "/webhook/incoming", "method": "POST"},
+            config={"path": "/webhook/incoming", "method": "POST", "source": "nl_parser"},
         )
     else:
         # Default to webhook
         return Trigger(
             type=TriggerType.WEBHOOK,
-            config={"path": "/webhook/incoming", "method": "POST"},
+            config={"path": "/webhook/incoming", "method": "POST", "source": "nl_parser"},
         )
 
 
@@ -137,9 +144,10 @@ def _detect_conditions(lower_text: str, original_text: str) -> List[Condition]:
     conditions: List[Condition] = []
 
     condition_patterns = [
-        (r"if\s+(?:the\s+)?(\w+)\s+(is|equals|contains|matches)\s+[\"']?([\"',]+)[\"']?", None),
-        (r"(?:check|verify)\s+(?:that\s+)?(?:the\s+)?(\w+)\s+(is|equals|contains)\s+[\"']?([\"',]+)[\"']?", None),
-        (r"from\s+(\w+)", "sender"),
+        # Stop at 'then', 'else', or end of string for better precision with unquoted values
+        (r"if\s+(?:the\s+)?(\w+)\s+(is|equals|contains|matches)\s+[\"']?(.+?)(?=[\"']|\b(?:then|else)\b|$)", None),
+        (r"(?:check|verify)\s+(?:that\s+)?(?:the\s+)?(\w+)\s+(is|equals|contains)\s+[\"']?(.+?)(?=[\"']|\b(?:then|else)\b|$)", None),
+        (r"from\s+([\w\d@.-]+)", "sender"),
     ]
 
     for pattern, field_override in condition_patterns:
@@ -167,128 +175,124 @@ def _detect_conditions(lower_text: str, original_text: str) -> List[Condition]:
 
 def _detect_actions(lower_text: str, original_text: str) -> List[Action]:
     """Detect all workflow actions from natural language text."""
-    actions: List[Action] = []
+    # Check for conditional branching: ... then ... else ...
+    if "then " in lower_text:
+        # Split by 'then' and 'else'
+        parts = re.split(r"\bthen\b|\belse\b", lower_text)
+        if len(parts) >= 2:
+            # parts[1] is 'then' branch, parts[2] is 'else' branch
+            then_text = parts[1].strip()
+            else_text = parts[2].strip() if len(parts) > 2 else ""
+            
+            actions = []
+            if then_text:
+                branch_actions = _extract_actions_from_snippet(then_text, original_text)
+                for a in branch_actions:
+                    a.config["condition_branch"] = "yes"
+                actions.extend(branch_actions)
+            
+            if else_text:
+                branch_actions = _extract_actions_from_snippet(else_text, original_text)
+                for a in branch_actions:
+                    a.config["condition_branch"] = "no"
+                actions.extend(branch_actions)
+            
+            if actions:
+                return actions
 
-    slack_pattern = re.compile(r"slack|#\w+|post.*(channel|slack)")
-    discord_pattern = re.compile(r"discord")
-    email_action_pattern = re.compile(r"send.*(email|mail)|email (me|to)|notify.*email")
-    http_pattern = re.compile(
-        r"(post|call|request|hit|send).*(api|url|endpoint|http)"
-    )
-    trello_pattern = re.compile(r"trello|card|board")
-    notion_pattern = re.compile(r"notion|page|database")
-    sheets_pattern = re.compile(r"sheets|spreadsheet|row")
-    airtable_pattern = re.compile(r"airtable|record|base")
+    # Fallback to standard multi-action detection
+    return _extract_actions_from_snippet(lower_text, original_text)
 
-    if slack_pattern.search(lower_text):
-        channel_match = re.search(r"#(\w+)", lower_text)
-        channel = channel_match.group(1) if channel_match else "general"
-        message = _extract_message(original_text, "slack")
-        actions.append(
-            Action(
-                type=ActionType.SLACK,
-                config={
+
+def _extract_actions_from_snippet(lower_text: str, original_text: str) -> List[Action]:
+    """Internal helper to detect actions from a string snippet."""
+    detected = []
+
+    # Patterns
+    patterns = {
+        ActionType.SLACK: re.compile(r"slack|#\w+|post.*(channel|slack)"),
+        ActionType.DISCORD: re.compile(r"discord"),
+        ActionType.SMTP: re.compile(r"smtp"),
+        ActionType.EMAIL: re.compile(r"send.*(email|mail)|email (me|to)|notify.*email"),
+        ActionType.TRELLO: re.compile(r"trello\s+card|create.*trello"),
+        ActionType.NOTION: re.compile(r"notion|page|database"),
+        ActionType.SHEETS: re.compile(r"sheets|spreadsheet|row"),
+        ActionType.AIRTABLE: re.compile(r"airtable|record|base"),
+    }
+
+    # Find all matches with their start positions
+    for atype, pattern in patterns.items():
+        match = pattern.search(lower_text)
+        if match:
+            # Precedence: if 'smtp' is explicitly matched, skip generic 'email'
+            if atype == ActionType.EMAIL and "smtp" in lower_text:
+                continue
+                
+            start_pos = match.start()
+            config = {}
+            if atype == ActionType.SLACK:
+                channel_match = re.search(r"#(\w+)", lower_text)
+                config = {
                     "webhook_url": "PASTE_YOUR_SLACK_WEBHOOK_URL",
-                    "message": message,
-                    "channel": f"#{channel}",
-                },
-            )
-        )
-
-    if discord_pattern.search(lower_text):
-        message = _extract_message(original_text, "discord")
-        actions.append(
-            Action(
-                type=ActionType.DISCORD,
-                config={
+                    "channel": f"#{channel_match.group(1)}" if channel_match else "#general",
+                    "message": _extract_message(original_text, "slack")
+                }
+            elif atype == ActionType.DISCORD:
+                config = {
                     "webhook_url": "PASTE_YOUR_DISCORD_WEBHOOK_URL",
-                    "message": message,
-                },
-            )
-        )
-
-    if email_action_pattern.search(lower_text):
-        to_match = re.search(r"(?:email\s+(?:to\s+)?|to\s+)([^\s,]+@[^\s,]+)", lower_text)
-        recipient = to_match.group(1).rstrip(".,;") if to_match else "recipient@example.com"
-        actions.append(
-            Action(
-                type=ActionType.EMAIL,
-                config={
-                    "to": recipient,
+                    "message": _extract_message(original_text, "discord")
+                }
+            elif atype in [ActionType.EMAIL, ActionType.SMTP]:
+                to_match = re.search(r"(?:to\s+)([^\s,]+@[^\s,]+)", lower_text)
+                config = {
+                    "to": to_match.group(1).rstrip(".,;") if to_match else "recipient@example.com",
                     "subject": "FlowAI Notification",
-                    "body": original_text,
-                },
-            )
-        )
+                    "body": original_text
+                }
+            elif atype == ActionType.TRELLO:
+                config = {"name": _extract_message(original_text, "trello")}
+            elif atype == ActionType.NOTION:
+                config = {"title": _extract_message(original_text, "notion")}
+            elif atype == ActionType.SHEETS:
+                config = {"values": [_extract_message(original_text, "sheets")]}
+            
+            detected.append((start_pos, Action(type=atype, config=config)))
 
-    if trello_pattern.search(lower_text):
-        actions.append(
-            Action(
-                type=ActionType.TRELLO,
-                config={
-                    "board_id": "",
-                    "list_id": "",
-                    "name": _extract_message(original_text, "trello"),
-                    "desc": ""
-                },
-            )
-        )
+    # Sort by appearance in text
+    detected.sort(key=lambda x: x[0])
+    actions = [d[1] for d in detected]
 
-    if notion_pattern.search(lower_text):
-        actions.append(
-            Action(
-                type=ActionType.NOTION,
-                config={
-                    "database_id": "",
-                    "title": _extract_message(original_text, "notion"),
-                    "content": ""
-                },
-            )
-        )
-
-    if sheets_pattern.search(lower_text):
-        actions.append(
-            Action(
-                type=ActionType.SHEETS,
-                config={
-                    "spreadsheet_id": "",
-                    "range": "Sheet1!A:A",
-                    "values": [_extract_message(original_text, "sheets")]
-                },
-            )
-        )
-
-    if airtable_pattern.search(lower_text):
-        actions.append(
-            Action(
-                type=ActionType.AIRTABLE,
-                config={
-                    "base_id": "",
-                    "table_name": "",
-                    "fields": {
-                        "Name": _extract_message(original_text, "airtable")
-                    }
-                },
-            )
-        )
-
-    # Only detect HTTP action for explicit URLs, not for generic "http" in webhook context
+    # HTTP Pattern (Explicit URL)
     url_match = re.search(r"https?://[^\s,]+", original_text)
-    if url_match and http_pattern.search(lower_text):
-        url = url_match.group(0).rstrip(".,;)")
+    if url_match and re.search(r"(post|call|request|hit|send).*(api|url|endpoint|http)", lower_text):
         actions.append(
             Action(
                 type=ActionType.HTTP,
                 config={
-                    "url": url,
+                    "url": url_match.group(0).rstrip(".,;)"),
                     "method": "POST",
                     "body": {"text": original_text},
                 },
             )
         )
 
-    # Default: if no action detected, create an HTTP action
-    if not actions:
+    # Default logic (if strictly zero actions found)
+    if not actions and not lower_text.startswith("if ") and "then " not in lower_text:
+        actions.append(
+            Action(
+                type=ActionType.HTTP,
+                config={
+                    "url": "https://example.com/webhook",
+                    "method": "POST",
+                    "body": {"text": original_text},
+                },
+            )
+        )
+
+    return actions
+
+    # Default logic (if strictly zero actions found)
+    if not actions and not lower_text.startswith("if "): # Don't default inside if-branches yet
         actions.append(
             Action(
                 type=ActionType.HTTP,

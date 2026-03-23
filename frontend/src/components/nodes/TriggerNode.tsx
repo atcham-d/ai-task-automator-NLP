@@ -6,7 +6,43 @@ const iconMap: Record<string, React.ReactNode> = {
     webhook: <Webhook size={16} />,
     schedule: <Clock size={16} />,
     email: <Mail size={16} />,
+    trello: <Zap size={16} />, // Use Zap as placeholder or find Trello-like icon
     default: <Zap size={16} />,
+};
+
+const NODE_STYLE: React.CSSProperties = {
+    background: '#111118',
+    border: '2px solid rgba(167,139,250,0.5)',
+    borderRadius: '12px',
+    padding: '12px 16px',
+    minWidth: '160px',
+    boxShadow: '0 0 20px rgba(167,139,250,0.15)',
+};
+
+const ICON_CONTAINER_STYLE: React.CSSProperties = {
+    width: '28px',
+    height: '28px',
+    borderRadius: '8px',
+    background: 'rgba(167,139,250,0.15)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#a78bfa',
+};
+
+const LABEL_STYLE: React.CSSProperties = {
+    fontSize: '11px',
+    fontWeight: 600,
+    color: '#a78bfa',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+};
+
+const HANDLE_STYLE: React.CSSProperties = {
+    background: '#a78bfa',
+    width: '10px',
+    height: '10px',
+    border: '2px solid #111118',
 };
 
 function TriggerNode({ data }: NodeProps) {
@@ -14,40 +50,12 @@ function TriggerNode({ data }: NodeProps) {
     const icon = (data as { icon?: string }).icon || 'default';
 
     return (
-        <div
-            style={{
-                background: '#111118',
-                border: '2px solid rgba(167,139,250,0.5)',
-                borderRadius: '12px',
-                padding: '12px 16px',
-                minWidth: '160px',
-                boxShadow: '0 0 20px rgba(167,139,250,0.15)',
-            }}
-        >
+        <div style={NODE_STYLE}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <div
-                    style={{
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '8px',
-                        background: 'rgba(167,139,250,0.15)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#a78bfa',
-                    }}
-                >
+                <div style={ICON_CONTAINER_STYLE}>
                     {iconMap[icon] || iconMap.default}
                 </div>
-                <span
-                    style={{
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        color: '#a78bfa',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                    }}
-                >
+                <span style={LABEL_STYLE}>
                     Trigger
                 </span>
             </div>
@@ -55,12 +63,7 @@ function TriggerNode({ data }: NodeProps) {
             <Handle
                 type="source"
                 position={Position.Bottom}
-                style={{
-                    background: '#a78bfa',
-                    width: '10px',
-                    height: '10px',
-                    border: '2px solid #111118',
-                }}
+                style={HANDLE_STYLE}
             />
         </div>
     );
