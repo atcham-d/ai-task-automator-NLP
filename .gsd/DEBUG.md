@@ -20,9 +20,9 @@ Login consistently fails with `401 Unauthorized` using valid credentials. New si
 
 ## Resolution
 
-**Root Cause:** The test credentials found in the codebase (`ApiPassword123!`) did not match the actual encrypted passwords in the Supabase `auth.users` table for the confirmed users.
+**Root Cause:** The test credentials found in the codebase (`<REDACTED_CREDENTIAL>`) did not match the actual encrypted passwords in the Supabase `auth.users` table for the confirmed users.
 
-**Fix:** Manually reset the password for `testuser@flowai.dev` to `super-secret-password-123` via SQL update using `pgcrypto`.
+**Fix:** Manually reset the password for `<REDACTED_EMAIL>` to `<REDACTED_CREDENTIAL>` via SQL update using `pgcrypto`.
 
 **Verified:** Successfully authenticated using a local Python script and the `supabase-py` client.
 

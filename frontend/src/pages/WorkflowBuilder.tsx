@@ -93,7 +93,7 @@ function definitionToNodes(def: WorkflowDefinition): { nodes: Node[]; edges: Edg
     const seqActions = def.actions.filter(a => !a.config?.condition_branch);
 
     // YES Branch (Right)
-    let lastYesId = lastConditionId;
+    let lastYesId = lastConditionId || 'trigger-1';
     yesActions.forEach((action, i) => {
         const id = `action-yes-${i + 1}`;
         const label = action.type.charAt(0).toUpperCase() + action.type.slice(1) + ' Action';
@@ -114,7 +114,7 @@ function definitionToNodes(def: WorkflowDefinition): { nodes: Node[]; edges: Edg
     });
 
     // NO Branch (Left)
-    let lastNoId = lastConditionId;
+    let lastNoId = lastConditionId || 'trigger-1';
     noActions.forEach((action, i) => {
         const id = `action-no-${i + 1}`;
         const label = action.type.charAt(0).toUpperCase() + action.type.slice(1) + ' Action';
@@ -233,6 +233,7 @@ export const WorkflowBuilder: React.FC = () => {
     const handleParse = useCallback(async (text: string) => {
         setParsing(true);
         try {
+            setNlInput(text);
             const def = await apiPost<WorkflowDefinition>('/api/parse/', { text });
             setParsedDef(def);
             const { nodes: n, edges: e } = definitionToNodes(def);
@@ -472,7 +473,7 @@ export const WorkflowBuilder: React.FC = () => {
                                 </div>
                             </div>
 
-                            <Button variant="primary" size="sm" style={{ width: '100%', marginTop: '24px' }}>
+                            <Button variant="primary" size="sm" style={{ width: '100%', marginTop: '24px' }} disabled>
                                 Save Changes
                             </Button>
                         </>

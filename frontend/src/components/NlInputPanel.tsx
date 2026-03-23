@@ -4,10 +4,16 @@ import { Button } from './Button';
 import { Textarea } from './Input';
 import { Card } from './Card';
 
+interface WorkflowDefinition {
+    trigger: { type: string; config: Record<string, unknown> };
+    conditions: { field: string; operator: string; value: string }[];
+    actions: { type: string; config: Record<string, any> }[];
+}
+
 interface NlInputPanelProps {
     onParse: (text: string) => Promise<void>;
     parsing: boolean;
-    parsedDef: any;
+    parsedDef: WorkflowDefinition | null;
 }
 
 export const NlInputPanel: React.FC<NlInputPanelProps> = ({ onParse, parsing, parsedDef }) => {

@@ -126,7 +126,14 @@ class WorkflowRunner:
                     "SMTP email action is not yet implemented — "
                     "configure an SMTP integration in Settings for future support"
                 )
-
+            elif action.type == ActionType.SMTP:
+                raise NotImplementedError(
+                    "SMTP action is recognized but not yet implemented"
+                )
+            elif action.type == ActionType.TRELLO:
+                raise NotImplementedError(
+                    "Trello action is recognized but not yet implemented"
+                )
             else:
                 raise Exception(f"Unknown action type: {action.type}")
 

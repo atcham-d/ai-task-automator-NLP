@@ -2,8 +2,11 @@ import sys
 import os
 from typing import List
 
-# Add backend to path
-sys.path.append(os.path.join(os.getcwd(), "backend"))
+import pathlib
+
+# Add backend to path robustly
+backend_dir = pathlib.Path(__file__).parent.parent
+sys.path.insert(0, str(backend_dir))
 
 from app.nlp.parser import parse_nl_to_workflow
 from app.models.workflow import ActionType, TriggerType
@@ -61,14 +64,16 @@ def test_parser():
             # Check expectations
             match_actions = actual_actions == tc['expected']['actions']
             match_condition = actual_has_condition == tc['expected']['has_condition']
+            match_branches = actual_branches == tc['expected']['branches']
             
-            if match_actions and match_condition:
+            if match_actions and match_condition and match_branches:
                 print("  ✅ PASSED")
                 passed += 1
             else:
                 print("  ❌ FAILED")
                 if not match_actions: print(f"    Expected Actions: {tc['expected']['actions']}")
                 if not match_condition: print(f"    Expected Condition: {tc['expected']['has_condition']}")
+                if not match_branches: print(f"    Expected Branches: {tc['expected']['branches']}")
                 
         except Exception as e:
             print(f"  💥 ERROR: {str(e)}")
