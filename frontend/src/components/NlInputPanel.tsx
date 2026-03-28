@@ -36,8 +36,8 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({
             className={`
                 fixed inset-y-0 left-0 z-40 w-72 bg-[#0a0a0f] border-r border-[#1e1e2e] 
                 transform transition-transform duration-300 ease-in-out flex flex-col
-                lg:relative lg:translate-x-0
-                ${isOpen ? 'translate-x-0' : '-translate-x-full lg:hidden'}
+                md:relative md:translate-x-0
+                ${isOpen ? 'translate-x-0' : '-translate-x-full md:hidden'}
             `}
         >
             <div className="p-5 flex flex-col gap-5 overflow-y-auto flex-1">

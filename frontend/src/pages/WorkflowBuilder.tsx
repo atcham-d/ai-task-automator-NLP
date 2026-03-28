@@ -337,7 +337,7 @@ export const WorkflowBuilder: React.FC = () => {
                         value={workflowName}
                         onChange={(e) => setWorkflowName(e.target.value)}
                         placeholder="Workflow Name"
-                        className="bg-transparent border-none text-[#f1f5f9] text-base md:text-lg font-bold font-display outline-none truncate w-full max-w-[150px] md:max-w-md"
+                        className="bg-transparent border-none text-[#f1f5f9] text-base md:text-lg font-bold font-display outline-none truncate w-full max-w-[120px] sm:max-w-[150px] md:max-w-md"
                     />
                 </div>
 
@@ -352,7 +352,7 @@ export const WorkflowBuilder: React.FC = () => {
                             </Button>
                         </div>
                     )}
-                    <Button variant="ghost" size="sm" onClick={handleSave} disabled={saving} className="hidden xs:flex">
+                    <Button variant="ghost" size="sm" onClick={handleSave} disabled={saving} className="flex">
                         {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                         <span className="ml-2 hidden md:inline">Save</span>
                     </Button>

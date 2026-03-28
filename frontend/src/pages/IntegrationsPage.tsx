@@ -100,7 +100,7 @@ export const IntegrationsPage: React.FC = () => {
                         <p className="text-[#94a3b8] text-sm mt-1">Select an app from the directory below to connect it.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {activeIntegrations.map((active) => {
                             const meta = AVAILABLE_INTEGRATIONS.find(a => a.type === active.type);
                             const Icon = meta ? IconMap[meta.icon_name] || Globe : Globe;
@@ -164,7 +164,7 @@ export const IntegrationsPage: React.FC = () => {
                 <h2 className="text-lg font-semibold text-[#f1f5f9] mb-6">
                     App Directory
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {AVAILABLE_INTEGRATIONS.map((app) => {
                         const Icon = IconMap[app.icon_name] || Globe;
                         const isConnected = activeIntegrations.some(a => a.type === app.type);
