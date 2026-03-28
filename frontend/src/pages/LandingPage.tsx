@@ -2,24 +2,25 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatedPage, StaggerContainer, StaggerItem } from '../components/AnimatedPage';
 import { BackgroundBoxes } from '../components/BackgroundBoxes';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
+import { Button } from '../components/ui/button';
 import { FloatingNav } from '../components/FloatingNav';
-import { Brain, Workflow, Activity, Zap, ArrowRight, Github, BookOpen, Radio } from 'lucide-react';
+import { EtherealShadow } from '../components/EtherealShadow';
+import { Component as EtherealBackgroundUI } from '../components/ui/etheral-shadow';
+import { Brain, Workflow, Activity, Zap, ArrowRight, Github, Twitter, Linkedin } from 'lucide-react';
 
 const features = [
     {
-        icon: <Brain size={28} />,
+        icon: <Brain size={28} className="text-[#6366f1]" />,
         title: 'Natural Language Parsing',
         description: 'Describe your automation in plain English. Our AI converts your instructions into structured workflow steps automatically.',
     },
     {
-        icon: <Workflow size={28} />,
+        icon: <Workflow size={28} className="text-[#6366f1]" />,
         title: 'Visual Flow Editor',
         description: 'Inspect and fine-tune your workflows with an intuitive drag-and-drop node editor powered by React Flow.',
     },
     {
-        icon: <Activity size={28} />,
+        icon: <Activity size={28} className="text-[#6366f1]" />,
         title: 'Execution & Monitoring',
         description: 'Activate workflows with one click. Monitor real-time execution logs and track success rates effortlessly.',
     },
@@ -33,331 +34,210 @@ const steps = [
 
 export const LandingPage: React.FC = () => {
     return (
-        <AnimatedPage>
+        <div className="bg-[#0a0a0f] text-[#f1f5f9] min-h-screen overflow-x-hidden">
             <FloatingNav />
 
             {/* Hero Section */}
-            <section
-                style={{
-                    position: 'relative',
-                    minHeight: '100vh',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                    padding: '96px 24px 96px',
-                }}
-            >
-                <BackgroundBoxes rows={18} cols={28} />
-
-                {/* Glowing orbs */}
-                <div style={{
-                    position: 'absolute',
-                    width: '500px',
-                    height: '500px',
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)',
-                    top: '10%',
-                    left: '20%',
-                    filter: 'blur(60px)',
-                    pointerEvents: 'none',
-                    zIndex: 0,
-                }} />
-                <div style={{
-                    position: 'absolute',
-                    width: '400px',
-                    height: '400px',
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(167,139,250,0.1) 0%, transparent 70%)',
-                    bottom: '20%',
-                    right: '15%',
-                    filter: 'blur(60px)',
-                    pointerEvents: 'none',
-                    zIndex: 0,
-                }} />
-
-                <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: '800px' }}>
-                    {/* Pill badge */}
-                    <div
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            background: 'rgba(99,102,241,0.1)',
-                            border: '1px solid rgba(99,102,241,0.2)',
-                            borderRadius: '9999px',
-                            padding: '6px 16px',
-                            marginBottom: '32px',
-                            fontSize: '13px',
-                            color: '#818cf8',
-                            fontWeight: 500,
-                        }}
-                    >
-                        <Zap size={14} />
-                        AI-Powered Workflow Automation
-                    </div>
-
-                    {/* Headline */}
-                    <h1
-                        style={{
-                            fontFamily: "'Syne', sans-serif",
-                            fontSize: 'clamp(40px, 6vw, 64px)',
-                            fontWeight: 800,
-                            lineHeight: 1.1,
-                            marginBottom: '24px',
-                            color: '#f1f5f9',
-                        }}
-                    >
-                        Describe It.
-                        <br />
-                        <span
-                            style={{
-                                background: 'linear-gradient(135deg, #6366f1, #a78bfa)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                backgroundClip: 'text',
-                            }}
-                        >
-                            Automate It.
-                        </span>
-                    </h1>
-
-                    {/* Subheadline */}
-                    <p
-                        style={{
-                            fontSize: '18px',
-                            color: '#94a3b8',
-                            maxWidth: '560px',
-                            margin: '0 auto 40px',
-                            lineHeight: 1.6,
-                        }}
-                    >
-                        Transform plain English into powerful automated workflows. Our NLP engine parses your instructions into visual, editable flows you can deploy in seconds.
-                    </p>
-
-                    {/* CTAs */}
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                        <Link to="/signup" style={{ textDecoration: 'none' }}>
-                            <Button variant="primary" size="lg">
-                                Start Building Free
-                                <ArrowRight size={18} />
-                            </Button>
-                        </Link>
-                        <a href="#how-it-works" style={{ textDecoration: 'none' }}>
-                            <Button variant="ghost" size="lg">See How It Works</Button>
-                        </a>
-                    </div>
-
-                    {/* Canvas mockup */}
-                    <div style={{ marginTop: '80px', position: 'relative' }}>
-                        <div
-                            style={{
-                                background: '#111118',
-                                border: '1px solid #1e1e2e',
-                                borderRadius: '20px',
-                                padding: '32px',
-                                boxShadow: '0 0 60px rgba(99,102,241,0.1), 0 20px 60px rgba(0,0,0,0.5)',
-                            }}
-                        >
-                            <svg width="100%" height="200" viewBox="0 0 700 200">
-                                {/* Trigger node */}
-                                <rect x="40" y="70" width="140" height="60" rx="12" fill="#111118" stroke="rgba(167,139,250,0.5)" strokeWidth="2" />
-                                <text x="110" y="95" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="600">TRIGGER</text>
-                                <text x="110" y="115" textAnchor="middle" fill="#f1f5f9" fontSize="13" fontWeight="500">Email Received</text>
-
-                                {/* Condition node */}
-                                <rect x="280" y="70" width="140" height="60" rx="12" fill="#111118" stroke="rgba(251,191,36,0.5)" strokeWidth="2" />
-                                <text x="350" y="95" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="600">CONDITION</text>
-                                <text x="350" y="115" textAnchor="middle" fill="#f1f5f9" fontSize="13" fontWeight="500">From Manager?</text>
-
-                                {/* Action node */}
-                                <rect x="520" y="70" width="140" height="60" rx="12" fill="#111118" stroke="rgba(99,102,241,0.5)" strokeWidth="2" />
-                                <text x="590" y="95" textAnchor="middle" fill="#818cf8" fontSize="10" fontWeight="600">ACTION</text>
-                                <text x="590" y="115" textAnchor="middle" fill="#f1f5f9" fontSize="13" fontWeight="500">Post to Slack</text>
-
-                                {/* Connecting lines */}
-                                <line x1="180" y1="100" x2="280" y2="100" stroke="#6366f1" strokeWidth="2" strokeDasharray="6 3">
-                                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1.5s" repeatCount="indefinite" />
-                                </line>
-                                <line x1="420" y1="100" x2="520" y2="100" stroke="#6366f1" strokeWidth="2" strokeDasharray="6 3">
-                                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1.5s" repeatCount="indefinite" />
-                                </line>
-
-                                {/* Arrow heads */}
-                                <polygon points="278,95 278,105 268,100" fill="#6366f1" />
-                                <polygon points="518,95 518,105 508,100" fill="#6366f1" />
-                            </svg>
-                        </div>
+            <section className="relative min-h-screen flex flex-col items-center px-8 md:px-12 overflow-hidden bg-[#0a0a0f]">
+                {/* Spacer to clear Fixed Nav (approx 120px) */}
+                <div className="h-[120px] md:h-[160px] shrink-0" />
+                {/* Background Grid */}
+                <div className="absolute inset-0 z-0">
+                    <BackgroundBoxes rows={24} cols={32} />
+                    <div className="absolute inset-0 opacity-40">
+                        <EtherealBackgroundUI
+                            color="rgba(99, 102, 241, 0.4)"
+                            animation={{ scale: 60, speed: 50 }}
+                            noise={{ opacity: 0.2, scale: 1.1 }}
+                            sizing="fill"
+                        />
                     </div>
                 </div>
+
+                {/* Glowing depth orbs */}
+                <div className="absolute top-[15%] left-[10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none z-0" />
+                <div className="absolute bottom-[10%] right-[10%] w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none z-0" />
+
+                <AnimatedPage className="relative z-10 w-full max-w-5xl mx-auto text-center flex flex-col items-center">
+                    <StaggerContainer className="flex flex-col items-center w-full">
+                        <StaggerItem>
+                            <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[#818cf8] text-sm font-bold mb-10 backdrop-blur-sm mx-auto">
+                                <Zap size={14} className="animate-pulse" />
+                                AI-Powered Workflow Automation
+                            </div>
+                        </StaggerItem>
+
+                        <StaggerItem>
+                            <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black tracking-tight leading-[1.1] mb-6 pointer-events-none">
+                                <span className="block text-white">Describe It.</span>
+                                <span className="block bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
+                                    Automate It.
+                                </span>
+                            </h1>
+                            <p className="text-[#94a3b8] text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed font-medium px-4">
+                                Transform plain English into powerful automated workflows. Our NLP engine parses your instructions into visual, editable flows you can deploy in seconds.
+                            </p>
+                        </StaggerItem>
+
+                        <StaggerItem>
+                            <div className="flex flex-col md:flex-row items-center justify-center gap-5 w-full max-w-md mx-auto mb-16 px-4">
+                                <Link to="/signup" className="w-full md:w-auto">
+                                    <Button size="lg" className="w-full h-14 md:h-16 px-12 text-base md:text-lg bg-violet-600 hover:bg-violet-700 border-2 border-violet-400/30 shadow-xl shadow-violet-500/20 transition-all hover:scale-110 group text-white rounded-full font-bold">
+                                        Start Building Free
+                                        <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                                    </Button>
+                                </Link>
+                                <a href="#how-it-works" className="w-full md:w-auto">
+                                    <Button variant="outline" size="lg" className="w-full h-14 md:h-16 px-12 text-base md:text-lg border-2 border-violet-500/50 hover:bg-white/5 bg-transparent text-white transition-all shadow-lg shadow-indigo-500/10 rounded-full font-bold hover:scale-105">
+                                        See How It Works
+                                    </Button>
+                                </a>
+                            </div>
+                        </StaggerItem>
+
+                        <StaggerItem className="mt-8 w-full max-w-4xl px-4">
+                            <div className="relative group scale-90 md:scale-100 opacity-90 transition-all hover:opacity-100 hover:scale-105">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-violet-500 to-indigo-500 rounded-[2rem] blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
+                                <div className="relative bg-[#0d0d12]/90 backdrop-blur-2xl border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl p-6 md:p-10">
+                                    <div className="flex flex-col gap-4">
+                                        {/* Row 1: Primary (Email -> Slack) */}
+                                        <div className="aspect-[20/4] bg-indigo-500/10 rounded-[1.2rem] relative overflow-hidden flex items-center justify-between px-6 md:px-12 border border-indigo-500/20 shadow-lg">
+                                            <div className="flex items-center gap-3 md:gap-6">
+                                                <div className="px-3 py-1.5 rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-[10px] md:text-sm font-black text-indigo-400 tracking-wider uppercase">Trigger</div>
+                                                <div className="text-sm md:text-lg font-bold text-white">Email Arrives</div>
+                                            </div>
+                                            <ArrowRight className="text-violet-500 w-5 h-5 md:w-8 md:h-8" />
+                                            <div className="flex items-center gap-3 md:gap-6">
+                                                <div className="text-sm md:text-lg font-bold text-white">Slack Message</div>
+                                                <div className="px-3 py-1.5 rounded-lg border border-violet-500/20 bg-violet-500/10 text-[10px] md:text-sm font-black text-violet-400 tracking-wider uppercase">Action</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Row 2: Secondary (Trello -> Notion) - Stacked Effect */}
+                                        <div className="aspect-[20/3] bg-white/10 rounded-[1rem] relative overflow-hidden flex items-center justify-between px-6 md:px-12 border border-white/5 opacity-80 scale-95 origin-top transition-all duration-300">
+                                            <div className="flex items-center gap-4">
+                                                <div className="text-sm font-bold text-gray-100">Trello Card Created</div>
+                                            </div>
+                                            <ArrowRight className="text-gray-400 w-4 h-4" />
+                                            <div className="flex items-center gap-4">
+                                                <div className="text-sm font-bold text-gray-100">Notion Page Created</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Row 3: Tertiary (Form -> Sheets) - Subtle Gradient */}
+                                        <div className="aspect-[20/2.5] bg-white/10 rounded-[0.8rem] relative overflow-hidden flex items-center justify-between px-6 md:px-12 border border-white/5 opacity-60 scale-90 origin-top transition-all duration-300">
+                                            <div className="flex items-center gap-4">
+                                                <div className="text-sm font-medium text-gray-200">Form Submitted</div>
+                                            </div>
+                                            <ArrowRight className="text-gray-500 w-3 h-3" />
+                                            <div className="flex items-center gap-4">
+                                                <div className="text-sm font-medium text-gray-200">Sheets Row Added</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </StaggerItem>
+                    </StaggerContainer>
+                </AnimatedPage>
             </section>
 
-            {/* Features Section */}
-            <section id="features" style={{ padding: '96px 24px', maxWidth: '1100px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-                <StaggerContainer>
-                    <StaggerItem>
-                        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-                            <h2
-                                style={{
-                                    fontFamily: "'Syne', sans-serif",
-                                    fontSize: '32px',
-                                    fontWeight: 700,
-                                    color: '#f1f5f9',
-                                    marginBottom: '16px',
-                                }}
-                            >
-                                Everything You Need
-                            </h2>
-                            <p style={{ color: '#94a3b8', fontSize: '16px', maxWidth: '500px', margin: '0 auto' }}>
+            {/* Content Sections with Ethereal Background */}
+            <div className="relative w-full">
+                <div className="absolute inset-0 z-0 pointer-events-none w-full h-full overflow-hidden">
+                    <EtherealShadow
+                        color="rgba(99, 102, 241, 0.25)"
+                        animation={{ scale: 40, speed: 60 }}
+                        noise={{ opacity: 0.2, scale: 1.2 }}
+                        sizing="fill"
+                    />
+                </div>
+                
+                {/* Features Section */}
+                <section id="features" className="py-24 px-6 relative z-10">
+                    <div className="w-full max-w-6xl mx-auto">
+                        <div className="text-center mb-16">
+                            <h2 className="font-display text-4xl font-bold mb-4 tracking-tight text-center w-full">Everything You Need</h2>
+                            <p className="text-[#94a3b8] text-lg max-w-2xl mx-auto text-center">
                                 From natural language to live automation — all in one platform.
                             </p>
                         </div>
-                    </StaggerItem>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-                        {features.map((feature, i) => (
-                            <StaggerItem key={i}>
-                                <Card hover style={{ height: '100%' }}>
-                                    <div
-                                        style={{
-                                            width: '48px',
-                                            height: '48px',
-                                            borderRadius: '12px',
-                                            background: 'rgba(99,102,241,0.1)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            color: '#6366f1',
-                                            marginBottom: '20px',
-                                            boxShadow: '0 0 20px rgba(99,102,241,0.15)',
-                                        }}
-                                    >
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+                            {features.map((feature, i) => (
+                                <div 
+                                    key={i}
+                                    className="p-6 rounded-2xl border border-violet-500/20 bg-white/5 backdrop-blur-sm text-left transition-all hover:bg-white/10 hover:border-violet-500/40 group"
+                                >
+                                    <div className="mb-4 text-violet-400 group-hover:scale-110 transition-transform w-fit">
                                         {feature.icon}
                                     </div>
-                                    <h3
-                                        style={{
-                                            fontFamily: "'Syne', sans-serif",
-                                            fontSize: '20px',
-                                            fontWeight: 700,
-                                            color: '#f1f5f9',
-                                            marginBottom: '12px',
-                                        }}
-                                    >
-                                        {feature.title}
-                                    </h3>
-                                    <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
-                                        {feature.description}
-                                    </p>
-                                </Card>
-                            </StaggerItem>
-                        ))}
+                                    <h3 className="text-lg font-semibold text-white mt-3">{feature.title}</h3>
+                                    <p className="text-sm text-gray-400 mt-2 leading-relaxed">{feature.description}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </StaggerContainer>
-            </section>
+                </section>
 
-            {/* How It Works */}
-            <section id="how-it-works" style={{ padding: '96px 24px', maxWidth: '1100px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-                <StaggerContainer>
-                    <StaggerItem>
-                        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-                            <h2
-                                style={{
-                                    fontFamily: "'Syne', sans-serif",
-                                    fontSize: '32px',
-                                    fontWeight: 700,
-                                    color: '#f1f5f9',
-                                    marginBottom: '16px',
-                                }}
-                            >
-                                How It Works
-                            </h2>
-                            <p style={{ color: '#94a3b8', fontSize: '16px', maxWidth: '500px', margin: '0 auto' }}>
+                {/* How It Works Section */}
+                <section id="how-it-works" className="py-24 px-6 relative z-10 mt-24 pb-32">
+                    <div className="w-full max-w-6xl mx-auto">
+                        <div className="text-center mb-16">
+                            <h2 className="font-display text-4xl font-bold mb-4 tracking-tight text-center">How It Works</h2>
+                            <p className="text-[#94a3b8] text-lg max-w-xl mx-auto text-center">
                                 Three simple steps from idea to live automation.
                             </p>
                         </div>
-                    </StaggerItem>
 
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                        {steps.map((step, i) => (
-                            <React.Fragment key={i}>
-                                <StaggerItem style={{ flex: '1', minWidth: '220px', maxWidth: '300px', textAlign: 'center' }}>
-                                    <div
-                                        style={{
-                                            fontFamily: "'Syne', sans-serif",
-                                            fontSize: '48px',
-                                            fontWeight: 800,
-                                            background: 'linear-gradient(135deg, #6366f1, #a78bfa)',
-                                            WebkitBackgroundClip: 'text',
-                                            WebkitTextFillColor: 'transparent',
-                                            backgroundClip: 'text',
-                                            marginBottom: '16px',
-                                        }}
-                                    >
-                                        {step.number}
+                        <div className="flex flex-row justify-center items-start gap-8 mt-12 flex-wrap text-center">
+                            {steps.map((step, i) => (
+                                <React.Fragment key={i}>
+                                    <div className="flex flex-col items-center text-center max-w-[200px]">
+                                        <div className="w-14 h-14 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-lg mx-auto shadow-lg shadow-violet-600/20">
+                                            {step.number}
+                                        </div>
+                                        <h3 className="font-semibold text-white mt-4">{step.title}</h3>
+                                        <p className="text-sm text-gray-400 mt-2">{step.description}</p>
                                     </div>
-                                    <h3
-                                        style={{
-                                            fontFamily: "'Syne', sans-serif",
-                                            fontSize: '20px',
-                                            fontWeight: 700,
-                                            color: '#f1f5f9',
-                                            marginBottom: '8px',
-                                        }}
-                                    >
-                                        {step.title}
-                                    </h3>
-                                    <p style={{ color: '#94a3b8', fontSize: '14px' }}>{step.description}</p>
-                                </StaggerItem>
-                                {i < steps.length - 1 && (
-                                    <div
-                                        style={{
-                                            alignSelf: 'center',
-                                            color: '#1e1e2e',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            paddingTop: '0px',
-                                        }}
-                                    >
-                                        <svg width="60" height="2" style={{ marginTop: '-40px' }}>
-                                            <line x1="0" y1="1" x2="60" y2="1" stroke="#1e1e2e" strokeWidth="2" strokeDasharray="6 4" />
-                                        </svg>
-                                    </div>
-                                )}
-                            </React.Fragment>
-                        ))}
+                                    {i < steps.length - 1 && (
+                                        <div className="hidden md:block flex-1 border-t border-dashed border-violet-500/30 mt-7 min-w-[40px] max-w-[120px]" />
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </div>
                     </div>
-                </StaggerContainer>
-            </section>
+                </section>
+            </div>
 
             {/* Footer */}
-            <footer
-                style={{
-                    borderTop: '1px solid #1e1e2e',
-                    padding: '48px 24px',
-                    textAlign: 'center',
-                    position: 'relative',
-                    zIndex: 1,
-                }}
-            >
-                <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Zap size={18} style={{ color: '#6366f1' }} />
-                        <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, color: '#f1f5f9' }}>FlowAI</span>
+            <footer className="py-16 px-6 border-t border-white/5 bg-[#0a0a0f]/50 backdrop-blur-md">
+                <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="flex items-center gap-3">
+                        <Zap size={22} className="text-[#6366f1]" />
+                        <span className="font-display font-bold text-xl tracking-tight">FlowAI</span>
                     </div>
-                    <div style={{ display: 'flex', gap: '24px' }}>
-                        <a href="#" style={{ color: '#475569', textDecoration: 'none', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#94a3b8'} onMouseLeave={e => e.currentTarget.style.color = '#475569'}>
-                            <BookOpen size={14} /> Docs
-                        </a>
-                        <a href="#" style={{ color: '#475569', textDecoration: 'none', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#94a3b8'} onMouseLeave={e => e.currentTarget.style.color = '#475569'}>
-                            <Github size={14} /> GitHub
-                        </a>
-                        <a href="#" style={{ color: '#475569', textDecoration: 'none', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#94a3b8'} onMouseLeave={e => e.currentTarget.style.color = '#475569'}>
-                            <Radio size={14} /> Status
-                        </a>
+                    
+                    <div className="flex items-center gap-8 text-sm text-[#475569]">
+                        <a href="#" className="hover:text-indigo-400 transition-colors">Documentation</a>
+                        <a href="#" className="hover:text-indigo-400 transition-colors">GitHub</a>
+                        <a href="#" className="hover:text-indigo-400 transition-colors">Status</a>
                     </div>
-                    <p style={{ color: '#475569', fontSize: '13px' }}>© 2026 FlowAI. All rights reserved.</p>
+
+                    <div className="flex items-center gap-4">
+                        <Github size={20} className="text-[#475569] hover:text-[#f1f5f9] cursor-pointer transition-colors" />
+                        <Twitter size={20} className="text-[#475569] hover:text-[#f1f5f9] cursor-pointer transition-colors" />
+                        <Linkedin size={20} className="text-[#475569] hover:text-[#f1f5f9] cursor-pointer transition-colors" />
+                    </div>
+                </div>
+                <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-[#475569]">
+                    <p>&copy; {new Date().getFullYear()} FlowAI. All rights reserved.</p>
+                    <div className="flex gap-6">
+                        <a href="#" className="hover:text-[#f1f5f9]">Privacy</a>
+                        <a href="#" className="hover:text-[#f1f5f9]">Terms</a>
+                    </div>
                 </div>
             </footer>
-        </AnimatedPage>
+        </div>
     );
 };

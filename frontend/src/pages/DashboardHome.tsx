@@ -94,19 +94,12 @@ export const DashboardHome: React.FC = () => {
     return (
         <AnimatedPage>
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                <h1
-                    style={{
-                        fontFamily: "'Syne', sans-serif",
-                        fontSize: '28px',
-                        fontWeight: 700,
-                        color: '#f1f5f9',
-                    }}
-                >
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <h1 className="font-display text-2xl md:text-3xl font-bold text-[#f1f5f9]">
                     Your Workflows
                 </h1>
-                <Link to="/dashboard/workflows/new" style={{ textDecoration: 'none' }}>
-                    <Button variant="primary">
+                <Link to="/dashboard/workflows/new" className="no-underline w-full sm:w-auto">
+                    <Button variant="primary" className="w-full sm:w-auto">
                         <Plus size={16} />
                         New Workflow
                     </Button>
@@ -114,111 +107,88 @@ export const DashboardHome: React.FC = () => {
             </div>
 
             {/* Search */}
-            <div style={{ marginBottom: '24px', maxWidth: '400px' }}>
-                <div style={{ position: 'relative' }}>
+            <div className="mb-6 w-full max-w-md">
+                <div className="relative group">
                     <Search
                         size={16}
-                        style={{
-                            position: 'absolute',
-                            left: '14px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            color: '#475569',
-                            pointerEvents: 'none',
-                        }}
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#475569] group-focus-within:text-[#6366f1] transition-colors pointer-events-none"
                     />
                     <Input
                         placeholder="Search workflows..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        style={{ paddingLeft: '40px' }}
+                        className="pl-10"
                     />
                 </div>
             </div>
 
             {/* Loading State */}
             {loading && (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '80px 0' }}>
-                    <Loader2 size={32} style={{ color: '#8b5cf6', animation: 'spin 1s linear infinite' }} />
+                <div className="flex justify-center items-center py-20">
+                    <Loader2 size={32} className="text-[#6366f1] animate-spin" />
                 </div>
             )}
 
             {/* Error State */}
             {error && !loading && (
                 <Card>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#ef4444' }}>
+                    <div className="flex items-center gap-3 text-red-500">
                         <AlertCircle size={20} />
-                        <span style={{ fontSize: '14px' }}>{error}</span>
+                        <span className="text-sm">{error}</span>
                     </div>
                 </Card>
             )}
 
             {/* Empty State */}
             {!loading && !error && workflows.length === 0 && (
-                <Card>
-                    <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                        <GitBranch size={48} style={{ color: '#475569', marginBottom: '16px' }} />
-                        <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: '18px', fontWeight: 700, color: '#f1f5f9', marginBottom: '8px' }}>
-                            No workflows yet
-                        </h3>
-                        <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>
-                            Create your first workflow by describing it in plain English.
-                        </p>
-                        <Link to="/dashboard/workflows/new" style={{ textDecoration: 'none' }}>
-                            <Button variant="primary">
-                                <Plus size={16} />
-                                Create Workflow
-                            </Button>
-                        </Link>
-                    </div>
+                <Card className="flex flex-col items-center text-center py-10">
+                    <GitBranch size={48} className="text-[#475569] mb-4" />
+                    <h3 className="font-display text-lg font-bold text-[#f1f5f9] mb-2">
+                        No workflows yet
+                    </h3>
+                    <p className="text-[#94a3b8] text-sm mb-6 max-w-sm">
+                        Create your first workflow by describing it in plain English.
+                    </p>
+                    <Link to="/dashboard/workflows/new" className="no-underline">
+                        <Button variant="primary">
+                            <Plus size={16} />
+                            Create Workflow
+                        </Button>
+                    </Link>
                 </Card>
             )}
 
             {/* Workflow Cards Grid */}
             {!loading && !error && filtered.length > 0 && (
-                <StaggerContainer style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {filtered.map((workflow) => {
                         const triggerType = getTriggerType(workflow);
                         const statusBadge = getStatusBadge(workflow.status);
                         return (
                             <StaggerItem key={workflow.id}>
-                                <Link to={`/dashboard/workflows/${workflow.id}`} style={{ textDecoration: 'none' }}>
-                                    <Card hover>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                            <div style={{ flex: 1 }}>
-                                                <h3
-                                                    style={{
-                                                        fontFamily: "'Syne', sans-serif",
-                                                        fontSize: '16px',
-                                                        fontWeight: 700,
-                                                        color: '#f1f5f9',
-                                                        marginBottom: '12px',
-                                                    }}
-                                                >
+                                <Link to={`/dashboard/workflows/${workflow.id}`} className="no-underline">
+                                    <Card hover className="h-full">
+                                        <div className="flex justify-between items-start gap-4">
+                                            <div className="flex-1">
+                                                <h3 className="font-display text-base font-bold text-[#f1f5f9] mb-3 truncate">
                                                     {workflow.name}
                                                 </h3>
-                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '16px' }}>
+                                                <div className="flex flex-wrap gap-2 items-center mb-4">
                                                     <Badge variant="trigger">
                                                         {triggerIcons[triggerType] || <GitBranch size={12} />}
-                                                        <span style={{ marginLeft: '4px' }}>{triggerType}</span>
+                                                        <span className="ml-1.5">{triggerType}</span>
                                                     </Badge>
                                                     <Badge variant={statusBadge.variant}>
                                                         {statusBadge.label}
                                                     </Badge>
                                                 </div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#475569', fontSize: '12px' }}>
+                                                <div className="flex items-center gap-1.5 text-[#475569] text-[12px]">
                                                     <Clock size={12} />
                                                     Last run: {formatLastRun(workflow.last_run_at)}
                                                 </div>
                                             </div>
                                             <button
-                                                style={{
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    color: '#475569',
-                                                    cursor: 'pointer',
-                                                    padding: '4px',
-                                                }}
+                                                className="p-1 text-[#475569] hover:text-[#f1f5f9] transition-colors"
                                                 onClick={(e) => e.preventDefault()}
                                             >
                                                 <MoreVertical size={16} />

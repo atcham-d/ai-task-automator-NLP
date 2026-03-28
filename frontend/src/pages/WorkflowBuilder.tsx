@@ -15,7 +15,10 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { toast } from 'react-hot-toast';
-import { Play, Pause, Save, ArrowLeft, Loader2, RotateCcw, Trash2 } from 'lucide-react';
+import { 
+    Sparkles, Loader2, X, 
+    ArrowLeft, Trash2, RotateCcw, Save, Play, Pause 
+} from 'lucide-react';
 
 import { apiGet, apiPost, apiPatch, apiDelete } from '../lib/api';
 import { Button } from '../components/Button';
@@ -27,7 +30,7 @@ import { NlInputPanel } from '../components/NlInputPanel';
 import TriggerNode from '../components/nodes/TriggerNode';
 import ActionNode from '../components/nodes/ActionNode';
 import ConditionNode from '../components/nodes/ConditionNode';
-import AnimatedEdge from '../components/edges/AnimatedEdge';
+import AnimatedEdge from '../components/nodes/AnimatedEdge';
 
 /* ─── Types ─── */
 
@@ -179,6 +182,7 @@ export const WorkflowBuilder: React.FC = () => {
     const [parsing, setParsing] = useState(false);
     const [saving, setSaving] = useState(false);
     const [savedId, setSavedId] = useState<string | null>(workflowId && workflowId !== 'new' ? workflowId : null);
+    const [nlPanelOpen, setNlPanelOpen] = useState(true);
 
     // Load existing workflow
     useEffect(() => {
@@ -322,72 +326,76 @@ export const WorkflowBuilder: React.FC = () => {
     }, [savedId, navigate]);
 
     return (
-        <AnimatedPage style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 64px)' }}>
+        <AnimatedPage className="flex flex-col h-[calc(100vh-64px)]">
             {/* Top Bar */}
-            <div
-                style={{
-                    height: '60px',
-                    background: '#0a0a0f',
-                    borderBottom: '1px solid #1e1e2e',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0 24px',
-                }}
-            >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')}>
+            <div className="h-[60px] bg-[#0a0a0f] border-b border-[#1e1e2e] flex items-center justify-between px-4 md:px-6 shrink-0">
+                <div className="flex items-center gap-3 md:gap-4 min-w-0">
+                    <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="shrink-0">
                         <ArrowLeft size={16} />
                     </Button>
                     <input
                         value={workflowName}
                         onChange={(e) => setWorkflowName(e.target.value)}
                         placeholder="Workflow Name"
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            color: '#f1f5f9',
-                            fontSize: '18px',
-                            fontWeight: 700,
-                            fontFamily: "'Syne', sans-serif",
-                            outline: 'none',
-                        }}
+                        className="bg-transparent border-none text-[#f1f5f9] text-base md:text-lg font-bold font-display outline-none truncate w-full max-w-[150px] md:max-w-md"
                     />
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="flex gap-2 items-center">
                     {savedId && (
-                        <>
-                            <Button variant="ghost" size="sm" onClick={handleDelete} style={{ color: '#ef4444' }}>
+                        <div className="hidden sm:flex items-center gap-2">
+                            <Button variant="ghost" size="sm" onClick={handleDelete} className="text-[#ef4444] hover:bg-red-500/10">
                                 <Trash2 size={14} />
                             </Button>
                             <Button variant="ghost" size="sm" onClick={handleRun}>
                                 <RotateCcw size={14} />
                             </Button>
-                        </>
+                        </div>
                     )}
-                    <Button variant="ghost" size="sm" onClick={handleSave} disabled={saving}>
-                        {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />}
-                        Save
+                    <Button variant="ghost" size="sm" onClick={handleSave} disabled={saving} className="hidden xs:flex">
+                        {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                        <span className="ml-2 hidden md:inline">Save</span>
                     </Button>
-                    <Button variant="primary" size="sm" onClick={handleToggleActive}>
+                    <Button variant="primary" size="sm" onClick={handleToggleActive} className="whitespace-nowrap px-3 md:px-4">
                         {workflowStatus === 'active' ? <Pause size={14} /> : <Play size={14} />}
-                        {workflowStatus === 'active' ? 'Pause' : 'Activate'}
+                        <span className="ml-2">{workflowStatus === 'active' ? 'Pause' : 'Activate'}</span>
                     </Button>
                 </div>
             </div>
 
             {/* 3-Panel Layout */}
-            <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+            <div className="flex flex-1 overflow-hidden relative">
+                {/* Mobile Toggle for NL Panel */}
+                {!nlPanelOpen && (
+                    <button
+                        onClick={() => setNlPanelOpen(true)}
+                        className="fixed bottom-6 left-6 z-50 p-4 bg-[#6366f1] text-white rounded-full shadow-xl shadow-indigo-500/40 lg:hidden hover:scale-110 transition-transform active:scale-95"
+                    >
+                        <Sparkles size={20} />
+                    </button>
+                )}
+
                 {/* Left Panel — NL Input */}
                 <NlInputPanel
                     onParse={handleParse}
                     parsing={parsing}
                     parsedDef={parsedDef}
+                    isOpen={nlPanelOpen}
+                    onToggle={() => setNlPanelOpen(!nlPanelOpen)}
                 />
 
                 {/* Center Panel — React Flow Canvas */}
-                <div style={{ flex: 1, position: 'relative' }}>
+                <div className="flex-1 relative bg-[#0a0a0f]">
+                    {/* Desktop Toggle Button */}
+                    <button
+                        onClick={() => setNlPanelOpen(!nlPanelOpen)}
+                        className="hidden lg:flex absolute top-4 left-4 z-10 p-2 bg-[#111118]/80 border border-[#1e1e2e] text-[#94a3b8] hover:text-[#f1f5f9] rounded-lg backdrop-blur-md transition-all group"
+                        title={nlPanelOpen ? "Close AI Assistant" : "Open AI Assistant"}
+                    >
+                        <Sparkles size={18} className={nlPanelOpen ? "text-[#6366f1]" : ""} />
+                        {!nlPanelOpen && <span className="ml-2 text-xs font-semibold uppercase tracking-wider">Assistant</span>}
+                    </button>
+
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
@@ -400,86 +408,75 @@ export const WorkflowBuilder: React.FC = () => {
                         edgeTypes={edgeTypes}
                         fitView
                         proOptions={{ hideAttribution: true }}
-                        style={{ background: '#0a0a0f' }}
                     >
                         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="rgba(255,255,255,0.05)" />
-                        <Controls />
+                        <Controls className="!bg-[#111118] !border-[#1e1e2e] !fill-[#94a3b8]" />
                         <MiniMap
                             nodeColor={getMiniMapNodeColor}
                             maskColor="rgba(10,10,15,0.8)"
+                            className="hidden md:block !bg-[#111118] !border-[#1e1e2e]"
                         />
                     </ReactFlow>
                 </div>
 
                 {/* Right Panel — Node Inspector */}
                 <div
-                    style={{
-                        width: selectedNode ? '260px' : '0px',
-                        borderLeft: selectedNode ? '1px solid #1e1e2e' : 'none',
-                        padding: selectedNode ? '20px' : '0',
-                        overflowY: 'auto',
-                        transition: 'width 0.3s ease, padding 0.3s ease',
-                        overflowX: 'hidden',
-                    }}
+                    className={`
+                        fixed inset-y-0 right-0 z-40 bg-[#0a0a0f] border-l border-[#1e1e2e]
+                        transition-all duration-300 ease-in-out overflow-y-auto
+                        md:relative md:translate-x-0
+                        ${selectedNode ? 'translate-x-0 w-80 p-6' : 'translate-x-full w-0 p-0 overflow-hidden'}
+                    `}
                 >
                     {selectedNode && (
-                        <>
-                            <h3
-                                style={{
-                                    fontFamily: "'Syne', sans-serif",
-                                    fontSize: '16px',
-                                    fontWeight: 700,
-                                    color: '#f1f5f9',
-                                    marginBottom: '20px',
-                                }}
-                            >
-                                Node Properties
-                            </h3>
+                        <div className="min-w-[260px]">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="font-display text-lg font-bold text-[#f1f5f9]">
+                                    Node Properties
+                                </h3>
+                                <button onClick={() => setSelectedNode(null)} className="p-1 md:hidden text-[#475569]">
+                                    <X size={20} />
+                                </button>
+                            </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <div>
-                                    <label style={{ fontSize: '12px', fontWeight: 500, color: '#94a3b8', display: 'block', marginBottom: '6px' }}>
+                            <div className="flex flex-col gap-8">
+                                <div className="space-y-3">
+                                    <label className="text-[12px] font-bold uppercase tracking-wider text-[#475569]">
                                         Type
                                     </label>
-                                    <Badge
-                                        variant={
-                                            selectedNode.type === 'trigger' ? 'trigger' :
-                                                selectedNode.type === 'condition' ? 'warning' : 'info'
-                                        }
-                                    >
-                                        {selectedNode.type?.charAt(0).toUpperCase()}{selectedNode.type?.slice(1)}
-                                    </Badge>
+                                    <div>
+                                        <Badge
+                                            variant={
+                                                selectedNode.type === 'trigger' ? 'trigger' :
+                                                    selectedNode.type === 'condition' ? 'warning' : 'info'
+                                            }
+                                        >
+                                            {selectedNode.type?.toUpperCase()}
+                                        </Badge>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label style={{ fontSize: '12px', fontWeight: 500, color: '#94a3b8', display: 'block', marginBottom: '6px' }}>
+                                <div className="space-y-3">
+                                    <label className="text-[12px] font-bold uppercase tracking-wider text-[#475569]">
                                         Label
                                     </label>
                                     <input
                                         value={(selectedNode.data as { label?: string }).label || ''}
                                         readOnly
-                                        style={{
-                                            background: '#0a0a0f',
-                                            border: '1px solid #1e1e2e',
-                                            borderRadius: '8px',
-                                            padding: '8px 12px',
-                                            color: '#f1f5f9',
-                                            fontSize: '13px',
-                                            width: '100%',
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            outline: 'none',
-                                        }}
+                                        className="w-full bg-[#111118] border border-[#1e1e2e] rounded-xl px-4 py-3 text-[#f1f5f9] text-[13px] font-medium placeholder-[#475569] outline-none"
                                     />
                                 </div>
                             </div>
 
-                            <Button variant="primary" size="sm" style={{ width: '100%', marginTop: '24px' }} disabled>
+                            <Button variant="primary" size="sm" className="w-full mt-10 opacity-50 cursor-not-allowed" disabled>
                                 Save Changes
                             </Button>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>
         </AnimatedPage>
     );
 };
+
+export default WorkflowBuilder;

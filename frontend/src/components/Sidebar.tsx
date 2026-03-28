@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, GitBranch, ScrollText, Settings, LogOut, Zap, User, Blocks } from 'lucide-react';
+import { LayoutDashboard, GitBranch, ScrollText, Settings, LogOut, Zap, User, Blocks, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface SidebarLink {
@@ -17,7 +17,12 @@ const links: SidebarLink[] = [
     { label: 'Settings', to: '/dashboard/settings', icon: <Settings size={18} /> },
 ];
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+    isOpen?: boolean;
+    onClose?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, logout } = useAuth();
@@ -30,127 +35,92 @@ export const Sidebar: React.FC = () => {
     const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
 
     return (
-        <aside
-            style={{
-                width: '240px',
-                height: '100vh',
-                position: 'fixed',
-                left: 0,
-                top: 0,
-                background: '#0e0e16',
-                borderRight: '1px solid #1e1e2e',
-                display: 'flex',
-                flexDirection: 'column',
-                zIndex: 50,
-            }}
-        >
-            {/* Logo */}
-            <div
-                style={{
-                    padding: '24px 20px',
-                    borderBottom: '1px solid #1e1e2e',
-                }}
+        <>
+            {/* Mobile Backdrop */}
+            {isOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/60 z-[60] md:hidden backdrop-blur-md transition-all duration-300 opacity-100"
+                    onClick={onClose}
+                />
+            )}
+
+            <aside
+                className={`
+                    fixed left-0 top-0 h-screen w-[240px] bg-[#0e0e16] border-r border-[#1e1e2e] 
+                    flex flex-col z-[70] transition-transform duration-300 ease-in-out
+                    ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
+                `}
             >
-                <Link
-                    to="/dashboard"
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        textDecoration: 'none',
-                        color: '#f1f5f9',
-                        fontFamily: "'Syne', sans-serif",
-                        fontWeight: 700,
-                        fontSize: '20px',
-                    }}
-                >
-                    <Zap size={22} style={{ color: '#6366f1' }} />
-                    FlowAI
-                </Link>
-            </div>
-
-            {/* Nav Links */}
-            <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {links.map((link) => {
-                    const isActive =
-                        link.to === '/dashboard'
-                            ? location.pathname === '/dashboard'
-                            : location.pathname.startsWith(link.to);
-
-                    return (
-                        <Link
-                            key={link.to}
-                            to={link.to}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '12px',
-                                padding: '10px 12px',
-                                borderRadius: '10px',
-                                textDecoration: 'none',
-                                fontSize: '14px',
-                                fontWeight: 500,
-                                color: isActive ? '#f1f5f9' : '#94a3b8',
-                                background: isActive ? 'rgba(99,102,241,0.1)' : 'transparent',
-                                transition: 'all 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                                if (!isActive) {
-                                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                                    e.currentTarget.style.color = '#f1f5f9';
-                                }
-                            }}
-                            onMouseLeave={(e) => {
-                                if (!isActive) {
-                                    e.currentTarget.style.background = 'transparent';
-                                    e.currentTarget.style.color = '#94a3b8';
-                                }
-                            }}
-                        >
-                            <span style={{ color: isActive ? '#6366f1' : 'inherit' }}>{link.icon}</span>
-                            {link.label}
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            {/* User */}
-            <div
-                style={{
-                    padding: '16px 16px',
-                    borderTop: '1px solid #1e1e2e',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                }}
-            >
-                <div
-                    style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '10px',
-                        background: 'linear-gradient(135deg, #6366f1, #a78bfa)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <User size={18} color="#fff" />
+                {/* Logo & Close Button */}
+                <div className="p-5 md:p-6 border-b border-[#1e1e2e] flex items-center justify-between">
+                    <Link
+                        to="/dashboard"
+                        className="flex items-center gap-2.5 no-underline text-[#f1f5f9] font-display font-bold text-xl"
+                    >
+                        <Zap size={22} className="text-[#6366f1]" />
+                        FlowAI
+                    </Link>
+                    <button 
+                        onClick={onClose}
+                        className="p-1 text-[#475569] hover:text-[#f1f5f9] md:hidden"
+                        aria-label="Close Sidebar"
+                    >
+                        <X size={20} />
+                    </button>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#f1f5f9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</div>
-                    <div style={{ fontSize: '12px', color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email || ''}</div>
+
+                {/* Nav Links */}
+                <nav className="flex-1 p-3 md:p-4 flex flex-col gap-1 overflow-y-auto">
+                    {links.map((link) => {
+                        const isActive =
+                            link.to === '/dashboard'
+                                ? location.pathname === '/dashboard'
+                                : location.pathname.startsWith(link.to);
+
+                        return (
+                            <Link
+                                key={link.to}
+                                to={link.to}
+                                onClick={onClose}
+                                className={`
+                                    flex items-center gap-3 px-3 py-2.5 rounded-lg no-underline text-sm font-medium transition-all
+                                    ${isActive 
+                                        ? 'text-[#f1f5f9] bg-[#6366f1]/10' 
+                                        : 'text-[#94a3b8] hover:bg-white/5 hover:text-[#f1f5f9]'
+                                    }
+                                `}
+                            >
+                                <span className={isActive ? 'text-[#6366f1]' : 'text-inherit'}>
+                                    {link.icon}
+                                </span>
+                                {link.label}
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                {/* User Info */}
+                <div className="p-4 border-t border-[#1e1e2e] flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#6366f1] to-[#a78bfa] flex items-center justify-center shrink-0">
+                        <User size={18} className="text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-[#f1f5f9] truncate">
+                            {displayName}
+                        </div>
+                        <div className="text-[12px] text-[#475569] truncate">
+                            {user?.email || ''}
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="p-1 text-[#475569] hover:text-[#ef4444] transition-colors cursor-pointer"
+                        title="Sign out"
+                    >
+                        <LogOut size={16} />
+                    </button>
                 </div>
-                <button
-                    onClick={handleLogout}
-                    style={{ color: '#475569', transition: 'color 0.2s', background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = '#ef4444'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = '#475569'; }}
-                    title="Sign out"
-                >
-                    <LogOut size={16} />
-                </button>
-            </div>
-        </aside>
+            </aside>
+        </>
     );
 };
