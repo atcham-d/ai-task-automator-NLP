@@ -1,5 +1,30 @@
 # JOURNAL.md
 
+## Session: 2026-03-31 22:20
+
+### Objective
+Resolve critical PR #4 review comments: Security (HMAC), Accessibility (asChild, ARIA), and UI Polish (SVG filters).
+
+### Accomplished
+- **Security**: Hardened Trello webhook signature validation and isolated workflow errors.
+- **Accessibility**: implemented `asChild` pattern across navigation, fixed mobile menu states, and improved keyboard support on Integrations cards.
+- **Polish**: Fixed ethereal shadow filter chain and localized all assets.
+- **Tests**: Refactored NLP verification to `pytest`.
+
+### Verification
+- [x] `pytest backend/tests/test_nlp_v2.py` (3/3 Passed)
+- [x] `npm run build` (Verified 0 errors)
+- [x] `ruff` check on webhook router (Passed)
+
+### Paused Because
+User requested `/pause` - end of session.
+
+### Handoff Notes
+PR #4 is merge-ready. Next step is pushing these fixes and starting Phase 5 (Google OAuth). Dev server was stable for ~1hr.
+- Backend venv: `backend/venv` (requires `pytest`, `ruff`)
+
+---
+
 ## Session: 2026-03-24 16:50
 
 ### Objective
