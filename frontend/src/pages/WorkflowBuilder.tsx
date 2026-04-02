@@ -25,6 +25,10 @@ import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 import { AnimatedPage } from '../components/AnimatedPage';
 import { NlInputPanel } from '../components/NlInputPanel';
+import type { 
+    WorkflowDefinition, 
+    WorkflowResponse
+} from '../types/workflow';
 
 // Nodes
 import TriggerNode from '../components/nodes/TriggerNode';
@@ -32,21 +36,49 @@ import ActionNode from '../components/nodes/ActionNode';
 import ConditionNode from '../components/nodes/ConditionNode';
 import AnimatedEdge from '../components/nodes/AnimatedEdge';
 
-/* ─── Types ─── */
+/* ─── Boundary Validation ─── */
 
-interface WorkflowDefinition {
-    trigger: { type: string; config: Record<string, unknown> };
-    conditions: { field: string; operator: string; value: string }[];
-    actions: { type: string; config: Record<string, any> }[];
-}
+/**
+ * Validates the response from the NLP engine to ensure it matches the 
+ * WorkflowDefinition interface before propagating it to the UI.
+ */
+function validateWorkflowDefinition(data: unknown): WorkflowDefinition {
+    if (!data || typeof data !== 'object') {
+        throw new Error('Invalid workflow definition: Response is not an object');
+    }
 
-interface WorkflowResponse {
-    id: string;
-    name: string;
-    description: string | null;
-    status: string;
-    definition: Record<string, unknown>;
-    run_count: number;
+    const workflowData = data as Record<string, unknown>;
+
+    if (!workflowData.trigger || typeof workflowData.trigger !== 'object' || !((workflowData.trigger as Record<string, unknown>).type)) {
+        throw new Error('Invalid workflow definition: Missing or invalid trigger');
+    }
+
+    if (!Array.isArray(workflowData.actions)) {
+        throw new Error('Invalid workflow definition: Actions must be an array');
+    }
+
+    if (!Array.isArray(workflowData.conditions)) {
+        throw new Error('Invalid workflow definition: Conditions must be an array');
+    }
+
+    const trigger = workflowData.trigger as Record<string, unknown>;
+
+    // Narrowing to the expected shape
+    return {
+        trigger: {
+            type: String(trigger.type),
+            config: (trigger.config as Record<string, unknown>) || {}
+        },
+        conditions: (workflowData.conditions as Record<string, unknown>[]).map((c) => ({
+            field: String(c.field || ''),
+            operator: String(c.operator || ''),
+            value: String(c.value || '')
+        })),
+        actions: (workflowData.actions as Record<string, unknown>[]).map((a) => ({
+            type: String(a.type || ''),
+            config: (a.config as Record<string, unknown>) || {}
+        }))
+    };
 }
 
 /* ─── Helpers ─── */
@@ -238,7 +270,8 @@ export const WorkflowBuilder: React.FC = () => {
         setParsing(true);
         try {
             setNlInput(text);
-            const def = await apiPost<WorkflowDefinition>('/api/parse/', { text });
+            const responseData = await apiPost<unknown>('/api/parse/', { text });
+            const def = validateWorkflowDefinition(responseData);
             setParsedDef(def);
             const { nodes: n, edges: e } = definitionToNodes(def);
             setNodes(n);

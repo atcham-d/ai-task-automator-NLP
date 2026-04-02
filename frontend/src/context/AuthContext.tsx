@@ -12,7 +12,7 @@ const MOCK_USER = {
     user_metadata: { full_name: 'Dev User' },
     aud: 'authenticated',
     created_at: '2024-01-01T00:00:00Z',
-} as any;
+} as User;
 
 const MOCK_SESSION = {
     access_token: 'DEV_BYPASS_TOKEN',
@@ -20,7 +20,7 @@ const MOCK_SESSION = {
     expires_in: 3600,
     refresh_token: '',
     user: MOCK_USER,
-} as any;
+} as Session;
 
 interface AuthContextType {
     user: User | null;
@@ -40,23 +40,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check for dev bypass token first
-        if (import.meta.env.VITE_DEV_BYPASS === 'true') {
-            const bypassToken = localStorage.getItem('sb-bypass-token');
-            if (bypassToken === 'DEV_BYPASS_TOKEN') {
-                setSession(MOCK_SESSION);
-                setUser(MOCK_USER);
-                setLoading(false);
-                return;
+        const initializeAuth = async () => {
+            // Check for dev bypass token first
+            if (import.meta.env.VITE_DEV_BYPASS === 'true') {
+                const bypassToken = localStorage.getItem('sb-bypass-token');
+                if (bypassToken === 'DEV_BYPASS_TOKEN') {
+                    setSession(MOCK_SESSION as Session);
+                    setUser(MOCK_USER as User);
+                    setLoading(false);
+                    return;
+                }
             }
-        }
 
-        // Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
+            // Get initial session
+            const { data: { session } } = await supabase.auth.getSession();
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
-        });
+        };
+
+        initializeAuth();
 
         // Listen for auth state changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(

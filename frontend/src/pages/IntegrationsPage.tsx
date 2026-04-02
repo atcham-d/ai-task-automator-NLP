@@ -13,7 +13,7 @@ import {
 import toast from 'react-hot-toast';
 
 // Component mapping for Lucide icons
-const IconMap: Record<string, React.FC<any>> = {
+const IconMap: Record<string, React.ElementType> = {
     Globe,
     Mail,
     Trello,

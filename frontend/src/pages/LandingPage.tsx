@@ -217,9 +217,9 @@ export const LandingPage: React.FC = () => {
                     </div>
                     
                     <div className="flex items-center gap-8 text-sm text-[#475569]">
-                        <a href="#" className="hover:text-indigo-400 transition-colors">Documentation</a>
-                        <a href="#" className="hover:text-indigo-400 transition-colors">GitHub</a>
-                        <a href="#" className="hover:text-indigo-400 transition-colors">Status</a>
+                        <a href="https://github.com/atcham-d/ai-task-automator-NLP#readme" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors">Documentation</a>
+                        <a href="https://github.com/atcham-d/ai-task-automator-NLP" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors">GitHub</a>
+                        <a href="#" className="hover:text-indigo-400 transition-colors opacity-50 cursor-not-allowed">Status</a>
                     </div>
 
                     <div className="flex items-center gap-4">

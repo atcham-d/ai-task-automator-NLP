@@ -2,12 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles, Loader2, ChevronDown, ChevronRight, X } from 'lucide-react';
 import { Button } from './Button';
 import { Textarea } from './Input';
-
-interface WorkflowDefinition {
-    trigger: { type: string; config: Record<string, unknown> };
-    conditions: { field: string; operator: string; value: string }[];
-    actions: { type: string; config: Record<string, any> }[];
-}
+import type { WorkflowDefinition } from '../types/workflow';
 
 interface NlInputPanelProps {
     onParse: (text: string) => Promise<void>;
@@ -56,7 +51,12 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({
                 <div className="space-y-4">
                     <Textarea
                         value={localNlInput}
-                        onChange={(e) => setLocalNlInput(e.target.value)}
+                        onChange={(e) => {
+                            if (e.target.value.length <= 500) {
+                                setLocalNlInput(e.target.value);
+                            }
+                        }}
+                        maxLength={500}
                         placeholder="When I receive an email from..."
                         className="min-h-[180px] text-[13px] leading-relaxed"
                     />

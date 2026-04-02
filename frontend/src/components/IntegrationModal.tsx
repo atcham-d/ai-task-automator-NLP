@@ -52,22 +52,22 @@ export const IntegrationModal: React.FC<IntegrationModalProps> = ({
     if (!isOpen || !type || !schema) return null;
 
     // Derive the shape keys so we can map them to inputs
-    const fieldKeys = Object.keys((schema as any).shape);
+    const fieldKeys = Object.keys((schema as unknown as { shape: Record<string, unknown> }).shape);
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: Record<string, unknown>) => {
         setIsSubmitting(true);
         try {
             if (existingIntegration) {
                 const { name, ...configData } = data;
                 await integrationsApi.update(existingIntegration.id, {
-                    name: name,
+                    name: String(name || ''),
                     config: configData
                 });
                 toast.success('Integration updated successfully');
             } else {
                 const { name, ...configData } = data;
                 await integrationsApi.create({
-                    name: name || (type.charAt(0).toUpperCase() + type.slice(1)),
+                    name: String(name || (type.charAt(0).toUpperCase() + type.slice(1))),
                     type,
                     config: configData,
                     is_active: true,
@@ -101,7 +101,7 @@ export const IntegrationModal: React.FC<IntegrationModalProps> = ({
                     {existingIntegration ? 'Update' : 'Configure'} {type}
                 </h2>
 
-                <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <form onSubmit={handleSubmit(onSubmit as (data: unknown) => Promise<void>)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {fieldKeys.map((key) => {
                         // Secret obfuscation: visually hide standard secret/password tokens
                         const isSecret = key.toLowerCase().includes('password') || key.toLowerCase().includes('token') || key.toLowerCase().includes('key');
@@ -112,7 +112,7 @@ export const IntegrationModal: React.FC<IntegrationModalProps> = ({
                         return (
                             <div key={key}>
                                 <Controller
-                                    name={key as any}
+                                    name={key as never}
                                     control={control}
                                     render={({ field }) => (
                                         <Input
@@ -121,7 +121,7 @@ export const IntegrationModal: React.FC<IntegrationModalProps> = ({
                                             label={label}
                                             type={isSecret ? 'password' : 'text'}
                                             placeholder={`Enter ${label}...`}
-                                            error={(errors as any)[key]?.message as string}
+                                            error={(errors as Record<string, { message?: string }>)[key]?.message}
                                         />
                                     )}
                                 />

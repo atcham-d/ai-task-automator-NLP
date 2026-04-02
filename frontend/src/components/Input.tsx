@@ -7,6 +7,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
     label?: string;
+    error?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -37,7 +38,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = 'Input';
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-    ({ label, className = '', ...props }, ref) => {
+    ({ label, error, className = '', ...props }, ref) => {
         return (
             <div className="w-full">
                 {label && (
@@ -48,13 +49,14 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 <textarea
                     ref={ref}
                     className={`
-                        bg-[#0a0a0f] border border-[#1e1e2e] rounded-xl px-3.5 py-2.5 text-[#f1f5f9] font-body text-[15px] w-full 
+                        bg-[#0a0a0f] border rounded-xl px-3.5 py-2.5 text-[#f1f5f9] font-body text-[15px] w-full 
                         transition-all duration-200 outline-none resize-vertical min-h-[120px] leading-relaxed
-                        focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20
+                        ${error ? 'border-red-500' : 'border-[#1e1e2e] focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20'}
                         ${className}
                     `}
                     {...props}
                 />
+                {error && <div className="text-red-500 text-[12px] mt-1">{error}</div>}
             </div>
         );
     }
