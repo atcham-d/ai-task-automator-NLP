@@ -19,6 +19,7 @@ export const DashboardLayout: React.FC = () => {
                         onClick={toggleSidebar}
                         className="p-2 text-[#94a3b8] hover:text-[#f1f5f9] transition-colors"
                         aria-label="Toggle Menu"
+                        aria-expanded={isSidebarOpen}
                     >
                         <Menu size={24} />
                     </button>

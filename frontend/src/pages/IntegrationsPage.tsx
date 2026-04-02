@@ -71,8 +71,9 @@ export const IntegrationsPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center py-20">
+            <div role="status" className="flex flex-col justify-center items-center py-20 gap-4">
                 <Loader2 size={32} className="text-[#6366f1] animate-spin" />
+                <span className="sr-only">Loading integrations...</span>
             </div>
         );
     }
@@ -173,8 +174,16 @@ export const IntegrationsPage: React.FC = () => {
                             <Card 
                                 key={app.type} 
                                 hover 
-                                className={`flex flex-col h-full ${!isConnected ? 'cursor-pointer' : ''}`}
+                                role={!isConnected ? "button" : undefined}
+                                tabIndex={!isConnected ? 0 : undefined}
+                                className={`flex flex-col h-full ${!isConnected ? 'cursor-pointer focus-within:ring-2 focus-within:ring-violet-500/50 outline-none' : ''}`}
                                 onClick={() => !isConnected && openCreateModal(app.type)}
+                                onKeyDown={(e: React.KeyboardEvent) => {
+                                    if (!isConnected && (e.key === 'Enter' || e.key === ' ')) {
+                                        e.preventDefault();
+                                        openCreateModal(app.type);
+                                    }
+                                }}
                             >
                                 <div className="flex items-start gap-4 mb-5">
                                     <div className="p-3 bg-white/5 rounded-xl text-[#a78bfa] shrink-0 group-hover:bg-[#a78bfa]/10 transition-colors">

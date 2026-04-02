@@ -117,7 +117,7 @@ export function Component({
             <div
                 style={{
                     position: "absolute",
-                    inset: -displacementScale,
+                    inset: animationEnabled ? -displacementScale : 0,
                     filter: animationEnabled ? `url(#${id}) blur(4px)` : "none"
                 }}
             >
@@ -132,23 +132,29 @@ export function Component({
                                     seed="0"
                                     type="turbulence"
                                 />
+                                <feTurbulence
+                                    type="fractalNoise"
+                                    baseFrequency="0.012"
+                                    numOctaves="3"
+                                    result="mask"
+                                />
                                 <feColorMatrix
                                     ref={feColorMatrixRef}
                                     in="undulation"
                                     type="hueRotate"
                                     values="180"
                                 />
+                                <feDisplacementMap
+                                    in="SourceGraphic"
+                                    in2="mask"
+                                    scale={displacementScale}
+                                    result="dist"
+                                />
                                 <feColorMatrix
                                     in="dist"
                                     result="circulation"
                                     type="matrix"
                                     values="4 0 0 0 1  4 0 0 0 1  4 0 0 0 1  1 0 0 0 0"
-                                />
-                                <feDisplacementMap
-                                    in="SourceGraphic"
-                                    in2="circulation"
-                                    scale={displacementScale}
-                                    result="dist"
                                 />
                                 <feDisplacementMap
                                     in="dist"
@@ -163,7 +169,7 @@ export function Component({
                 <div
                     style={{
                         backgroundColor: color,
-                        maskImage: `url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=3348&auto=format&fit=crop')`,
+                        maskImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                         maskSize: sizing === "stretch" ? "100% 100%" : "cover",
                         maskRepeat: "no-repeat",
                         maskPosition: "center",

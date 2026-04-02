@@ -47,7 +47,7 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({
                     </label>
                     <button 
                         onClick={onToggle}
-                        className="lg:hidden p-1.5 text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-white/5 rounded-md transition-colors"
+                        className="md:hidden p-1.5 text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-white/5 rounded-md transition-colors"
                     >
                         <X size={18} />
                     </button>

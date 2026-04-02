@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*
@@ -38,3 +41,4 @@ model_capabilities*
 PRD.md
 PROJECT_RULES*
 VERSION
+/VERSION

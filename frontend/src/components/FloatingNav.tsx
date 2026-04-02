@@ -53,16 +53,12 @@ export const FloatingNav: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-4">
-                <Link to="/login" className="no-underline hidden md:block">
-                    <Button variant="ghost" className="h-10 px-4 text-sm text-[#f1f5f9] hover:bg-white/5 border-none">
-                        Sign In
-                    </Button>
-                </Link>
-                <Link to="/signup" className="no-underline">
-                    <Button className="h-10 px-6 text-sm bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20 border-none transition-all rounded-full font-medium">
-                        Get Started
-                    </Button>
-                </Link>
+                <Button asChild variant="ghost" className="h-10 px-4 text-sm text-[#f1f5f9] hover:bg-white/5 border-none hidden md:block">
+                    <Link to="/login">Sign In</Link>
+                </Button>
+                <Button asChild className="h-10 px-6 text-sm bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20 border-none transition-all rounded-full font-medium">
+                    <Link to="/signup">Get Started</Link>
+                </Button>
             </div>
         </nav>
     );

@@ -45,6 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             )}
 
             <aside
+                aria-hidden={!isOpen && typeof window !== 'undefined' && window.innerWidth < 768}
                 className={`
                     fixed left-0 top-0 h-screen w-[240px] bg-[#0e0e16] border-r border-[#1e1e2e] 
                     flex flex-col z-[70] transition-transform duration-300 ease-in-out

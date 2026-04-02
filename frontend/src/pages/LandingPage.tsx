@@ -81,17 +81,15 @@ export const LandingPage: React.FC = () => {
 
                         <StaggerItem>
                             <div className="flex flex-col md:flex-row items-center justify-center gap-5 w-full max-w-md mx-auto mb-16 px-4">
-                                <Link to="/signup" className="w-full md:w-auto">
-                                    <Button size="lg" className="w-full h-14 md:h-16 px-12 text-base md:text-lg bg-violet-600 hover:bg-violet-700 border-2 border-violet-400/30 shadow-xl shadow-violet-500/20 transition-all hover:scale-110 group text-white rounded-full font-bold">
+                                <Button asChild size="lg" className="w-full md:w-auto h-14 md:h-16 px-12 text-base md:text-lg bg-violet-600 hover:bg-violet-700 border-2 border-violet-400/30 shadow-xl shadow-violet-500/20 transition-all hover:scale-110 group text-white rounded-full font-bold">
+                                    <Link to="/signup">
                                         Start Building Free
                                         <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
-                                    </Button>
-                                </Link>
-                                <a href="#how-it-works" className="w-full md:w-auto">
-                                    <Button variant="outline" size="lg" className="w-full h-14 md:h-16 px-12 text-base md:text-lg border-2 border-violet-500/50 hover:bg-white/5 bg-transparent text-white transition-all shadow-lg shadow-indigo-500/10 rounded-full font-bold hover:scale-105">
-                                        See How It Works
-                                    </Button>
-                                </a>
+                                    </Link>
+                                </Button>
+                                <Button asChild variant="outline" size="lg" className="w-full md:w-auto h-14 md:h-16 px-12 text-base md:text-lg border-2 border-violet-500/50 hover:bg-white/5 bg-transparent text-white transition-all shadow-lg shadow-indigo-500/10 rounded-full font-bold hover:scale-105">
+                                    <a href="#how-it-works">See How It Works</a>
+                                </Button>
                             </div>
                         </StaggerItem>
 

@@ -116,16 +116,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const googleSignIn = useCallback(async () => {
-        const res = await fetch(`${API_URL}/api/auth/google`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+            },
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Google sign-in failed');
-
-        // Redirect to Google OAuth URL
-        window.location.href = data.url;
+        if (error) throw error;
     }, []);
+
 
     const logout = useCallback(async () => {
         await supabase.auth.signOut();
