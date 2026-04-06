@@ -10,11 +10,11 @@ interface SidebarLink {
 }
 
 const links: SidebarLink[] = [
-    { label: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard size={18} /> },
-    { label: 'Workflows', to: '/dashboard/workflows/new', icon: <GitBranch size={18} /> },
-    { label: 'Logs', to: '/dashboard/logs', icon: <ScrollText size={18} /> },
-    { label: 'Integrations', to: '/dashboard/integrations', icon: <Blocks size={18} /> },
-    { label: 'Settings', to: '/dashboard/settings', icon: <Settings size={18} /> },
+    { label: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard size={16} /> },
+    { label: 'Workflows', to: '/dashboard/workflows/new', icon: <GitBranch size={16} /> },
+    { label: 'Logs', to: '/dashboard/logs', icon: <ScrollText size={16} /> },
+    { label: 'Integrations', to: '/dashboard/integrations', icon: <Blocks size={16} /> },
+    { label: 'Settings', to: '/dashboard/settings', icon: <Settings size={16} /> },
 ];
 
 interface SidebarProps {
@@ -50,23 +50,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 // @ts-expect-error - inert is relatively new in React types but supported in browsers
                 inert={(!isOpen && typeof window !== 'undefined' && window.innerWidth < 768) ? "" : undefined}
                 className={`
-                    fixed left-0 top-0 h-screen w-[240px] bg-[#0e0e16] border-r border-[#1e1e2e] 
+                    fixed left-0 top-0 h-screen w-48 bg-surface-container-low
                     flex flex-col z-[70] transition-transform duration-300 ease-in-out
                     ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
                 `}
             >
                 {/* Logo & Close Button */}
-                <div className="p-5 md:p-6 border-b border-[#1e1e2e] flex items-center justify-between">
+                <div className="p-5 md:p-6 flex items-center justify-between">
                     <Link
                         to="/dashboard"
-                        className="flex items-center gap-2.5 no-underline text-[#f1f5f9] font-display font-bold text-xl"
+                        className="flex items-center gap-2.5 no-underline text-on-surface font-display font-bold text-base"
                     >
-                        <Zap size={22} className="text-[#6366f1]" />
+                        <Zap size={22} className="text-primary" />
                         FlowAI
                     </Link>
                     <button 
                         onClick={onClose}
-                        className="p-1 text-[#475569] hover:text-[#f1f5f9] md:hidden"
+                        className="p-1 text-outline-variant hover:text-on-surface md:hidden"
                         aria-label="Close Sidebar"
                     >
                         <X size={20} />
@@ -89,12 +89,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                 className={`
                                     flex items-center gap-3 px-3 py-2.5 rounded-lg no-underline text-sm font-medium transition-all
                                     ${isActive 
-                                        ? 'text-[#f1f5f9] bg-[#6366f1]/10' 
-                                        : 'text-[#94a3b8] hover:bg-white/5 hover:text-[#f1f5f9]'
+                                        ? 'text-[#c0c1ff] bg-[#1b1b20]' 
+                                        : 'text-on-surface-variant hover:bg-white/5 hover:text-on-surface'
                                     }
                                 `}
                             >
-                                <span className={isActive ? 'text-[#6366f1]' : 'text-inherit'}>
+                                <span className={isActive ? 'text-primary' : 'text-inherit'}>
                                     {link.icon}
                                 </span>
                                 {link.label}
@@ -104,21 +104,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 </nav>
 
                 {/* User Info */}
-                <div className="p-4 border-t border-[#1e1e2e] flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#6366f1] to-[#a78bfa] flex items-center justify-center shrink-0">
-                        <User size={18} className="text-white" />
+                <div className="p-4 flex items-center gap-3 mt-auto">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shrink-0">
+                        <User size={18} className="text-surface" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold text-[#f1f5f9] truncate">
+                        <div className="text-sm font-semibold text-on-surface truncate">
                             {displayName}
                         </div>
-                        <div className="text-[12px] text-[#475569] truncate">
+                        <div className="text-[12px] text-outline-variant truncate">
                             {user?.email || ''}
                         </div>
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="p-1 text-[#475569] hover:text-[#ef4444] transition-colors cursor-pointer"
+                        className="p-1 text-outline-variant hover:text-error transition-colors cursor-pointer"
                         title="Sign out"
                     >
                         <LogOut size={16} />

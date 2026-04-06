@@ -28,9 +28,12 @@ export const DashboardLayout: React.FC = () => {
                 </header>
             )}
 
+            {/* Desktop sidebar spacer — reserves width in flex flow so main content never overlaps */}
+            <div className="hidden md:block w-48 shrink-0" aria-hidden="true" />
+
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
             
-            <main className={`flex-1 p-4 md:p-8 ${!isWorkflowPage ? 'pt-20' : 'pt-0'} md:pt-8 md:ml-[240px] relative`}>
+            <main className={`flex-1 min-w-0 p-8 ${!isWorkflowPage ? 'pt-20' : 'pt-0'} relative bg-[#0a0a0f]`}>
                 <Outlet />
             </main>
         </div>

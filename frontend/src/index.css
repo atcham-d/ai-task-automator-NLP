@@ -1,30 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+:root {
+  --color-surface: #131318;
+  --color-surface-container-low: #1b1b20;
+  --color-surface-container-highest: #35343a;
+  --color-primary: #c0c1ff;
+  --color-primary-container: #8083ff;
+  --color-on-surface: #e4e1e9;
+  --color-on-surface-variant: #c7c4d7;
+}
+
 @theme {
-  --color-bg-base: #0a0a0f;
-  --color-bg-surface: #111118;
-  --color-bg-elevated: #16161f;
-  --color-border: #1e1e2e;
-  --color-border-subtle: #13131a;
-  --color-accent-primary: #6366f1;
-  --color-accent-secondary: #a78bfa;
-  --color-accent-glow: rgba(99, 102, 241, 0.15);
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #475569;
+  /* Neural Night Semantic Surface Tiers */
+  --color-surface: #131318;
+  --color-surface-container-low: #1b1b20;
+  --color-surface-container-high: #2a292f;
+  --color-surface-container-highest: #35343a;
+  --color-surface-bright: #39383e;
+  
+  /* Primary Actions & Accents */
+  --color-primary: #c0c1ff;
+  --color-primary-container: #8083ff;
+  
+  /* Secondary Actions */
+  --color-secondary: #bdc2ff;
+  --color-secondary-container: #2f3aa3;
+  
+  /* Alerts & Interventions */
+  --color-tertiary: #ffb783;
+
+  /* Typography Colors */
+  --color-on-surface: #e4e1e9;
+  --color-on-surface-variant: #c7c4d7;
+  
+  /* Borders */
+  --color-outline-variant: #464554;
+
+  /* Other base tokens maintained for layout compatibility */
   --color-success: #34d399;
   --color-error: #f87171;
   --color-warning: #fbbf24;
 
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Manrope', sans-serif;
+  --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   --breakpoint-sm: 375px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1440px;
+
+  /* Landing Page Specific Tokens */
+  --color-landing-primary: #2c2fed;
+  --color-landing-accent: #a78bfa;
+  --color-landing-card: #111118;
+  --color-landing-border: #1e1e2e;
+
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-syne: 'Syne', sans-serif;
+  --font-dm: 'DM Sans', sans-serif;
+
+  --radius-landing: 1rem;
+  --radius-landing-lg: 2rem;
+  --radius-landing-xl: 3rem;
 }
 
 /* ——— Base Styles ——— */
@@ -39,8 +78,7 @@ html {
 }
 
 body {
-  background: var(--color-bg-base);
-  color: var(--color-text-primary);
+  color: var(--color-on-surface);
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.6;
@@ -122,4 +160,21 @@ body {
 
 .react-flow__controls button:hover {
   background: var(--color-bg-elevated) !important;
+}
+/* ——— Landing Page Helper Classes ——— */
+.grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(44, 47, 237, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(44, 47, 237, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.glow-indigo {
+  box-shadow: 0 0 20px rgba(44, 47, 237, 0.3);
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #6366f1, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }

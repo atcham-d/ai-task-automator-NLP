@@ -10,9 +10,9 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-    primary: 'bg-gradient-to-br from-[#6366f1] to-[#a78bfa] text-[#f1f5f9] border-none shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]',
-    ghost: 'bg-transparent text-[#f1f5f9] border border-[#1e1e2e] hover:border-[#6366f1]',
-    danger: 'bg-red-500 text-white border-none hover:bg-red-600',
+    primary: 'bg-gradient-to-r from-primary to-primary-container text-on-surface border-none shadow-[inset_0_2px_8px_rgba(255,255,255,0.1)] hover:brightness-110',
+    ghost: 'bg-transparent text-primary border border-outline-variant hover:bg-surface-container-highest/30',
+    danger: 'bg-tertiary text-surface border-none hover:brightness-110',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -31,7 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
     return (
         <button
             className={`
-                inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 
+                inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 
                 cursor-pointer active:scale-95 hover:-translate-y-0.5 whitespace-nowrap font-body
                 ${variantClasses[variant]}
                 ${sizeClasses[size]}

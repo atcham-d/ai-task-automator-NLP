@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { AnimatedPage, StaggerContainer, StaggerItem } from '../components/AnimatedPage';
 import { Card } from '../components/Card';
 import { Badge } from '../components/Badge';
-import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { Plus, Search, MoreVertical, Clock, Zap, GitBranch, AlertCircle, Loader2 } from 'lucide-react';
 import { apiGet } from '../lib/api';
@@ -95,31 +94,41 @@ export const DashboardHome: React.FC = () => {
         <AnimatedPage>
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <h1 className="font-display text-2xl md:text-3xl font-bold text-[#f1f5f9]">
-                    Your Workflows
-                </h1>
-                <Link to="/dashboard/workflows/new" className="no-underline w-full sm:w-auto">
-                    <Button variant="primary" className="w-full sm:w-auto">
+                <div>
+                    <h1 className="font-display text-2xl md:text-3xl font-bold text-[#f1f5f9]">
+                        Your Workflows
+                    </h1>
+                    <p className="text-[#c7c4d7] text-sm mt-1">
+                        Automate your logic and manage all your active processes.
+                    </p>
+                </div>
+                <Link to="/dashboard/workflows/new" className="no-underline w-full sm:w-auto md:mr-2">
+                    <button className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#c0c1ff] to-[#8083ff] text-[#131318] font-semibold text-sm w-full sm:w-auto hover:opacity-90 transition-all">
                         <Plus size={16} />
                         New Workflow
-                    </Button>
+                    </button>
                 </Link>
             </div>
 
             {/* Search */}
-            <div className="mb-6 w-full max-w-md">
-                <div className="relative group">
-                    <Search
-                        size={16}
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#475569] group-focus-within:text-[#6366f1] transition-colors pointer-events-none"
-                    />
-                    <Input
-                        placeholder="Search workflows..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="pl-10"
-                    />
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <div className="flex-1 max-w-md">
+                    <div className="relative group">
+                        <Search
+                            size={16}
+                            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#475569] group-focus-within:text-[#6366f1] transition-colors pointer-events-none"
+                        />
+                        <Input
+                            placeholder="Search workflows..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-10"
+                        />
+                    </div>
                 </div>
+                <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#35343a] text-[#c7c4d7] text-sm hover:bg-[#1b1b20] transition-colors">
+                    Filter
+                </button>
             </div>
 
             {/* Loading State */}
@@ -141,7 +150,7 @@ export const DashboardHome: React.FC = () => {
 
             {/* Empty State */}
             {!loading && !error && workflows.length === 0 && (
-                <Card className="flex flex-col items-center text-center py-10">
+                <Card className="flex flex-col items-center text-center py-12 border border-[#1e1e2e] bg-[#0d0d12]">
                     <GitBranch size={48} className="text-[#475569] mb-4" />
                     <h3 className="font-display text-lg font-bold text-[#f1f5f9] mb-2">
                         No workflows yet
@@ -150,10 +159,10 @@ export const DashboardHome: React.FC = () => {
                         Create your first workflow by describing it in plain English.
                     </p>
                     <Link to="/dashboard/workflows/new" className="no-underline">
-                        <Button variant="primary">
+                        <button className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#c0c1ff] to-[#8083ff] text-[#131318] font-semibold text-sm hover:opacity-90 transition-all">
                             <Plus size={16} />
                             Create Workflow
-                        </Button>
+                        </button>
                     </Link>
                 </Card>
             )}
