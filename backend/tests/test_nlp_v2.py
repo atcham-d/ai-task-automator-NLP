@@ -1,5 +1,4 @@
 import sys
-import os
 from typing import List
 
 import pathlib
@@ -37,7 +36,7 @@ from app.models.workflow import ActionType, TriggerType
         "id": "TC3",
         "input": "When a card is created in Trello, add a row to sheets and notify slack",
         "expected": {
-            "trigger": TriggerType.WEBHOOK, # Trello logic to be implemented
+            "trigger": TriggerType.TRELLO,
             "has_condition": False,
             "actions": [ActionType.SHEETS, ActionType.SLACK],
             "branches": [None, None]
@@ -60,6 +59,7 @@ def test_parser(tc):
     assert actual_actions == tc['expected']['actions'], f"TC {tc['id']} Actions mismatch"
     assert actual_has_condition == tc['expected']['has_condition'], f"TC {tc['id']} Condition mismatch"
     assert actual_branches == tc['expected']['branches'], f"TC {tc['id']} Branches mismatch"
+    assert result.trigger.type == tc['expected']['trigger'], f"TC {tc['id']} Trigger mismatch"
 
 if __name__ == "__main__":
     pytest.main([__file__])

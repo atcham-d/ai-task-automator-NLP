@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, GitBranch, ScrollText, Settings, LogOut, Zap, User, Blocks, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -26,6 +26,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const handleLogout = async () => {
         await logout();
@@ -46,9 +53,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
             <aside
                 id="main-sidebar"
-                aria-hidden={!isOpen && typeof window !== 'undefined' && window.innerWidth < 768}
+                aria-hidden={!isOpen && isMobile}
                 // @ts-expect-error - inert is relatively new in React types but supported in browsers
-                inert={(!isOpen && typeof window !== 'undefined' && window.innerWidth < 768) ? "" : undefined}
+                inert={!isOpen && isMobile ? "" : undefined}
                 className={`
                     fixed left-0 top-0 h-screen w-48 bg-surface-container-low
                     flex flex-col z-[70] transition-transform duration-300 ease-in-out

@@ -278,6 +278,10 @@ export const WorkflowBuilder: React.FC = () => {
             setEdges(e);
             toast.success('Workflow parsed successfully');
         } catch (err) {
+            setParsedDef(null);
+            setSelectedNode(null);
+            setNodes([]);
+            setEdges([]);
             toast.error(err instanceof Error ? err.message : 'Failed to parse workflow');
         } finally {
             setParsing(false);

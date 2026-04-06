@@ -46,11 +46,6 @@
   --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --breakpoint-sm: 375px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1440px;
-
   /* Landing Page Specific Tokens */
   --color-landing-primary: #2c2fed;
   --color-landing-accent: #a78bfa;

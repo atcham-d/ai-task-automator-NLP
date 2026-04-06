@@ -167,6 +167,19 @@ export const DashboardHome: React.FC = () => {
                 </Card>
             )}
 
+            {/* No Search Results */}
+            {!loading && !error && workflows.length > 0 && filtered.length === 0 && (
+                <Card className="flex flex-col items-center text-center py-12 border border-[#1e1e2e] bg-[#0d0d12]">
+                    <Search size={48} className="text-[#475569] mb-4" />
+                    <h3 className="font-display text-lg font-bold text-[#f1f5f9] mb-2">
+                        No matches found
+                    </h3>
+                    <p className="text-[#94a3b8] text-sm max-w-sm">
+                        We couldn't find any workflows matching "{search}".
+                    </p>
+                </Card>
+            )}
+
             {/* Workflow Cards Grid */}
             {!loading && !error && filtered.length > 0 && (
                 <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">

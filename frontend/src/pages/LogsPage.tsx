@@ -27,6 +27,7 @@ export const LogsPage: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState<'all' | 'success' | 'failed'>('all');
     const [workflowFilter, setWorkflowFilter] = useState<string>('all');
     const [logs, setLogs] = useState<LogResponse[]>([]);
+    const [hasMore, setHasMore] = useState(false);
     const [workflows, setWorkflows] = useState<Workflow[]>([]);
     const [page, setPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
@@ -49,17 +50,19 @@ export const LogsPage: React.FC = () => {
             setIsLoading(true);
             setErrorMsg(null);
             try {
-                const limit = 50;
-                const offset = (page - 1) * limit;
+                const limit = 51; // Fetch one extra to determine if there's a next page
+                const offset = (page - 1) * 50;
                 let query = `?limit=${limit}&offset=${offset}`;
                 if (statusFilter !== 'all') query += `&status=${statusFilter}`;
                 if (workflowFilter !== 'all') query += `&workflow_id=${workflowFilter}`;
 
                 const data = await apiGet<LogResponse[]>(`/api/logs${query}`);
-                setLogs(data);
+                setHasMore(data.length > 50);
+                setLogs(data.slice(0, 50));
             } catch (err: unknown) {
                 setErrorMsg(err instanceof Error ? err.message : 'Failed to load logs');
                 setLogs([]);
+                setHasMore(false);
             } finally {
                 setIsLoading(false);
             }
@@ -75,6 +78,10 @@ export const LogsPage: React.FC = () => {
                     <Activity size={14} className="text-indigo-400" />
                     Real-time monitoring
                 </div>
+            </div>
+
+            <div aria-live="polite" className="sr-only">
+                {isLoading ? 'Loading logs...' : `Showing ${logs.length} logs for page ${page}.`}
             </div>
 
             {/* Filter Bar */}
@@ -216,17 +223,19 @@ export const LogsPage: React.FC = () => {
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-center gap-2 mt-8">
-                {[page > 1 ? page - 1 : null, page, logs.length === 50 ? page + 1 : null].filter(Boolean).map((pageNum) => (
+            <div className="flex items-center justify-center gap-2 mt-8" aria-label="Pagination Navigation">
+                {[page > 1 ? page - 1 : null, page, hasMore ? page + 1 : null].filter(Boolean).map((pageNum) => (
                     <button
                         key={pageNum as number}
                         onClick={() => setPage(pageNum as number)}
                         disabled={isLoading}
-                        className={`w-10 h-10 rounded-xl border font-medium text-sm transition-all duration-200 ${
+                        aria-current={pageNum === page ? 'page' : undefined}
+                        aria-label={`Go to page ${pageNum}`}
+                        className={`w-10 h-10 flex items-center justify-center rounded-xl border font-medium text-sm transition-all duration-200 ${
                             pageNum === page 
                                 ? 'border-[#6366f1] bg-indigo-500/10 text-[#818cf8] shadow-[0_0_15px_rgba(99,102,241,0.2)]' 
-                                : 'border-white/5 hover:border-white/10 text-[#475569] hover:text-[#94a3b8]'
-                        } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                : 'border-white/5 bg-[#0a0a0f] hover:border-white/10 text-[#475569] hover:text-[#94a3b8]'
+                        } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50'}`}
                     >
                         {pageNum}
                     </button>

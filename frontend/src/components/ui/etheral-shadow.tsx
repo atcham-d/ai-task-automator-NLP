@@ -5,13 +5,6 @@ import type { CSSProperties } from 'react';
 import { animate, useMotionValue } from 'framer-motion';
 import type { AnimationPlaybackControls } from 'framer-motion';
 
-// Type definitions
-interface ResponsiveImage {
-    src: string;
-    alt?: string;
-    srcSet?: string;
-}
-
 interface AnimationConfig {
     preview?: boolean;
     scale: number;
@@ -24,9 +17,6 @@ interface NoiseConfig {
 }
 
 interface ShadowOverlayProps {
-    type?: 'preset' | 'custom';
-    presetIndex?: number;
-    customImage?: ResponsiveImage;
     sizing?: 'fill' | 'stretch';
     color?: string;
     animation?: AnimationConfig;
@@ -57,7 +47,7 @@ const useInstanceId = (): string => {
     return instanceId;
 };
 
-export function Component({
+export function EtherealShadow({
     sizing = 'fill',
     color = 'rgba(128, 128, 128, 1)',
     animation,
@@ -191,7 +181,7 @@ export function Component({
                     }}
                 >
                     <h1 className="md:text-7xl text-6xl lg:text-8xl font-bold text-center text-foreground relative z-20">
-                        Etheral Shadows
+                        Ethereal Shadows
                     </h1>
                 </div>
             )}
@@ -202,7 +192,7 @@ export function Component({
                         position: "absolute",
                         inset: 0,
                         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                        backgroundSize: noise.scale * 200,
+                        backgroundSize: `${noise.scale * 200}px`,
                         backgroundRepeat: "repeat",
                         opacity: noise.opacity / 2
                     }}
