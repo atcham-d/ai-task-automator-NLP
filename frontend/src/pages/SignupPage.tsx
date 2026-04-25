@@ -7,7 +7,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Zap, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { EtherealShadow } from '../components/EtherealShadow';
+import { Component as EtherealShadow } from '../components/etheral-shadow';
 
 export const SignupPage: React.FC = () => {
     const [name, setName] = useState('');
@@ -56,8 +56,8 @@ export const SignupPage: React.FC = () => {
             </div>
 
             {/* Glowing orbs for depth */}
-            <div className="absolute top-[10%] left-[20%] w-[500px] height-[500px] rounded-full bg-indigo-500/10 blur-[100px] pointer-events-none z-0" />
-            <div className="absolute bottom-[20%] right-[15%] w-[400px] height-[400px] rounded-full bg-purple-500/10 blur-[100px] pointer-events-none z-0" />
+            <div className="absolute top-[10%] left-[20%] w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-[100px] pointer-events-none z-0" />
+            <div className="absolute bottom-[20%] right-[15%] w-[400px] h-[400px] rounded-full bg-purple-500/10 blur-[100px] pointer-events-none z-0" />
 
             <div className="w-full max-w-[440px] relative z-10">
                 {/* Logo */}

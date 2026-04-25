@@ -5,6 +5,13 @@ import type { CSSProperties } from 'react';
 import { animate, useMotionValue } from 'framer-motion';
 import type { AnimationPlaybackControls } from 'framer-motion';
 
+// Type definitions
+interface ResponsiveImage {
+    src: string;
+    alt?: string;
+    srcSet?: string;
+}
+
 interface AnimationConfig {
     preview?: boolean;
     scale: number;
@@ -17,13 +24,15 @@ interface NoiseConfig {
 }
 
 interface ShadowOverlayProps {
+    type?: 'preset' | 'custom';
+    presetIndex?: number;
+    customImage?: ResponsiveImage;
     sizing?: 'fill' | 'stretch';
     color?: string;
     animation?: AnimationConfig;
     noise?: NoiseConfig;
     style?: CSSProperties;
     className?: string;
-    showTitle?: boolean; // Added showTitle prop to make the header optional
 }
 
 function mapRange(
@@ -47,14 +56,13 @@ const useInstanceId = (): string => {
     return instanceId;
 };
 
-export function EtherealShadow({
+export function Component({
     sizing = 'fill',
     color = 'rgba(128, 128, 128, 1)',
     animation,
     noise,
     style,
-    className,
-    showTitle = false // Default to false
+    className
 }: ShadowOverlayProps) {
     const id = useInstanceId();
     const animationEnabled = animation && animation.scale > 0;
@@ -107,7 +115,7 @@ export function EtherealShadow({
             <div
                 style={{
                     position: "absolute",
-                    inset: animationEnabled ? -displacementScale : 0,
+                    inset: -displacementScale,
                     filter: animationEnabled ? `url(#${id}) blur(4px)` : "none"
                 }}
             >
@@ -122,29 +130,23 @@ export function EtherealShadow({
                                     seed="0"
                                     type="turbulence"
                                 />
-                                <feTurbulence
-                                    type="fractalNoise"
-                                    baseFrequency="0.012"
-                                    numOctaves="3"
-                                    result="mask"
-                                />
                                 <feColorMatrix
                                     ref={feColorMatrixRef}
                                     in="undulation"
                                     type="hueRotate"
                                     values="180"
                                 />
-                                <feDisplacementMap
-                                    in="SourceGraphic"
-                                    in2="mask"
-                                    scale={displacementScale}
-                                    result="dist"
-                                />
                                 <feColorMatrix
                                     in="dist"
                                     result="circulation"
                                     type="matrix"
                                     values="4 0 0 0 1  4 0 0 0 1  4 0 0 0 1  1 0 0 0 0"
+                                />
+                                <feDisplacementMap
+                                    in="SourceGraphic"
+                                    in2="circulation"
+                                    scale={displacementScale}
+                                    result="dist"
                                 />
                                 <feDisplacementMap
                                     in="dist"
@@ -159,7 +161,7 @@ export function EtherealShadow({
                 <div
                     style={{
                         backgroundColor: color,
-                        maskImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                        maskImage: `url('https://framerusercontent.com/images/ceBGguIpUU8luwByxuQz79t7To.png')`,
                         maskSize: sizing === "stretch" ? "100% 100%" : "cover",
                         maskRepeat: "no-repeat",
                         maskPosition: "center",
@@ -169,30 +171,28 @@ export function EtherealShadow({
                 />
             </div>
 
-            {showTitle && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        textAlign: "center",
-                        zIndex: 10
-                    }}
-                >
-                    <h1 className="md:text-7xl text-6xl lg:text-8xl font-bold text-center text-foreground relative z-20">
-                        Ethereal Shadows
-                    </h1>
-                </div>
-            )}
+            <div
+                style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    textAlign: "center",
+                    zIndex: 10
+                }}
+            >
+                <h1 className="md:text-7xl text-6xl lg:text-8xl font-bold text-center text-foreground relative z-20">
+                    Etheral Shadows
+                </h1>
+            </div>
 
             {noise && noise.opacity > 0 && (
                 <div
                     style={{
                         position: "absolute",
                         inset: 0,
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                        backgroundSize: `${noise.scale * 200}px`,
+                        backgroundImage: `url("https://framerusercontent.com/images/g0QcWrxr87K0ufOxIUFBakwYA8.png")`,
+                        backgroundSize: noise.scale * 200,
                         backgroundRepeat: "repeat",
                         opacity: noise.opacity / 2
                     }}

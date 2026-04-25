@@ -48,7 +48,11 @@ async def trello_webhook(request: Request, background_tasks: BackgroundTasks):
     try:
         payload = await request.json()
     except Exception:
-        payload = {}
+        logger.error("Malformed JSON in Trello webhook")
+        raise HTTPException(status_code=400, detail="Malformed JSON")
+        
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="JSON body must be an object")
         
     action_type = payload.get("action", {}).get("type", "unknown")
     logger.info(f"Received Trello webhook action: {action_type}")
@@ -75,7 +79,7 @@ async def trello_webhook(request: Request, background_tasks: BackgroundTasks):
                         workflow_id=wf["id"],
                         workflow_name=wf["name"],
                         definition=definition,
-                        trigger_type="webhook",
+                        trigger_type="trello",
                     )
                     logger.info(f"Queued Trello event for workflow {wf['id']}")
             except Exception as loop_e:

@@ -8,6 +8,7 @@ interface NlInputPanelProps {
     onParse: (text: string) => Promise<void>;
     parsing: boolean;
     parsedDef: WorkflowDefinition | null;
+    parseError?: string | null;
     isOpen?: boolean;
     onToggle?: () => void;
 }
@@ -16,6 +17,7 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({
     onParse, 
     parsing, 
     parsedDef,
+    parseError,
     isOpen = true,
     onToggle
 }) => {
@@ -32,7 +34,7 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({
                 fixed inset-y-0 left-0 z-40 w-72 bg-[#0a0a0f] border-r border-[#1e1e2e] 
                 transform transition-transform duration-300 ease-in-out flex flex-col
                 md:relative md:translate-x-0
-                ${isOpen ? 'translate-x-0' : '-translate-x-full md:hidden'}
+                ${isOpen ? 'translate-x-0' : '-translate-x-full'}
             `}
         >
             <div className="p-5 flex flex-col gap-5 overflow-y-auto flex-1">
@@ -60,6 +62,15 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({
                         placeholder="When I receive an email from..."
                         className="min-h-[180px] text-[13px] leading-relaxed"
                     />
+
+                    {parseError && (
+                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                            <p className="text-[11px] text-red-400 font-medium leading-relaxed">
+                                {parseError}
+                            </p>
+                        </div>
+                    )}
+
                     <div className="flex justify-between items-center">
                         <p className="text-[#475569] text-[11px] font-medium font-mono">
                             {localNlInput.length} / 500

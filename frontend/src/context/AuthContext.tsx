@@ -41,22 +41,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const initializeAuth = async () => {
-            // Check for dev bypass token first
-            if (import.meta.env.VITE_DEV_BYPASS === 'true') {
-                const bypassToken = localStorage.getItem('sb-bypass-token');
-                if (bypassToken === 'DEV_BYPASS_TOKEN') {
-                    setSession(MOCK_SESSION as Session);
-                    setUser(MOCK_USER as User);
-                    setLoading(false);
-                    return;
+            try {
+                // Check for dev bypass token first
+                if (import.meta.env.VITE_DEV_BYPASS === 'true') {
+                    const bypassToken = localStorage.getItem('sb-bypass-token');
+                    if (bypassToken === 'DEV_BYPASS_TOKEN') {
+                        setSession(MOCK_SESSION as Session);
+                        setUser(MOCK_USER as User);
+                        return;
+                    }
                 }
-            }
 
-            // Get initial session
-            const { data: { session } } = await supabase.auth.getSession();
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
+                // Get initial session
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) throw error;
+                setSession(session);
+                setUser(session?.user ?? null);
+            } catch (err: any) {
+                console.error("Auth initialization failed:", err.message);
+                setUser(null);
+                setSession(null);
+            } finally {
+                setLoading(false);
+            }
         };
 
         initializeAuth();

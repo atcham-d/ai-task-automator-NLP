@@ -44,40 +44,64 @@ import AnimatedEdge from '../components/nodes/AnimatedEdge';
  */
 function validateWorkflowDefinition(data: unknown): WorkflowDefinition {
     if (!data || typeof data !== 'object') {
-        throw new Error('Invalid workflow definition: Response is not an object');
+        throw new Error('Invalid workflow definition: Response is not a valid object');
     }
 
     const workflowData = data as Record<string, unknown>;
 
-    if (!workflowData.trigger || typeof workflowData.trigger !== 'object' || !((workflowData.trigger as Record<string, unknown>).type)) {
-        throw new Error('Invalid workflow definition: Missing or invalid trigger');
-    }
-
-    if (!Array.isArray(workflowData.actions)) {
-        throw new Error('Invalid workflow definition: Actions must be an array');
-    }
-
-    if (!Array.isArray(workflowData.conditions)) {
-        throw new Error('Invalid workflow definition: Conditions must be an array');
-    }
-
+    // 1. Trigger Validation
     const trigger = workflowData.trigger as Record<string, unknown>;
+    if (!trigger || typeof trigger !== 'object') {
+        throw new Error('Workflow is missing a trigger definition');
+    }
+    if (!trigger.type || typeof trigger.type !== 'string' || trigger.type.trim() === '') {
+        throw new Error('Trigger must have a non-empty type (e.g., "trello", "github")');
+    }
 
-    // Narrowing to the expected shape
+    // 2. Actions Validation
+    if (!Array.isArray(workflowData.actions)) {
+        throw new Error('Workflow actions must be an array');
+    }
+    
+    const validatedActions = workflowData.actions.map((a, i) => {
+        if (!a || typeof a !== 'object') {
+            throw new Error(`Action at index ${i} is invalid`);
+        }
+        const action = a as Record<string, unknown>;
+        if (!action.type || typeof action.type !== 'string' || action.type.trim() === '') {
+            throw new Error(`Action at index ${i} is missing a required type`);
+        }
+        return {
+            type: action.type,
+            config: (action.config as Record<string, unknown>) || {}
+        };
+    });
+
+    // 3. Conditions Validation
+    if (!Array.isArray(workflowData.conditions)) {
+        throw new Error('Workflow conditions must be an array');
+    }
+
+    const validatedConditions = workflowData.conditions.map((c, i) => {
+        if (!c || typeof c !== 'object') {
+            throw new Error(`Condition at index ${i} is invalid`);
+        }
+        const cond = c as Record<string, unknown>;
+        // We allow empty conditions if the array is present, but if data exists, ensure fields
+        return {
+            field: String(cond.field || ''),
+            operator: String(cond.operator || ''),
+            value: String(cond.value || '')
+        };
+    });
+
     return {
         trigger: {
-            type: String(trigger.type),
+            type: trigger.type.toLowerCase(),
             config: (trigger.config as Record<string, unknown>) || {}
         },
-        conditions: (workflowData.conditions as Record<string, unknown>[]).map((c) => ({
-            field: String(c.field || ''),
-            operator: String(c.operator || ''),
-            value: String(c.value || '')
-        })),
-        actions: (workflowData.actions as Record<string, unknown>[]).map((a) => ({
-            type: String(a.type || ''),
-            config: (a.config as Record<string, unknown>) || {}
-        }))
+        actions: validatedActions,
+        conditions: validatedConditions
     };
 }
 
@@ -212,6 +236,7 @@ export const WorkflowBuilder: React.FC = () => {
     const [workflowStatus, setWorkflowStatus] = useState('draft');
     const [parsedDef, setParsedDef] = useState<WorkflowDefinition | null>(null);
     const [parsing, setParsing] = useState(false);
+    const [parseError, setParseError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const [savedId, setSavedId] = useState<string | null>(workflowId && workflowId !== 'new' ? workflowId : null);
     const [nlPanelOpen, setNlPanelOpen] = useState(true);
@@ -268,6 +293,7 @@ export const WorkflowBuilder: React.FC = () => {
 
     const handleParse = useCallback(async (text: string) => {
         setParsing(true);
+        setParseError(null);
         try {
             setNlInput(text);
             const responseData = await apiPost<unknown>('/api/parse/', { text });
@@ -282,7 +308,9 @@ export const WorkflowBuilder: React.FC = () => {
             setSelectedNode(null);
             setNodes([]);
             setEdges([]);
-            toast.error(err instanceof Error ? err.message : 'Failed to parse workflow');
+            const msg = err instanceof Error ? err.message : 'Failed to parse workflow';
+            setParseError(msg);
+            toast.error(msg);
         } finally {
             setParsing(false);
         }
@@ -417,6 +445,7 @@ export const WorkflowBuilder: React.FC = () => {
                     onParse={handleParse}
                     parsing={parsing}
                     parsedDef={parsedDef}
+                    parseError={parseError}
                     isOpen={nlPanelOpen}
                     onToggle={() => setNlPanelOpen(!nlPanelOpen)}
                 />

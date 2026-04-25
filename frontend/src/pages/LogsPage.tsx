@@ -159,7 +159,16 @@ export const LogsPage: React.FC = () => {
                                     <React.Fragment key={log.id}>
                                         <tr 
                                             onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
-                                            className={`group cursor-pointer hover:bg-white/[0.03] border-b border-white/[0.02] transition-colors ${expandedRow === log.id ? 'bg-white/[0.02]' : ''}`}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    setExpandedRow(expandedRow === log.id ? null : log.id);
+                                                }
+                                            }}
+                                            tabIndex={0}
+                                            role="button"
+                                            aria-expanded={expandedRow === log.id}
+                                            className={`group cursor-pointer hover:bg-white/[0.03] border-b border-white/[0.02] transition-colors focus-visible:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500/50 ${expandedRow === log.id ? 'bg-white/[0.02]' : ''}`}
                                         >
                                             <td className="px-6 py-4">
                                                 <div className="font-semibold text-[#f1f5f9]">

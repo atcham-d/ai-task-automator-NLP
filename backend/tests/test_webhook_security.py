@@ -82,3 +82,32 @@ def test_trello_webhook_bypass_skips_validation():
         assert response.json() == {"status": "received"}
     finally:
         settings.ENABLE_AUTH_BYPASS = original_bypass
+
+def test_trello_webhook_malformed_json_returns_400():
+    """Test that malformed JSON payloads return 400 Bad Request."""
+    original_bypass = settings.ENABLE_AUTH_BYPASS
+    settings.ENABLE_AUTH_BYPASS = True
+    try:
+        response = client.post(
+            "/api/webhooks/trello",
+            content='{invalid_json: true',
+            headers={"Content-Type": "application/json"}
+        )
+        assert response.status_code == 400
+        assert "Malformed JSON" in response.json()["detail"]
+    finally:
+        settings.ENABLE_AUTH_BYPASS = original_bypass
+
+def test_trello_webhook_non_object_json_returns_400():
+    """Test that JSON payloads that are not objects return 400 Bad Request."""
+    original_bypass = settings.ENABLE_AUTH_BYPASS
+    settings.ENABLE_AUTH_BYPASS = True
+    try:
+        response = client.post(
+            "/api/webhooks/trello",
+            json=["not", "an", "object"]
+        )
+        assert response.status_code == 400
+        assert "JSON body must be an object" in response.json()["detail"]
+    finally:
+        settings.ENABLE_AUTH_BYPASS = original_bypass
