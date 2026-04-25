@@ -17,7 +17,7 @@ import '@xyflow/react/dist/style.css';
 import { toast } from 'react-hot-toast';
 import { 
     Sparkles, Loader2, X, 
-    ArrowLeft, Trash2, RotateCcw, Save, Play, Pause 
+    ArrowLeft, Trash2, Save, Play, Pause 
 } from 'lucide-react';
 
 import { apiGet, apiPost, apiPatch, apiDelete } from '../lib/api';
@@ -412,8 +412,8 @@ export const WorkflowBuilder: React.FC = () => {
                             <Button variant="ghost" size="sm" onClick={handleDelete} className="text-[#ef4444] hover:bg-red-500/10">
                                 <Trash2 size={14} />
                             </Button>
-                            <Button variant="ghost" size="sm" onClick={handleRun}>
-                                <RotateCcw size={14} />
+                            <Button variant="ghost" size="sm" onClick={handleRun} title="Run Workflow">
+                                <Play size={14} />
                             </Button>
                         </div>
                     )}

@@ -189,7 +189,7 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
         <div className="text-center mt-12 text-slate-600 text-xs">
-          © 2024 FlowAI. All rights reserved. Built with precision for developers.
+          © {new Date().getFullYear()} FlowAI. All rights reserved. Built with precision for developers.
         </div>
       </footer>
     </div>

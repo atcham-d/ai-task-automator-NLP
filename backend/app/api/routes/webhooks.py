@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 async def trello_webhook(request: Request, background_tasks: BackgroundTasks):
     """Receive and route Trello webhooks with HMAC-SHA1 validation."""
     if request.method == "HEAD":
-        return status.HTTP_200_OK
+        from fastapi import Response
+        return Response(status_code=200)
         
     raw_body = await request.body()
     trello_signature = request.headers.get("X-Trello-Webhook")

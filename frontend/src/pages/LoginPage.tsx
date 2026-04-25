@@ -116,7 +116,7 @@ export const LoginPage: React.FC = () => {
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center px-1">
                                     <Label htmlFor="password" className="text-[#94a3b8]">Password</Label>
-                                    <Link to="#forgot-password" title="Password recovery coming soon" className="text-xs text-[#6366f1] hover:underline">Forgot?</Link>
+                                    <span title="Password recovery coming soon" className="text-xs text-[#475569] cursor-not-allowed">Forgot?</span>
                                 </div>
                                 <Input
                                     id="password"

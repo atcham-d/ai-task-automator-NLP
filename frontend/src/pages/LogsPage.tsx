@@ -239,7 +239,7 @@ export const LogsPage: React.FC = () => {
                         onClick={() => setPage(pageNum as number)}
                         disabled={isLoading}
                         aria-current={pageNum === page ? 'page' : undefined}
-                        aria-label={`Go to page ${pageNum}`}
+                        aria-label={pageNum === page ? `Page ${pageNum}` : `Go to page ${pageNum}`}
                         className={`w-10 h-10 flex items-center justify-center rounded-xl border font-medium text-sm transition-all duration-200 ${
                             pageNum === page 
                                 ? 'border-[#6366f1] bg-indigo-500/10 text-[#818cf8] shadow-[0_0_15px_rgba(99,102,241,0.2)]' 

@@ -43,10 +43,12 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({
                         Describe your automation
                     </label>
                     <button 
+                        type="button"
                         onClick={onToggle}
+                        aria-label="Close AI Assistant"
                         className="md:hidden p-1.5 text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-white/5 rounded-md transition-colors"
                     >
-                        <X size={18} />
+                        <X size={18} aria-hidden="true" />
                     </button>
                 </div>
 

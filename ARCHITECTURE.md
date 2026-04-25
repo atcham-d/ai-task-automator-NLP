@@ -41,7 +41,6 @@ FlowAI is a modern monolithic application with a decoupled frontend and backend.
 │
 ├── supabase/                 # Supabase configuration (Edge Functions, migrations, etc.)
 ├── docs/                     # Project documentation
-├── .gsd/                     # Development workflow tracking and phases
 └── .agent/                   # Custom agent workflows and skills
 ```
 
