@@ -291,21 +291,6 @@ def _extract_actions_from_snippet(lower_text: str, original_text: str) -> List[A
 
     return actions
 
-    # Default logic (if strictly zero actions found)
-    if not actions and not lower_text.startswith("if "): # Don't default inside if-branches yet
-        actions.append(
-            Action(
-                type=ActionType.HTTP,
-                config={
-                    "url": "https://example.com/webhook",
-                    "method": "POST",
-                    "body": {"text": original_text},
-                },
-            )
-        )
-
-    return actions
-
 
 def _extract_message(text: str, platform: str) -> str:
     """Extract a meaningful message from the workflow description.

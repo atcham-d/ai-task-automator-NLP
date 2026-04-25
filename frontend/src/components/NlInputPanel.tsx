@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
-import { Sparkles, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
+import { Sparkles, Loader2, ChevronDown, ChevronRight, X } from 'lucide-react';
 import { Button } from './Button';
 import { Textarea } from './Input';
-import { Card } from './Card';
+import type { WorkflowDefinition } from '../types/workflow';
 
 interface NlInputPanelProps {
     onParse: (text: string) => Promise<void>;
     parsing: boolean;
-    parsedDef: any;
+    parsedDef: WorkflowDefinition | null;
+    parseError?: string | null;
+    isOpen?: boolean;
+    onToggle?: () => void;
 }
 
-export const NlInputPanel: React.FC<NlInputPanelProps> = ({ onParse, parsing, parsedDef }) => {
+export const NlInputPanel: React.FC<NlInputPanelProps> = ({ 
+    onParse, 
+    parsing, 
+    parsedDef,
+    parseError,
+    isOpen = true,
+    onToggle
+}) => {
     const [localNlInput, setLocalNlInput] = useState('');
-    const [jsonVisible, setJsonVisible] = useState(true);
+    const [jsonVisible, setJsonVisible] = useState(false);
 
     const handleParseClick = () => {
         onParse(localNlInput);
@@ -20,82 +30,97 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({ onParse, parsing, pa
 
     return (
         <div
-            style={{
-                width: '280px',
-                borderRight: '1px solid #1e1e2e',
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                overflowY: 'auto',
-            }}
+            className={`
+                fixed inset-y-0 left-0 z-40 w-72 bg-[#0a0a0f] border-r border-[#1e1e2e] 
+                transform transition-transform duration-300 ease-in-out flex flex-col
+                md:relative md:translate-x-0
+                ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+            `}
         >
-            <label
-                style={{
-                    fontFamily: "'Syne', sans-serif",
-                    fontSize: '14px',
-                    fontWeight: 700,
-                    color: '#f1f5f9',
-                }}
-            >
-                Describe your automation
-            </label>
-            <Textarea
-                value={localNlInput}
-                onChange={(e) => setLocalNlInput(e.target.value)}
-                placeholder="When I receive an email from..."
-                style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '13px',
-                    minHeight: '160px',
-                }}
-            />
-            <p style={{ color: '#475569', fontSize: '11px' }}>{localNlInput.length} / 500 characters</p>
-            <Button variant="primary" style={{ width: '100%' }} onClick={handleParseClick} disabled={parsing}>
-                {parsing ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={14} />}
-                {parsing ? 'Parsing...' : 'Parse Workflow'}
-            </Button>
-
-            {/* JSON Preview */}
-            {parsedDef && (
-                <div>
-                    <button
-                        onClick={() => setJsonVisible(!jsonVisible)}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            color: '#94a3b8',
-                            cursor: 'pointer',
-                            fontSize: '13px',
-                            fontWeight: 500,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '4px 0',
-                            fontFamily: "'DM Sans', sans-serif",
-                        }}
+            <div className="p-5 flex flex-col gap-5 overflow-y-auto flex-1">
+                <div className="flex items-center justify-between">
+                    <label className="font-display text-sm font-bold text-[#f1f5f9]">
+                        Describe your automation
+                    </label>
+                    <button 
+                        type="button"
+                        onClick={onToggle}
+                        aria-label="Close AI Assistant"
+                        className="md:hidden p-1.5 text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-white/5 rounded-md transition-colors"
                     >
-                        {jsonVisible ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                        Parsed JSON
+                        <X size={18} aria-hidden="true" />
                     </button>
-                    {jsonVisible && (
-                        <Card style={{ padding: '12px', marginTop: '8px', background: '#0a0a0f' }}>
-                            <pre
-                                style={{
-                                    fontSize: '10px',
-                                    color: '#6366f1',
-                                    margin: 0,
-                                    whiteSpace: 'pre-wrap',
-                                    wordBreak: 'break-all',
-                                    fontFamily: "'JetBrains Mono', monospace",
-                                }}
-                            >
-                                {JSON.stringify(parsedDef, null, 2)}
-                            </pre>
-                        </Card>
-                    )}
                 </div>
-            )}
+
+                <div className="space-y-4">
+                    <Textarea
+                        value={localNlInput}
+                        onChange={(e) => {
+                            if (e.target.value.length <= 500) {
+                                setLocalNlInput(e.target.value);
+                            }
+                        }}
+                        maxLength={500}
+                        placeholder="When I receive an email from..."
+                        className="min-h-[180px] text-[13px] leading-relaxed"
+                    />
+
+                    {parseError && (
+                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                            <p className="text-[11px] text-red-400 font-medium leading-relaxed">
+                                {parseError}
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="flex justify-between items-center">
+                        <p className="text-[#475569] text-[11px] font-medium font-mono">
+                            {localNlInput.length} / 500
+                        </p>
+                    </div>
+                </div>
+
+                <Button 
+                    variant="primary" 
+                    className="w-full shadow-lg shadow-[#6366f1]/20" 
+                    onClick={handleParseClick} 
+                    disabled={parsing || !localNlInput.trim()}
+                >
+                    {parsing ? (
+                        <Loader2 size={14} className="animate-spin mr-2" />
+                    ) : (
+                        <Sparkles size={14} className="mr-2" />
+                    )}
+                    {parsing ? 'Parsing...' : 'Parse Workflow'}
+                </Button>
+
+                {/* JSON Preview */}
+                {parsedDef && (
+                    <div className="mt-2 text-[10px]">
+                        <button
+                            onClick={() => setJsonVisible(!jsonVisible)}
+                            className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f1f5f9] font-medium transition-colors py-1 group"
+                        >
+                            {jsonVisible ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                            <span className="font-mono tracking-tight uppercase">Parsed Schema</span>
+                        </button>
+                        {jsonVisible && (
+                            <div className="mt-3 p-3 bg-black/40 rounded-xl border border-[#1e1e2e] overflow-hidden">
+                                <pre className="text-[#6366f1] whitespace-pre-wrap break-all font-mono leading-relaxed">
+                                    {JSON.stringify(parsedDef, null, 2)}
+                                </pre>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* Hint for users */}
+            <div className="p-4 border-t border-[#1e1e2e] bg-black/20">
+                <p className="text-[10px] text-[#475569] leading-normal italic">
+                    Tip: Be specific about the triggers and apps you want to connect.
+                </p>
+            </div>
         </div>
     );
 };

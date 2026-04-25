@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api.routes import auth, workflows, parse, logs, integrations, profile
+from app.api.routes import auth, workflows, parse, logs, integrations, profile, webhooks
 from app.scheduler import scheduler as workflow_scheduler
 
 logging.basicConfig(level=logging.INFO)
@@ -39,10 +39,12 @@ logger.info(f"Allowed CORS origins: {settings.cors_origins}")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
+    allow_origin_regex=settings.ALLOWED_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # ── Register Routers ──
 app.include_router(auth.router)
@@ -51,7 +53,7 @@ app.include_router(parse.router)
 app.include_router(logs.router)
 app.include_router(integrations.router)
 app.include_router(profile.router)
-
+app.include_router(webhooks.router)
 
 @app.get("/health", tags=["health"])
 async def health_check():

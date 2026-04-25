@@ -7,53 +7,29 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
     label?: string;
+    error?: string;
 }
 
-const inputBaseStyle: React.CSSProperties = {
-    background: '#0a0a0f',
-    border: '1px solid #1e1e2e',
-    borderRadius: '12px',
-    padding: '10px 14px',
-    color: '#f1f5f9',
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: '15px',
-    width: '100%',
-    transition: 'all 0.2s ease',
-    outline: 'none',
-};
-
-const labelStyle: React.CSSProperties = {
-    display: 'block',
-    fontSize: '13px',
-    fontWeight: 500,
-    color: '#94a3b8',
-    marginBottom: '6px',
-    fontFamily: "'DM Sans', sans-serif",
-};
-
-const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    e.currentTarget.style.borderColor = '#6366f1';
-    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.2)';
-};
-
-const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    e.currentTarget.style.borderColor = '#1e1e2e';
-    e.currentTarget.style.boxShadow = 'none';
-};
-
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ label, error, style, ...props }, ref) => {
+    ({ label, error, className = '', ...props }, ref) => {
         return (
-            <div>
-                {label && <label style={labelStyle}>{label}</label>}
+            <div className="w-full">
+                {label && (
+                    <label className="block text-[13px] font-medium text-[#94a3b8] mb-1.5 font-body">
+                        {label}
+                    </label>
+                )}
                 <input
                     ref={ref}
-                    style={{ ...inputBaseStyle, ...style, borderColor: error ? '#ef4444' : '#1e1e2e' }}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
+                    className={`
+                        bg-[#0a0a0f] border rounded-xl px-3.5 py-2.5 text-[#f1f5f9] font-body text-[15px] w-full 
+                        transition-all duration-200 outline-none
+                        ${error ? 'border-red-500' : 'border-[#1e1e2e] focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20'}
+                        ${className}
+                    `}
                     {...props}
                 />
-                {error && <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>{error}</div>}
+                {error && <div className="text-red-500 text-[12px] mt-1">{error}</div>}
             </div>
         );
     }
@@ -62,23 +38,25 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = 'Input';
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-    ({ label, style, ...props }, ref) => {
+    ({ label, error, className = '', ...props }, ref) => {
         return (
-            <div>
-                {label && <label style={labelStyle}>{label}</label>}
+            <div className="w-full">
+                {label && (
+                    <label className="block text-[13px] font-medium text-[#94a3b8] mb-1.5 font-body">
+                        {label}
+                    </label>
+                )}
                 <textarea
                     ref={ref}
-                    style={{
-                        ...inputBaseStyle,
-                        resize: 'vertical',
-                        minHeight: '120px',
-                        lineHeight: '1.5',
-                        ...style,
-                    }}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
+                    className={`
+                        bg-[#0a0a0f] border rounded-xl px-3.5 py-2.5 text-[#f1f5f9] font-body text-[15px] w-full 
+                        transition-all duration-200 outline-none resize-vertical min-h-[120px] leading-relaxed
+                        ${error ? 'border-red-500' : 'border-[#1e1e2e] focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20'}
+                        ${className}
+                    `}
                     {...props}
                 />
+                {error && <div className="text-red-500 text-[12px] mt-1">{error}</div>}
             </div>
         );
     }

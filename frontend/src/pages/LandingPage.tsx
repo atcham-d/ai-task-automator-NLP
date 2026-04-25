@@ -1,363 +1,197 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { AnimatedPage, StaggerContainer, StaggerItem } from '../components/AnimatedPage';
-import { BackgroundBoxes } from '../components/BackgroundBoxes';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
-import { FloatingNav } from '../components/FloatingNav';
-import { Brain, Workflow, Activity, Zap, ArrowRight, Github, BookOpen, Radio } from 'lucide-react';
-
-const features = [
-    {
-        icon: <Brain size={28} />,
-        title: 'Natural Language Parsing',
-        description: 'Describe your automation in plain English. Our AI converts your instructions into structured workflow steps automatically.',
-    },
-    {
-        icon: <Workflow size={28} />,
-        title: 'Visual Flow Editor',
-        description: 'Inspect and fine-tune your workflows with an intuitive drag-and-drop node editor powered by React Flow.',
-    },
-    {
-        icon: <Activity size={28} />,
-        title: 'Execution & Monitoring',
-        description: 'Activate workflows with one click. Monitor real-time execution logs and track success rates effortlessly.',
-    },
-];
-
-const steps = [
-    { number: '01', title: 'Describe', description: 'Type your automation instruction in natural language' },
-    { number: '02', title: 'Review', description: 'Inspect the generated visual workflow and edit nodes' },
-    { number: '03', title: 'Activate', description: 'Deploy your workflow and monitor execution logs' },
-];
+import React from "react";
+import { Link } from "react-router-dom";
+import { Component as EtherealShadow } from "../components/etheral-shadow";
 
 export const LandingPage: React.FC = () => {
-    return (
-        <AnimatedPage>
-            <FloatingNav />
+  return (
+    <div className="relative min-h-screen overflow-x-hidden bg-[#0a0a0f] text-slate-100">
+      {/* Ethereal Shadow Background */}
+      <div className="absolute inset-0 -z-10">
+        <EtherealShadow
+          color="rgba(128, 128, 128, 1)"
+          animation={{ scale: 100, speed: 90 }}
+          noise={{ opacity: 1, scale: 1.2 }}
+          sizing="fill"
+        />
+      </div>
 
-            {/* Hero Section */}
-            <section
-                style={{
-                    position: 'relative',
-                    minHeight: '100vh',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                    padding: '96px 24px 96px',
-                }}
-            >
-                <BackgroundBoxes rows={18} cols={28} />
+      {/* Fallback Grid + Glow Background */}
+      <div className="absolute inset-0 grid-bg pointer-events-none opacity-40"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-gradient-to-b from-[#2c2fed]/10 to-transparent blur-3xl rounded-full opacity-30"></div>
 
-                {/* Glowing orbs */}
-                <div style={{
-                    position: 'absolute',
-                    width: '500px',
-                    height: '500px',
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)',
-                    top: '10%',
-                    left: '20%',
-                    filter: 'blur(60px)',
-                    pointerEvents: 'none',
-                    zIndex: 0,
-                }} />
-                <div style={{
-                    position: 'absolute',
-                    width: '400px',
-                    height: '400px',
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(167,139,250,0.1) 0%, transparent 70%)',
-                    bottom: '20%',
-                    right: '15%',
-                    filter: 'blur(60px)',
-                    pointerEvents: 'none',
-                    zIndex: 0,
-                }} />
+      {/* Navigation */}
+      <header className="relative z-50 px-6 py-6 md:px-12 flex items-center justify-between border-b border-[#1e1e2e]/50 bg-[#0a0a0f]/70 backdrop-blur-md">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-[#2c2fed] rounded-lg flex items-center justify-center text-white">
+            <span className="material-symbols-outlined text-xl">account_tree</span>
+          </div>
+          <h1 className="font-syne text-2xl font-bold tracking-tight text-white">FlowAI</h1>
+        </div>
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+          <a className="hover:text-[#2c2fed] transition-colors" href="#features">Features</a>
+          <a className="hover:text-[#2c2fed] transition-colors" href="#how-it-works">How It Works</a>
+          <a className="hover:text-[#2c2fed] transition-colors" href="#">Docs</a>
+          <a className="hover:text-[#2c2fed] transition-colors" href="#">GitHub</a>
+        </nav>
+        <div className="flex items-center gap-4">
+          <Link to="/login" className="hidden sm:block px-5 py-2 text-sm font-semibold text-white/80 hover:text-white">
+            Login
+          </Link>
+          <Link to="/signup" className="px-5 py-2 text-sm font-bold bg-[#2c2fed] hover:bg-[#2c2fed]/90 text-white rounded-full transition-all glow-indigo">
+            Start Building Free
+          </Link>
+        </div>
+      </header>
 
-                <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: '800px' }}>
-                    {/* Pill badge */}
-                    <div
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            background: 'rgba(99,102,241,0.1)',
-                            border: '1px solid rgba(99,102,241,0.2)',
-                            borderRadius: '9999px',
-                            padding: '6px 16px',
-                            marginBottom: '32px',
-                            fontSize: '13px',
-                            color: '#818cf8',
-                            fontWeight: 500,
-                        }}
-                    >
-                        <Zap size={14} />
-                        AI-Powered Workflow Automation
-                    </div>
+      {/* Hero Section */}
+      <main className="relative z-10 px-6 pt-20 pb-32 text-center max-w-6xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#2c2fed]/10 border border-[#2c2fed]/20 text-[#2c2fed] text-xs font-bold uppercase tracking-widest mb-8">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2c2fed] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2c2fed]"></span>
+          </span>
+          AI-Powered Workflow Automation
+        </div>
 
-                    {/* Headline */}
-                    <h1
-                        style={{
-                            fontFamily: "'Syne', sans-serif",
-                            fontSize: 'clamp(40px, 6vw, 64px)',
-                            fontWeight: 800,
-                            lineHeight: 1.1,
-                            marginBottom: '24px',
-                            color: '#f1f5f9',
-                        }}
-                    >
-                        Describe It.
-                        <br />
-                        <span
-                            style={{
-                                background: 'linear-gradient(135deg, #6366f1, #a78bfa)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                backgroundClip: 'text',
-                            }}
-                        >
-                            Automate It.
-                        </span>
-                    </h1>
+        <h1 className="font-syne text-5xl md:text-7xl font-extrabold leading-[1.1] tracking-tight mb-8">
+          Describe It. <br />
+          <span className="text-gradient">Automate It.</span>
+        </h1>
 
-                    {/* Subheadline */}
-                    <p
-                        style={{
-                            fontSize: '18px',
-                            color: '#94a3b8',
-                            maxWidth: '560px',
-                            margin: '0 auto 40px',
-                            lineHeight: 1.6,
-                        }}
-                    >
-                        Transform plain English into powerful automated workflows. Our NLP engine parses your instructions into visual, editable flows you can deploy in seconds.
-                    </p>
+        <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-dm-sans">
+          Transform natural language into powerful automated workflows. Our AI-driven engine interprets your requirements and builds execution nodes instantly.
+        </p>
 
-                    {/* CTAs */}
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                        <Link to="/signup" style={{ textDecoration: 'none' }}>
-                            <Button variant="primary" size="lg">
-                                Start Building Free
-                                <ArrowRight size={18} />
-                            </Button>
-                        </Link>
-                        <a href="#how-it-works" style={{ textDecoration: 'none' }}>
-                            <Button variant="ghost" size="lg">See How It Works</Button>
-                        </a>
-                    </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
+          <button className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#2c2fed] to-[#a78bfa] text-white font-bold rounded-full text-lg shadow-xl shadow-[#2c2fed]/20 hover:scale-105 transition-transform">
+            Get Started Now
+          </button>
+          <button className="w-full sm:w-auto px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-full text-lg hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+            <span className="material-symbols-outlined">play_circle</span>
+            See How It Works
+          </button>
+        </div>
 
-                    {/* Canvas mockup */}
-                    <div style={{ marginTop: '80px', position: 'relative' }}>
-                        <div
-                            style={{
-                                background: '#111118',
-                                border: '1px solid #1e1e2e',
-                                borderRadius: '20px',
-                                padding: '32px',
-                                boxShadow: '0 0 60px rgba(99,102,241,0.1), 0 20px 60px rgba(0,0,0,0.5)',
-                            }}
-                        >
-                            <svg width="100%" height="200" viewBox="0 0 700 200">
-                                {/* Trigger node */}
-                                <rect x="40" y="70" width="140" height="60" rx="12" fill="#111118" stroke="rgba(167,139,250,0.5)" strokeWidth="2" />
-                                <text x="110" y="95" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="600">TRIGGER</text>
-                                <text x="110" y="115" textAnchor="middle" fill="#f1f5f9" fontSize="13" fontWeight="500">Email Received</text>
+        {/* Mockup */}
+        <div className="relative group max-w-5xl mx-auto">
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#2c2fed] to-[#a78bfa] rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+          <div className="relative rounded-xl overflow-hidden border border-[#1e1e2e] bg-[#111118] aspect-video shadow-2xl">
+            <div className="flex items-center px-4 py-3 border-b border-[#1e1e2e] bg-[#0a0a0f]/50">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
+              </div>
+              <div className="mx-auto text-xs text-slate-500 font-mono">canvas / main-automated-flow.json</div>
+            </div>
+            <div className="p-8 h-full bg-[#0a0a0f]/30">
+              <img
+                className="w-full h-full object-cover rounded-lg opacity-80"
+                alt="AI visual workflow editor"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYDaNeeUwUYPTjvaCQJhcU-A_EUxKt6GfDNCFfk5skS1YxtgflZXlrzBzjVataQee0XzkBFGPzDThGhRtrxMPzwS4v0lKTk7_xLroL_lCuiar7VY08kCB4ZfccnfLzeevNiX7KmfiEeJez7230_9CbatznEt5TpLgHp6oa-gZ-fEsTuW4CP2VPHLWRXMId-NGkrSkWJBBUdf1OyoaAXjjvBV0YNFuECew639Ju8wZmjxoWKtuSZ8taX_nuwbITySxGPeM0Q13JcAF-"
+              />
+            </div>
+          </div>
+        </div>
+      </main>
 
-                                {/* Condition node */}
-                                <rect x="280" y="70" width="140" height="60" rx="12" fill="#111118" stroke="rgba(251,191,36,0.5)" strokeWidth="2" />
-                                <text x="350" y="95" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="600">CONDITION</text>
-                                <text x="350" y="115" textAnchor="middle" fill="#f1f5f9" fontSize="13" fontWeight="500">From Manager?</text>
+      {/* Features */}
+      <section id="features" className="relative z-10 py-24 px-6 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="font-syne text-3xl md:text-4xl font-bold mb-4">Enterprise-Grade Automation</h2>
+          <p className="text-slate-400 max-w-xl mx-auto">Powering the next generation of developer workflows with cutting-edge AI.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            {
+              icon: "chat_bubble",
+              title: "Natural Language Parsing",
+              desc: "Describe your logic in plain English and watch the AI generate complex architectural nodes instantly without a single line of code.",
+            },
+            {
+              icon: "drag_indicator",
+              title: "Visual Flow Editor",
+              desc: "A sleek, drag-and-drop interface for fine-tuning your automated sequences with absolute precision and real-time validation.",
+            },
+            {
+              icon: "monitoring",
+              title: "Execution & Monitoring",
+              desc: "Real-time tracking and comprehensive logs for every trigger and action across your entire tech stack with smart alerting.",
+            },
+          ].map((f) => (
+            <div key={f.title} className="group p-8 rounded-2xl bg-[#111118] border border-[#1e1e2e] hover:border-[#2c2fed]/50 transition-all duration-300">
+              <div className="w-12 h-12 mb-6 rounded-xl bg-[#2c2fed]/10 flex items-center justify-center text-[#2c2fed] group-hover:bg-[#2c2fed] group-hover:text-white transition-all">
+                <span className="material-symbols-outlined">{f.icon}</span>
+              </div>
+              <h3 className="font-syne text-xl font-bold mb-3">{f.title}</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-                                {/* Action node */}
-                                <rect x="520" y="70" width="140" height="60" rx="12" fill="#111118" stroke="rgba(99,102,241,0.5)" strokeWidth="2" />
-                                <text x="590" y="95" textAnchor="middle" fill="#818cf8" fontSize="10" fontWeight="600">ACTION</text>
-                                <text x="590" y="115" textAnchor="middle" fill="#f1f5f9" fontSize="13" fontWeight="500">Post to Slack</text>
+      {/* How it works */}
+      <section id="how-it-works" className="relative z-10 py-24 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative">
+            <div className="hidden md:block absolute top-12 left-0 w-full h-px border-t border-dashed border-[#2c2fed]/40 -z-10"></div>
 
-                                {/* Connecting lines */}
-                                <line x1="180" y1="100" x2="280" y2="100" stroke="#6366f1" strokeWidth="2" strokeDasharray="6 3">
-                                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1.5s" repeatCount="indefinite" />
-                                </line>
-                                <line x1="420" y1="100" x2="520" y2="100" stroke="#6366f1" strokeWidth="2" strokeDasharray="6 3">
-                                    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1.5s" repeatCount="indefinite" />
-                                </line>
-
-                                {/* Arrow heads */}
-                                <polygon points="278,95 278,105 268,100" fill="#6366f1" />
-                                <polygon points="518,95 518,105 508,100" fill="#6366f1" />
-                            </svg>
-                        </div>
-                    </div>
+            {[
+              { num: "1", icon: "edit_note", title: "Describe", desc: "Input your workflow requirements using natural language." },
+              { num: "2", icon: "visibility", title: "Review", desc: "Verify the AI-generated logic and connections in the visual editor." },
+              { num: "3", icon: "rocket_launch", title: "Activate", desc: "Deploy your automation with a single click and monitor performance." },
+            ].map((s) => (
+              <div key={s.title} className="flex flex-col items-center text-center flex-1">
+                <div className="w-14 h-14 rounded-full bg-[#0a0a0f] border-4 border-[#2c2fed]/20 flex items-center justify-center mb-6 relative z-10 shadow-lg shadow-[#2c2fed]/30">
+                  <span className="font-syne font-bold text-[#2c2fed]">{s.num}</span>
                 </div>
-            </section>
+                <span className="material-symbols-outlined text-[#2c2fed] mb-4 text-3xl">{s.icon}</span>
+                <h4 className="font-syne text-lg font-bold mb-2">{s.title}</h4>
+                <p className="text-slate-400 text-sm px-4">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Features Section */}
-            <section id="features" style={{ padding: '96px 24px', maxWidth: '1100px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-                <StaggerContainer>
-                    <StaggerItem>
-                        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-                            <h2
-                                style={{
-                                    fontFamily: "'Syne', sans-serif",
-                                    fontSize: '32px',
-                                    fontWeight: 700,
-                                    color: '#f1f5f9',
-                                    marginBottom: '16px',
-                                }}
-                            >
-                                Everything You Need
-                            </h2>
-                            <p style={{ color: '#94a3b8', fontSize: '16px', maxWidth: '500px', margin: '0 auto' }}>
-                                From natural language to live automation — all in one platform.
-                            </p>
-                        </div>
-                    </StaggerItem>
+      {/* CTA */}
+      <section className="relative z-10 py-24 px-6 text-center max-w-4xl mx-auto">
+        <div className="p-12 rounded-3xl bg-gradient-to-br from-[#2c2fed]/20 to-[#a78bfa]/10 border border-[#2c2fed]/20">
+          <h2 className="font-syne text-4xl font-bold mb-6">Ready to scale your workflows?</h2>
+          <p className="text-slate-300 mb-10 text-lg">Join 50,000+ developers building the future with FlowAI.</p>
+          <button className="px-10 py-4 bg-[#2c2fed] text-white font-bold rounded-full text-lg hover:scale-105 transition-transform glow-indigo">
+            Get Started Free
+          </button>
+        </div>
+      </section>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-                        {features.map((feature, i) => (
-                            <StaggerItem key={i}>
-                                <Card hover style={{ height: '100%' }}>
-                                    <div
-                                        style={{
-                                            width: '48px',
-                                            height: '48px',
-                                            borderRadius: '12px',
-                                            background: 'rgba(99,102,241,0.1)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            color: '#6366f1',
-                                            marginBottom: '20px',
-                                            boxShadow: '0 0 20px rgba(99,102,241,0.15)',
-                                        }}
-                                    >
-                                        {feature.icon}
-                                    </div>
-                                    <h3
-                                        style={{
-                                            fontFamily: "'Syne', sans-serif",
-                                            fontSize: '20px',
-                                            fontWeight: 700,
-                                            color: '#f1f5f9',
-                                            marginBottom: '12px',
-                                        }}
-                                    >
-                                        {feature.title}
-                                    </h3>
-                                    <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.6 }}>
-                                        {feature.description}
-                                    </p>
-                                </Card>
-                            </StaggerItem>
-                        ))}
-                    </div>
-                </StaggerContainer>
-            </section>
-
-            {/* How It Works */}
-            <section id="how-it-works" style={{ padding: '96px 24px', maxWidth: '1100px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-                <StaggerContainer>
-                    <StaggerItem>
-                        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-                            <h2
-                                style={{
-                                    fontFamily: "'Syne', sans-serif",
-                                    fontSize: '32px',
-                                    fontWeight: 700,
-                                    color: '#f1f5f9',
-                                    marginBottom: '16px',
-                                }}
-                            >
-                                How It Works
-                            </h2>
-                            <p style={{ color: '#94a3b8', fontSize: '16px', maxWidth: '500px', margin: '0 auto' }}>
-                                Three simple steps from idea to live automation.
-                            </p>
-                        </div>
-                    </StaggerItem>
-
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                        {steps.map((step, i) => (
-                            <React.Fragment key={i}>
-                                <StaggerItem style={{ flex: '1', minWidth: '220px', maxWidth: '300px', textAlign: 'center' }}>
-                                    <div
-                                        style={{
-                                            fontFamily: "'Syne', sans-serif",
-                                            fontSize: '48px',
-                                            fontWeight: 800,
-                                            background: 'linear-gradient(135deg, #6366f1, #a78bfa)',
-                                            WebkitBackgroundClip: 'text',
-                                            WebkitTextFillColor: 'transparent',
-                                            backgroundClip: 'text',
-                                            marginBottom: '16px',
-                                        }}
-                                    >
-                                        {step.number}
-                                    </div>
-                                    <h3
-                                        style={{
-                                            fontFamily: "'Syne', sans-serif",
-                                            fontSize: '20px',
-                                            fontWeight: 700,
-                                            color: '#f1f5f9',
-                                            marginBottom: '8px',
-                                        }}
-                                    >
-                                        {step.title}
-                                    </h3>
-                                    <p style={{ color: '#94a3b8', fontSize: '14px' }}>{step.description}</p>
-                                </StaggerItem>
-                                {i < steps.length - 1 && (
-                                    <div
-                                        style={{
-                                            alignSelf: 'center',
-                                            color: '#1e1e2e',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            paddingTop: '0px',
-                                        }}
-                                    >
-                                        <svg width="60" height="2" style={{ marginTop: '-40px' }}>
-                                            <line x1="0" y1="1" x2="60" y2="1" stroke="#1e1e2e" strokeWidth="2" strokeDasharray="6 4" />
-                                        </svg>
-                                    </div>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </div>
-                </StaggerContainer>
-            </section>
-
-            {/* Footer */}
-            <footer
-                style={{
-                    borderTop: '1px solid #1e1e2e',
-                    padding: '48px 24px',
-                    textAlign: 'center',
-                    position: 'relative',
-                    zIndex: 1,
-                }}
-            >
-                <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Zap size={18} style={{ color: '#6366f1' }} />
-                        <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, color: '#f1f5f9' }}>FlowAI</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '24px' }}>
-                        <a href="#" style={{ color: '#475569', textDecoration: 'none', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#94a3b8'} onMouseLeave={e => e.currentTarget.style.color = '#475569'}>
-                            <BookOpen size={14} /> Docs
-                        </a>
-                        <a href="#" style={{ color: '#475569', textDecoration: 'none', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#94a3b8'} onMouseLeave={e => e.currentTarget.style.color = '#475569'}>
-                            <Github size={14} /> GitHub
-                        </a>
-                        <a href="#" style={{ color: '#475569', textDecoration: 'none', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#94a3b8'} onMouseLeave={e => e.currentTarget.style.color = '#475569'}>
-                            <Radio size={14} /> Status
-                        </a>
-                    </div>
-                    <p style={{ color: '#475569', fontSize: '13px' }}>© 2026 FlowAI. All rights reserved.</p>
-                </div>
-            </footer>
-        </AnimatedPage>
-    );
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-[#1e1e2e] bg-[#0a0a0f] pt-16 pb-8 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-[#2c2fed] rounded flex items-center justify-center text-white">
+              <span className="material-symbols-outlined text-sm">account_tree</span>
+            </div>
+            <h2 className="font-syne text-xl font-bold tracking-tight text-white">FlowAI</h2>
+          </div>
+          <nav className="flex items-center gap-8 text-sm text-slate-500 font-medium">
+            <a className="hover:text-white transition-colors" href="#">Docs</a>
+            <a className="hover:text-white transition-colors" href="#">GitHub</a>
+            <a className="hover:text-white transition-colors" href="#">Status</a>
+            <a className="hover:text-white transition-colors" href="#">Terms</a>
+          </nav>
+          <div className="flex items-center gap-4 text-slate-500">
+            <a className="hover:text-white" href="#">
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div className="text-center mt-12 text-slate-600 text-xs">
+          © {new Date().getFullYear()} FlowAI. All rights reserved. Built with precision for developers.
+        </div>
+      </footer>
+    </div>
+  );
 };

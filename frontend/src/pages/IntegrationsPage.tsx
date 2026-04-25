@@ -8,12 +8,12 @@ import type { IntegrationType } from '../lib/integrationSchemas';
 import { AVAILABLE_INTEGRATIONS } from '../lib/integrationSchemas';
 import {
     Globe, Mail, Trello, FileText, Table, Database,
-    CheckCircle2, Plus, Edit, Trash2, ShieldAlert, Zap
+    CheckCircle2, Plus, Edit, Trash2, ShieldAlert, Zap, Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // Component mapping for Lucide icons
-const IconMap: Record<string, React.FC<any>> = {
+const IconMap: Record<string, React.ElementType> = {
     Globe,
     Mail,
     Trello,
@@ -60,7 +60,6 @@ export const IntegrationsPage: React.FC = () => {
     };
 
     const handleDelete = async (id: string, name: string) => {
-        // Removed confirm for smoother automated verification, can be restored for PROD
         try {
             await integrationsApi.delete(id);
             toast.success(`${name} disconnected`);
@@ -71,110 +70,152 @@ export const IntegrationsPage: React.FC = () => {
     };
 
     if (loading) {
-        return <div style={{ color: '#94a3b8', padding: '24px' }}>Loading integrations...</div>;
+        return (
+            <div role="status" className="flex flex-col justify-center items-center py-20 gap-4">
+                <Loader2 size={32} className="text-[#6366f1] animate-spin" />
+                <span className="sr-only">Loading integrations...</span>
+            </div>
+        );
     }
 
     return (
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-            <div style={{ marginBottom: '32px' }}>
-                <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', color: '#f1f5f9', fontWeight: 700, marginBottom: '8px' }}>
+        <div className="mx-auto max-w-5xl">
+            <div className="mb-10">
+                <h1 className="font-display text-2xl md:text-3xl font-bold text-[#f1f5f9] mb-2">
                     Integrations
                 </h1>
-                <p style={{ color: '#94a3b8' }}>Connect FlowAI to your favorite services and APIs.</p>
+                <p className="text-[#94a3b8]">Connect FlowAI to your favorite services and APIs.</p>
             </div>
 
             {/* Active Integrations */}
-            <h2 style={{ fontSize: '18px', color: '#e2e8f0', fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckCircle2 size={20} color="#10b981" />
-                Active Connections
-            </h2>
+            <div className="mb-12">
+                <h2 className="text-lg font-semibold text-[#f1f5f9] mb-6 flex items-center gap-2">
+                    <CheckCircle2 size={20} className="text-[#10b981]" />
+                    Active Connections
+                </h2>
 
-            {activeIntegrations.length === 0 ? (
-                <div style={{ padding: '32px', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px', marginBottom: '48px', color: '#64748b' }}>
-                    <ShieldAlert size={32} style={{ margin: '0 auto 12px auto', opacity: 0.5 }} />
-                    <p>No active integrations found.</p>
-                    <p style={{ fontSize: '14px', marginTop: '4px' }}>Select an app from the directory below to connect it.</p>
-                </div>
-            ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginBottom: '48px' }}>
-                    {activeIntegrations.map((active) => {
-                        const meta = AVAILABLE_INTEGRATIONS.find(a => a.type === active.type);
-                        const Icon = meta ? IconMap[meta.icon_name] || Globe : Globe;
+                {activeIntegrations.length === 0 ? (
+                    <div className="p-10 text-center border border-dashed border-[#1e1e2e] rounded-2xl bg-[#111118]/50">
+                        <ShieldAlert size={32} className="mx-auto mb-4 text-[#475569] opacity-50" />
+                        <p className="text-[#f1f5f9] font-medium">No active integrations found.</p>
+                        <p className="text-[#94a3b8] text-sm mt-1">Select an app from the directory below to connect it.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {activeIntegrations.map((active) => {
+                            const meta = AVAILABLE_INTEGRATIONS.find(a => a.type === active.type);
+                            const Icon = meta ? IconMap[meta.icon_name] || Globe : Globe;
 
-                        return (
-                            <Card key={active.id} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <div style={{ padding: '10px', background: 'rgba(99,102,241,0.1)', borderRadius: '10px', color: '#8b5cf6' }}>
-                                        <Icon size={24} />
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#f1f5f9' }}>{active.name}</h3>
-                                        <div style={{ fontSize: '12px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} /> Connected
+                            return (
+                                <Card key={active.id} className="flex flex-col gap-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-[#6366f1]/10 rounded-xl text-[#6366f1] shrink-0">
+                                            <Icon size={24} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-base font-bold text-[#f1f5f9] truncate">
+                                                {active.name}
+                                            </h3>
+                                            <div className="text-[12px] text-[#10b981] flex items-center gap-1.5 mt-0.5 font-medium">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                                                Connected
+                                            </div>
                                         </div>
                                     </div>
+                                    <div className="flex gap-2 mt-auto">
+                                        <Button
+                                            variant="ghost"
+                                            className="flex-1 py-1 px-2 text-xs"
+                                            onClick={async () => {
+                                                const promise = integrationsApi.test(active.id);
+                                                toast.promise(promise, {
+                                                    loading: 'Testing...',
+                                                    success: (res) => res.message,
+                                                    error: (err) => err.message || 'Test failed',
+                                                });
+                                            }}
+                                        >
+                                            <Zap size={14} className="mr-1.5" /> Test
+                                        </Button>
+                                        <Button 
+                                            variant="ghost" 
+                                            className="flex-1 py-1 px-2 text-xs" 
+                                            onClick={() => openEditModal(active)}
+                                        >
+                                            <Edit size={14} className="mr-1.5" /> Config
+                                        </Button>
+                                        <Button 
+                                            variant="danger" 
+                                            className="px-3 shrink-0" 
+                                            onClick={() => handleDelete(active.id, active.name)}
+                                            aria-label="Disconnect"
+                                        >
+                                            <Trash2 size={14} />
+                                        </Button>
+                                    </div>
+                                </Card>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            {/* App Directory */}
+            <div className="mb-10">
+                <h2 className="text-lg font-semibold text-[#f1f5f9] mb-6">
+                    App Directory
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {AVAILABLE_INTEGRATIONS.map((app) => {
+                        const Icon = IconMap[app.icon_name] || Globe;
+                        const isConnected = activeIntegrations.some(a => a.type === app.type);
+
+                        return (
+                            <Card 
+                                key={app.type} 
+                                hover 
+                                role={!isConnected ? "button" : undefined}
+                                tabIndex={!isConnected ? 0 : undefined}
+                                className={`flex flex-col h-full ${!isConnected ? 'cursor-pointer focus-within:ring-2 focus-within:ring-violet-500/50 outline-none' : ''}`}
+                                onClick={() => !isConnected && openCreateModal(app.type)}
+                                onKeyDown={(e: React.KeyboardEvent) => {
+                                    if (!isConnected && (e.key === 'Enter' || e.key === ' ')) {
+                                        e.preventDefault();
+                                        openCreateModal(app.type);
+                                    }
+                                }}
+                            >
+                                <div className="flex items-start gap-4 mb-5">
+                                    <div className="p-3 bg-white/5 rounded-xl text-[#a78bfa] shrink-0 group-hover:bg-[#a78bfa]/10 transition-colors">
+                                        <Icon size={28} />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-base font-bold text-[#f1f5f9] truncate">{app.name}</h3>
+                                        <p className="text-[13px] text-[#94a3b8] mt-1.5 leading-relaxed line-clamp-2">
+                                            {app.description}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
-                                    <Button
-                                        variant="ghost"
-                                        style={{ flex: 1, padding: '4px' }}
-                                        onClick={async () => {
-                                            const promise = integrationsApi.test(active.id);
-                                            toast.promise(promise, {
-                                                loading: 'Testing connection...',
-                                                success: (res) => res.message,
-                                                error: (err) => err.message || 'Test failed',
-                                            });
-                                        }}
-                                    >
-                                        <Zap size={14} style={{ marginRight: '6px' }} /> Test
-                                    </Button>
-                                    <Button variant="ghost" style={{ flex: 1, padding: '4px' }} onClick={() => openEditModal(active)}>
-                                        <Edit size={14} style={{ marginRight: '6px' }} /> Configure
-                                    </Button>
-                                    <Button variant="danger" style={{ padding: '4px 10px' }} onClick={() => handleDelete(active.id, active.name)}>
-                                        <Trash2 size={14} />
-                                    </Button>
+
+                                <div className="mt-auto">
+                                    {isConnected ? (
+                                        <div className="w-full text-[13px] font-medium text-[#10b981] py-2.5 text-center bg-[#10b981]/10 rounded-lg">
+                                            Already Connected
+                                        </div>
+                                    ) : (
+                                        <Button 
+                                            variant="ghost" 
+                                            className="w-full" 
+                                            onClick={(e) => { e.stopPropagation(); openCreateModal(app.type); }}
+                                        >
+                                            <Plus size={16} className="mr-2" /> Connect
+                                        </Button>
+                                    )}
                                 </div>
                             </Card>
                         );
                     })}
                 </div>
-            )}
-
-            {/* App Directory */}
-            <h2 style={{ fontSize: '18px', color: '#e2e8f0', fontWeight: 600, marginBottom: '16px' }}>
-                App Directory
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-                {AVAILABLE_INTEGRATIONS.map((app) => {
-                    const Icon = IconMap[app.icon_name] || Globe;
-                    const isConnected = activeIntegrations.some(a => a.type === app.type);
-
-                    return (
-                        <Card key={app.type} style={{ cursor: 'pointer', transition: 'all 0.2s' }} onClick={() => !isConnected && openCreateModal(app.type)}>
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
-                                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', color: '#a78bfa' }}>
-                                    <Icon size={28} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#f1f5f9' }}>{app.name}</h3>
-                                    <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px', lineHeight: 1.4 }}>{app.description}</p>
-                                </div>
-                            </div>
-
-                            {isConnected ? (
-                                <div style={{ fontSize: '13px', color: '#10b981', padding: '8px 0', textAlign: 'center', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '6px' }}>
-                                    Already Connected
-                                </div>
-                            ) : (
-                                <Button variant="ghost" style={{ width: '100%' }} onClick={(e) => { e.stopPropagation(); openCreateModal(app.type); }}>
-                                    <Plus size={16} style={{ marginRight: '6px' }} /> Connect
-                                </Button>
-                            )}
-                        </Card>
-                    );
-                })}
             </div>
 
             <IntegrationModal

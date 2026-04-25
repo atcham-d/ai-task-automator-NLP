@@ -1,5 +1,6 @@
 """Application settings loaded from environment variables."""
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -11,14 +12,30 @@ class Settings(BaseSettings):
     SUPABASE_KEY: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indmb3locG13ampncXJqYWVxcXpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI1MzY3MjgsImV4cCI6MjA1ODEzMjcyOH0.80h6h55046233523035123023023023023023023"
     SUPABASE_JWT_SECRET: str = "9gff6rRDTbQF9gW3Ci4Hmkf4DrBwAkMrDwTmG3vUfvTbL/9BowCA61m5vMiMVY1CVJ4xbnV5+LXdeRlThPt9Ag=="
 
+    # Webhooks (Trello)
+    TRELLO_WEBHOOK_SECRET: str
+    TRELLO_WEBHOOK_CALLBACK_URL: str = "https://your-domain.com/api/webhooks/trello"
+
+    @field_validator("TRELLO_WEBHOOK_SECRET")
+    @classmethod
+    def validate_trello_secret(cls, v: str) -> str:
+        """Ensure the Trello secret is not empty or a placeholder."""
+        if not v or not v.strip():
+            raise ValueError("TRELLO_WEBHOOK_SECRET must not be empty or whitespace only")
+        if v == "your_trello_webhook_secret":
+            raise ValueError("TRELLO_WEBHOOK_SECRET is still set to the default placeholder value")
+        return v
+
     # JWT
     SECRET_KEY: str = "2706306f1bdbb7a35f5a9b9a7bb015645ceda841769e4a002ddde4be62d89c94"
     ENCRYPTION_KEY: str = "placeholder_key_if_not_in_env"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
-    # CORS — stored as comma-separated string, accessed via .cors_origins
-    ALLOWED_ORIGINS: str = "http://localhost:5173"
+    # CORS
+    ALLOWED_ORIGINS: str = "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173"
+    ALLOWED_ORIGIN_REGEX: str | None = r"https://.*\.vercel\.app"
+
     
     # Development Bypass
     ENABLE_AUTH_BYPASS: bool = False

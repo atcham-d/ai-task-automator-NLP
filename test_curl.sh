@@ -1,7 +1,0 @@
-#!/bin/bash
-TOKEN="eyJhbGciOiJFUzI1NiIsImtpZCI6IjdiYTk3NzYzLTkzMTgtNGE0Mi1iNzQwLTVmNmQ5MmZhMDBiOCIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3dmb3loaG13ampncXJqYWVxcXpuLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI3MmE1NWNmZi01NjY0LTQ3NTUtYTZhMi1lYzA1MjI2Nzk3OTEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzcyODc1NDUxLCJpYXQiOjE3NzI4NzE4NTEsImVtYWlsIjoidGVzdC51c2VyLjEyM0BnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoidGVzdC51c2VyLjEyM0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZ1bGxfbmFtZSI6IiIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiNzJhNTVjZmYtNTY2NC00NzU1LWE2YTItZWMwNTIyNjc5NzkxIn0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3NzI4NzE4NTF9XSwic2Vzc2lvbl9pZCI6IjA3MTkxNWQzLTk2NTAtNDMxZi1iYjhhLTY0OWNkNWM3OWFkNiIsImlzX2Fub255bW91cyI6ZmFsc2V9.eqq0jA6BKhvgYeKO-xC8-F6_7gM0DCz1YYz-OvwyrzXz15B-D8dwHdQ5V7iAs6yQdCbQf1ZMZK-i7lqnNapcfQ"
-
-curl -i -X POST http://localhost:8000/api/integrations/ \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"type": "trello", "name": "My Trello", "config": {"api_key": "x", "api_token": "x", "board_id": "x", "list_id": "x"}}'

@@ -3,7 +3,7 @@ import { apiGet } from '../lib/api';
 import { AnimatedPage, StaggerContainer, StaggerItem } from '../components/AnimatedPage';
 import { Badge } from '../components/Badge';
 import { Card } from '../components/Card';
-import { ChevronDown, ChevronRight, Filter } from 'lucide-react';
+import { ChevronDown, ChevronRight, Filter, Loader2, Search, Activity, Zap } from 'lucide-react';
 
 interface LogResponse {
     id: string;
@@ -27,6 +27,7 @@ export const LogsPage: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState<'all' | 'success' | 'failed'>('all');
     const [workflowFilter, setWorkflowFilter] = useState<string>('all');
     const [logs, setLogs] = useState<LogResponse[]>([]);
+    const [hasMore, setHasMore] = useState(false);
     const [workflows, setWorkflows] = useState<Workflow[]>([]);
     const [page, setPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
@@ -49,17 +50,19 @@ export const LogsPage: React.FC = () => {
             setIsLoading(true);
             setErrorMsg(null);
             try {
-                const limit = 50;
-                const offset = (page - 1) * limit;
+                const limit = 51; // Fetch one extra to determine if there's a next page
+                const offset = (page - 1) * 50;
                 let query = `?limit=${limit}&offset=${offset}`;
                 if (statusFilter !== 'all') query += `&status=${statusFilter}`;
                 if (workflowFilter !== 'all') query += `&workflow_id=${workflowFilter}`;
 
                 const data = await apiGet<LogResponse[]>(`/api/logs${query}`);
-                setLogs(data);
+                setHasMore(data.length > 50);
+                setLogs(data.slice(0, 50));
             } catch (err: unknown) {
                 setErrorMsg(err instanceof Error ? err.message : 'Failed to load logs');
                 setLogs([]);
+                setHasMore(false);
             } finally {
                 setIsLoading(false);
             }
@@ -67,197 +70,186 @@ export const LogsPage: React.FC = () => {
         fetchLogs();
     }, [statusFilter, workflowFilter, page]);
 
-    const selectStyle: React.CSSProperties = {
-        background: '#0a0a0f',
-        border: '1px solid #1e1e2e',
-        borderRadius: '8px',
-        padding: '8px 12px',
-        color: '#f1f5f9',
-        fontSize: '13px',
-        fontFamily: "'DM Sans', sans-serif",
-        outline: 'none',
-        cursor: 'pointer',
-    };
-
     return (
-        <AnimatedPage>
-            <h1
-                style={{
-                    fontFamily: "'Syne', sans-serif",
-                    fontSize: '28px',
-                    fontWeight: 700,
-                    color: '#f1f5f9',
-                    marginBottom: '32px',
-                }}
-            >
-                Execution Logs
-            </h1>
+        <AnimatedPage className="container mx-auto px-4 py-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <h1 className="font-display text-3xl font-bold text-[#f1f5f9] tracking-tight">Execution Logs</h1>
+                <div className="flex items-center gap-2 text-xs text-[#475569] font-medium uppercase tracking-wider bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
+                    <Activity size={14} className="text-indigo-400" />
+                    Real-time monitoring
+                </div>
+            </div>
+
+            <div aria-live="polite" className="sr-only">
+                {isLoading ? 'Loading logs...' : `Showing ${logs.length} logs for page ${page}.`}
+            </div>
 
             {/* Filter Bar */}
-            <Card style={{ padding: '16px', marginBottom: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8', fontSize: '13px' }}>
-                        <Filter size={14} />
-                        Filters:
+            <Card className="p-4 mb-6 border-white/5 bg-[#111118]/60 backdrop-blur-xl">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-2 text-[#94a3b8] text-sm">
+                        <Filter size={16} />
+                        <span className="font-medium">Filter by:</span>
                     </div>
-                    <select
-                        value={workflowFilter}
-                        onChange={(e) => setWorkflowFilter(e.target.value)}
-                        style={selectStyle}
-                    >
-                        <option value="all">All Workflows</option>
-                        {workflows.map((w) => (
-                            <option key={w.id} value={w.id}>{w.name}</option>
-                        ))}
-                    </select>
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value as 'all' | 'success' | 'failed')}
-                        style={selectStyle}
-                    >
-                        <option value="all">All Status</option>
-                        <option value="success">Success</option>
-                        <option value="failed">Failed</option>
-                    </select>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full sm:w-auto">
+                        <select
+                            value={workflowFilter}
+                            onChange={(e) => setWorkflowFilter(e.target.value)}
+                            className="bg-[#0a0a0f] border border-white/10 rounded-lg px-4 py-2 text-sm text-[#f1f5f9] outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer"
+                        >
+                            <option value="all">All Workflows</option>
+                            {workflows.map((w) => (
+                                <option key={w.id} value={w.id}>{w.name}</option>
+                            ))}
+                        </select>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'success' | 'failed')}
+                            className="bg-[#0a0a0f] border border-white/10 rounded-lg px-4 py-2 text-sm text-[#f1f5f9] outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer"
+                        >
+                            <option value="all">All Status</option>
+                            <option value="success">Success</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
                 </div>
             </Card>
 
-            {/* Logs Table */}
-            <StaggerContainer>
-                <div
-                    style={{
-                        background: '#111118',
-                        border: '1px solid #1e1e2e',
-                        borderRadius: '16px',
-                        overflow: 'hidden',
-                    }}
-                >
-                    {/* Table Header */}
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: '2fr 1.5fr 0.8fr 0.8fr 0.5fr',
-                            padding: '14px 20px',
-                            borderBottom: '1px solid #1e1e2e',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            color: '#475569',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                        }}
-                    >
-                        <span>Workflow</span>
-                        <span>Triggered At</span>
-                        <span>Duration</span>
-                        <span>Status</span>
-                        <span></span>
-                    </div>
-
-                    {/* Table Rows */}
-                    {isLoading ? (
-                        <div style={{ padding: '48px 20px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
-                            <div style={{ display: 'inline-block', width: '20px', height: '20px', border: '2px solid #6366f1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
-                            <div>Loading logs...</div>
-                            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                        </div>
-                    ) : errorMsg ? (
-                        <div style={{ padding: '48px 20px', textAlign: 'center', color: '#ef4444', fontSize: '14px' }}>
-                            {errorMsg}
-                        </div>
-                    ) : logs.length === 0 ? (
-                        <div style={{ padding: '48px 20px', textAlign: 'center', color: '#475569', fontSize: '14px' }}>
-                            No logs match your filters.
-                        </div>
-                    ) : (
-                        logs.map((log) => (
-                            <StaggerItem key={log.id}>
-                                <div>
-                                    <div
-                                        onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
-                                        style={{
-                                            display: 'grid',
-                                            gridTemplateColumns: '2fr 1.5fr 0.8fr 0.8fr 0.5fr',
-                                            padding: '14px 20px',
-                                            borderBottom: '1px solid rgba(30,30,46,0.5)',
-                                            cursor: 'pointer',
-                                            transition: 'background 0.2s',
-                                            alignItems: 'center',
-                                            fontSize: '14px',
-                                            color: '#f1f5f9',
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(99,102,241,0.03)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                    >
-                                        <span style={{ fontWeight: 500 }}>{log.workflow_name || log.workflow_id}</span>
-                                        <span style={{ color: '#94a3b8', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px' }}>
-                                            {new Date(log.triggered_at).toLocaleString()}
-                                        </span>
-                                        <span style={{ color: '#94a3b8', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px' }}>
-                                            {log.duration_ms !== undefined && log.duration_ms !== null ? `${(log.duration_ms / 1000).toFixed(2)}s` : '-'}
-                                        </span>
-                                        <Badge variant={log.status === 'success' ? 'success' : 'error'}>
-                                            {log.status === 'success' ? 'Success' : 'Failed'}
-                                        </Badge>
-                                        <span style={{ color: '#475569', display: 'flex', justifyContent: 'flex-end' }}>
-                                            {expandedRow === log.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                                        </span>
-                                    </div>
-
-                                    {/* Expanded detail */}
-                                    {expandedRow === log.id && (
-                                        <div
-                                            style={{
-                                                padding: '16px 20px',
-                                                borderBottom: '1px solid rgba(30,30,46,0.5)',
-                                                background: '#0a0a0f',
-                                            }}
-                                        >
-                                            <pre
-                                                style={{
-                                                    fontFamily: "'JetBrains Mono', monospace",
-                                                    fontSize: '12px',
-                                                    lineHeight: 1.6,
-                                                    color: '#94a3b8',
-                                                    margin: 0,
-                                                    whiteSpace: 'pre-wrap',
-                                                    wordBreak: 'break-word',
-                                                }}
-                                            >
-                                                {log.error ? log.error : JSON.stringify(log.output, null, 2)}
-                                            </pre>
+            {/* Logs Table Wrapper */}
+            <div className="bg-[#111118] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-white/10">
+                    <table className="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr className="border-b border-white/5 bg-white/[0.02]">
+                                <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Workflow</th>
+                                <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Triggered At</th>
+                                <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Duration</th>
+                                <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-4 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-20 text-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                                            <span className="text-sm text-[#94a3b8]">Crunching execution data...</span>
                                         </div>
-                                    )}
-                                </div>
-                            </StaggerItem>
-                        ))
-                    )}
-                </div>
+                                    </td>
+                                </tr>
+                            ) : errorMsg ? (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-20 text-center text-red-400 text-sm">
+                                        {errorMsg}
+                                    </td>
+                                </tr>
+                            ) : logs.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-20 text-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <Search className="w-8 h-8 text-[#1e1e2e]" />
+                                            <span className="text-sm text-[#475569]">No matching execution records found.</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                logs.map((log) => (
+                                    <React.Fragment key={log.id}>
+                                        <tr 
+                                            onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    setExpandedRow(expandedRow === log.id ? null : log.id);
+                                                }
+                                            }}
+                                            tabIndex={0}
+                                            role="button"
+                                            aria-expanded={expandedRow === log.id}
+                                            className={`group cursor-pointer hover:bg-white/[0.03] border-b border-white/[0.02] transition-colors focus-visible:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500/50 ${expandedRow === log.id ? 'bg-white/[0.02]' : ''}`}
+                                        >
+                                            <td className="px-6 py-4">
+                                                <div className="font-semibold text-[#f1f5f9]">
+                                                    {log.workflow_name || 'Untitled Workflow'}
+                                                </div>
+                                                <div className="text-[10px] text-[#475569] font-mono mt-0.5 opacity-50">
+                                                    ID: {log.workflow_id.slice(0, 8)}...
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm font-mono text-[#94a3b8]">
+                                                {new Date(log.triggered_at).toLocaleString([], { 
+                                                    month: 'short', 
+                                                    day: 'numeric', 
+                                                    hour: '2-digit', 
+                                                    minute: '2-digit' 
+                                                })}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm font-mono text-[#94a3b8]">
+                                                {log.duration_ms !== undefined && log.duration_ms !== null 
+                                                    ? `${(log.duration_ms / 1000).toFixed(2)}s` 
+                                                    : '-'}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <Badge variant={log.status === 'success' ? 'success' : 'error'} className="rounded-md px-2 py-0.5 text-[10px] font-bold">
+                                                    {log.status === 'success' ? 'SUCCESS' : 'FAILED'}
+                                                </Badge>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="text-[#475569] group-hover:text-indigo-400 transition-colors">
+                                                    {expandedRow === log.id ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                                                </div>
+                                            </td>
+                                        </tr>
 
-                {/* Pagination */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '24px' }}>
-                    {[page > 1 ? page - 1 : null, page, logs.length === 50 ? page + 1 : null].filter(Boolean).map((pageNum) => (
-                        <button
-                            key={pageNum as number}
-                            onClick={() => setPage(pageNum as number)}
-                            disabled={isLoading}
-                            style={{
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '8px',
-                                border: pageNum === page ? '1px solid #6366f1' : '1px solid #1e1e2e',
-                                background: pageNum === page ? 'rgba(99,102,241,0.1)' : 'transparent',
-                                color: pageNum === page ? '#818cf8' : '#94a3b8',
-                                cursor: isLoading ? 'not-allowed' : 'pointer',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                transition: 'all 0.2s',
-                            }}
-                        >
-                            {pageNum}
-                        </button>
-                    ))}
+                                        {expandedRow === log.id && (
+                                            <tr>
+                                                <td colSpan={5} className="px-8 py-6 bg-[#0a0a0f]/50">
+                                                    <StaggerContainer>
+                                                        <StaggerItem>
+                                                            <div className="flex items-center gap-2 mb-3 text-[10px] font-bold text-[#475569] uppercase tracking-widest">
+                                                                <Zap size={10} className="text-indigo-500" />
+                                                                Execution Output
+                                                            </div>
+                                                            <div className="relative group/code">
+                                                                <div className="absolute -inset-2 bg-indigo-500/5 rounded-xl blur opacity-0 group-hover/code:opacity-100 transition-opacity" />
+                                                                <pre className="relative font-mono text-xs leading-relaxed text-[#94a3b8] bg-[#0d0d12] p-5 rounded-xl border border-white/5 overflow-x-auto whitespace-pre-wrap break-all">
+                                                                    {log.error ? log.error : JSON.stringify(log.output, null, 2)}
+                                                                </pre>
+                                                            </div>
+                                                        </StaggerItem>
+                                                    </StaggerContainer>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
-            </StaggerContainer>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-center gap-2 mt-8" aria-label="Pagination Navigation">
+                {[page > 1 ? page - 1 : null, page, hasMore ? page + 1 : null].filter(Boolean).map((pageNum) => (
+                    <button
+                        key={pageNum as number}
+                        onClick={() => setPage(pageNum as number)}
+                        disabled={isLoading}
+                        aria-current={pageNum === page ? 'page' : undefined}
+                        aria-label={pageNum === page ? `Page ${pageNum}` : `Go to page ${pageNum}`}
+                        className={`w-10 h-10 flex items-center justify-center rounded-xl border font-medium text-sm transition-all duration-200 ${
+                            pageNum === page 
+                                ? 'border-[#6366f1] bg-indigo-500/10 text-[#818cf8] shadow-[0_0_15px_rgba(99,102,241,0.2)]' 
+                                : 'border-white/5 bg-[#0a0a0f] hover:border-white/10 text-[#475569] hover:text-[#94a3b8]'
+                        } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50'}`}
+                    >
+                        {pageNum}
+                    </button>
+                ))}
+            </div>
         </AnimatedPage>
     );
 };
