@@ -45,7 +45,7 @@ def main():
         response.raise_for_status()
         webhooks = response.json()
     except Exception as e:
-        logger.error(f"Failed to fetch webhooks: {e}")
+        logger.error(f"Failed to fetch webhooks: {type(e).__name__}")
         return
 
     logger.info(f"Found {len(webhooks)} existing webhooks.")
@@ -84,7 +84,7 @@ def main():
                 new_id = create_resp.json().get("id", "unknown")
                 logger.info(f"  Created new webhook {new_id} for model {id_model}")
             except Exception as e:
-                logger.error(f"  Failed to create new webhook for model {id_model}; keeping old webhook {wh_id}: {e}")
+                logger.error(f"  Failed to create new webhook for model {id_model}; keeping old webhook {wh_id}: {type(e).__name__}")
                 continue
 
             # Only remove the old webhook once the new one is confirmed
@@ -94,7 +94,7 @@ def main():
                 del_resp.raise_for_status()
                 logger.info(f"  Deleted old webhook {wh_id}")
             except Exception as e:
-                logger.warning(f"  New webhook created but failed to delete old webhook {wh_id} (both now active): {e}")
+                logger.warning(f"  New webhook created but failed to delete old webhook {wh_id} (both now active): {type(e).__name__}")
 
     logger.info("Done.")
 

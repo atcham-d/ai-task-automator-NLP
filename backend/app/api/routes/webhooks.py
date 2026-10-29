@@ -59,17 +59,23 @@ async def trello_webhook(request: Request, background_tasks: BackgroundTasks):
     if not isinstance(action, dict):
         raise HTTPException(status_code=400, detail="Payload must include an action object")
 
-    action_type = action.get("type", "unknown")
-    action_data = action.get("data") if isinstance(action.get("data"), dict) else {}
-    board_id = (action_data.get("board") or {}).get("id")
+    action_type = action.get("type")
+    if not isinstance(action_type, str) or not action_type:
+        raise HTTPException(status_code=400, detail="Action must include a type")
+
+    action_data = action.get("data") or {}
+    if not isinstance(action_data, dict):
+        raise HTTPException(status_code=400, detail="Action data must be an object")
+
+    board_id = _object_id(action_data, "board")
     logger.info(f"Received Trello webhook action: {action_type}")
 
     event_context = {
         "action_type": action_type,
         "action_id": action.get("id"),
         "board_id": board_id,
-        "card_id": (action_data.get("card") or {}).get("id"),
-        "list_id": ((action_data.get("listAfter") or action_data.get("list")) or {}).get("id"),
+        "card_id": _object_id(action_data, "card"),
+        "list_id": _object_id(action_data, "listAfter") or _object_id(action_data, "list"),
     }
 
     # 3. Route to Workflows
@@ -111,6 +117,19 @@ async def trello_webhook(request: Request, background_tasks: BackgroundTasks):
     return {"status": "received"}
 
 
+def _object_id(data: dict, key: str) -> str | None:
+    """Return the `id` of an optional nested Trello object, or None if it is absent.
+
+    A present value that is not an object is a malformed payload and raises a 400.
+    """
+    value = data.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        raise HTTPException(status_code=400, detail=f"{key} must be an object")
+    return value.get("id")
+
+
 def _trigger_matches(config: dict, action_type: str, board_id: str | None) -> bool:
     """Apply optional trigger filters; a workflow without filters matches every Trello event.
 
@@ -121,6 +140,12 @@ def _trigger_matches(config: dict, action_type: str, board_id: str | None) -> bo
     allowed_types = config.get("action_types")
     if isinstance(allowed_types, str):
         allowed_types = [allowed_types]
+    elif allowed_types is not None and (
+        not isinstance(allowed_types, list)
+        or not all(isinstance(item, str) for item in allowed_types)
+    ):
+        logger.warning(f"Ignoring workflow trigger with invalid action_types: {allowed_types!r}")
+        return False
     if allowed_types and action_type not in allowed_types:
         return False
 

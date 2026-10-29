@@ -456,7 +456,7 @@ export const WorkflowBuilder: React.FC = () => {
                     <button
                         onClick={() => setNlPanelOpen(true)}
                         aria-label="Open AI Assistant"
-                        className="fixed bottom-6 right-6 z-50 p-4 bg-[#6366f1] text-white rounded-full shadow-xl shadow-indigo-500/40 lg:hidden hover:scale-110 transition-transform active:scale-95"
+                        className="fixed bottom-6 right-6 z-50 p-4 bg-[#6366f1] text-white rounded-full shadow-xl shadow-indigo-500/40 md:hidden hover:scale-110 transition-transform active:scale-95"
                     >
                         <Sparkles size={20} aria-hidden="true" />
                     </button>
@@ -477,7 +477,7 @@ export const WorkflowBuilder: React.FC = () => {
                     {/* Desktop Toggle Button */}
                     <button
                         onClick={() => setNlPanelOpen(!nlPanelOpen)}
-                        className="hidden lg:flex absolute top-4 left-4 z-10 p-2 bg-[#111118]/80 border border-[#1e1e2e] text-[#94a3b8] hover:text-[#f1f5f9] rounded-lg backdrop-blur-md transition-all group"
+                        className="hidden md:flex absolute top-4 left-4 z-10 p-2 bg-[#111118]/80 border border-[#1e1e2e] text-[#94a3b8] hover:text-[#f1f5f9] rounded-lg backdrop-blur-md transition-all group"
                         title={nlPanelOpen ? "Close AI Assistant" : "Open AI Assistant"}
                         aria-label={nlPanelOpen ? "Close AI Assistant" : "Open AI Assistant"}
                         aria-expanded={nlPanelOpen}

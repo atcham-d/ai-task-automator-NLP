@@ -14,7 +14,10 @@ export function AuthCallback() {
     const [searchParams] = useSearchParams();
     const [timeoutError, setTimeoutError] = useState<string | null>(null);
     // Errors reported by the OAuth provider arrive as URL parameters
-    const urlError = searchParams.get('error_description') || searchParams.get('error');
+    // Supabase's implicit flow returns provider errors in the URL fragment; the query string covers PKCE
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const urlError = searchParams.get('error_description') || searchParams.get('error')
+        || hashParams.get('error_description') || hashParams.get('error');
     const error = urlError || timeoutError;
 
     useEffect(() => {

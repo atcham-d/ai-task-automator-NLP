@@ -14,6 +14,7 @@ export const DashboardHome: React.FC = () => {
   const [workflows, setWorkflows] = useState<WorkflowResponse[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,7 +24,9 @@ export const DashboardHome: React.FC = () => {
         if (!cancelled) setWorkflows(data);
       } catch (err) {
         if (!cancelled) {
-          toast.error(err instanceof Error ? err.message : "Failed to load workflows");
+          const message = err instanceof Error ? err.message : "Failed to load workflows";
+          setError(message);
+          toast.error(message);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -78,12 +81,15 @@ export const DashboardHome: React.FC = () => {
       <section className="px-10 pb-20">
         {loading ? (
           <div className="text-[#c7c4d7]">Loading...</div>
+        ) : error ? (
+          <div role="alert" className="text-[#ef4444] text-sm">{error}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((w) => (
-              <div
+              <Link
                 key={w.id}
-                className="group bg-[#1b1b20] rounded-xl p-6 border border-[#464554]/10 hover:border-[#c0c1ff]/30 transition-all duration-300 relative overflow-hidden"
+                to={`/dashboard/workflows/${w.id}`}
+                className="group block no-underline bg-[#1b1b20] rounded-xl p-6 border border-[#464554]/10 hover:border-[#c0c1ff]/30 transition-all duration-300 relative overflow-hidden"
               >
                 <div className="absolute top-0 left-0 w-1 h-full bg-[#c0c1ff] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="flex justify-between items-start mb-4">
@@ -98,7 +104,7 @@ export const DashboardHome: React.FC = () => {
                 <p className="text-sm text-[#c7c4d7] line-clamp-2 mb-6">
                   {w.description || "No description provided."}
                 </p>
-              </div>
+              </Link>
             ))}
 
             <Link

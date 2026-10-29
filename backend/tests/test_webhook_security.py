@@ -190,3 +190,30 @@ def test_trello_webhook_applies_trigger_filters():
         assert ctx["board_id"] == "b1" and ctx["card_id"] == "c1" and ctx["action_type"] == "updateCard"
     finally:
         settings.ENABLE_AUTH_BYPASS = original_bypass
+
+
+def test_trello_webhook_missing_action_type_returns_400():
+    """An action without a type is rejected before any workflow is matched."""
+    original_bypass = settings.ENABLE_AUTH_BYPASS
+    settings.ENABLE_AUTH_BYPASS = True
+    try:
+        response = client.post("/api/webhooks/trello", json={"action": {}})
+        assert response.status_code == 400
+        assert "must include a type" in response.json()["detail"]
+    finally:
+        settings.ENABLE_AUTH_BYPASS = original_bypass
+
+
+def test_trello_webhook_non_object_board_returns_400():
+    """A present but non-object board field is a malformed payload, not a 500."""
+    original_bypass = settings.ENABLE_AUTH_BYPASS
+    settings.ENABLE_AUTH_BYPASS = True
+    try:
+        response = client.post(
+            "/api/webhooks/trello",
+            json={"action": {"type": "updateCard", "data": {"board": "b1"}}},
+        )
+        assert response.status_code == 400
+        assert "board must be an object" in response.json()["detail"]
+    finally:
+        settings.ENABLE_AUTH_BYPASS = original_bypass
