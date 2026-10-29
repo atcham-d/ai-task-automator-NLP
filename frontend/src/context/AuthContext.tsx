@@ -22,6 +22,12 @@ const MOCK_SESSION = {
     user: MOCK_USER,
 } as Session;
 
+/** True when the dev bypass is enabled and a bypass login is stored. */
+function isBypassActive(): boolean {
+    return import.meta.env.VITE_DEV_BYPASS === 'true'
+        && localStorage.getItem('sb-bypass-token') === 'DEV_BYPASS_TOKEN';
+}
+
 interface AuthContextType {
     user: User | null;
     session: Session | null;
@@ -43,13 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const initializeAuth = async () => {
             try {
                 // Check for dev bypass token first
-                if (import.meta.env.VITE_DEV_BYPASS === 'true') {
-                    const bypassToken = localStorage.getItem('sb-bypass-token');
-                    if (bypassToken === 'DEV_BYPASS_TOKEN') {
-                        setSession(MOCK_SESSION as Session);
-                        setUser(MOCK_USER as User);
-                        return;
-                    }
+                if (isBypassActive()) {
+                    setSession(MOCK_SESSION);
+                    setUser(MOCK_USER);
+                    return;
                 }
 
                 // Get initial session
@@ -57,8 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 if (error) throw error;
                 setSession(session);
                 setUser(session?.user ?? null);
-            } catch (err: any) {
-                console.error("Auth initialization failed:", err.message);
+            } catch (err: unknown) {
+                console.error("Auth initialization failed:", err instanceof Error ? err.message : err);
                 setUser(null);
                 setSession(null);
             } finally {
@@ -71,6 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Listen for auth state changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (_event, session) => {
+                // Supabase has no session for the mock user; don't let it clear the bypass login
+                if (isBypassActive()) return;
                 setSession(session);
                 setUser(session?.user ?? null);
                 setLoading(false);
@@ -137,8 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
     const logout = useCallback(async () => {
-        await supabase.auth.signOut();
         localStorage.removeItem('sb-bypass-token');
+        await supabase.auth.signOut();
         setUser(null);
         setSession(null);
     }, []);

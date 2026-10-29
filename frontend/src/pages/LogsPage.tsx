@@ -124,117 +124,108 @@ export const LogsPage: React.FC = () => {
 
             {/* Logs Table Wrapper */}
             <div className="bg-[#111118] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-white/10">
-                    <table className="w-full text-left border-collapse min-w-[700px]">
-                        <thead>
-                            <tr className="border-b border-white/5 bg-white/[0.02]">
-                                <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Workflow</th>
-                                <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Triggered At</th>
-                                <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Duration</th>
-                                <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 w-10"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {isLoading ? (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-20 text-center">
-                                        <div className="flex flex-col items-center gap-3">
-                                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-                                            <span className="text-sm text-[#94a3b8]">Crunching execution data...</span>
-                                        </div>
-                                    </td>
+                {/* Status messages render outside the 700px-wide table so they stay visible on phones */}
+                {isLoading ? (
+                    <div className="px-6 py-20 flex flex-col items-center gap-3 text-center">
+                        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                        <span className="text-sm text-[#94a3b8]">Crunching execution data...</span>
+                    </div>
+                ) : errorMsg ? (
+                    <div className="px-6 py-20 text-center text-red-400 text-sm">
+                        {errorMsg}
+                    </div>
+                ) : logs.length === 0 ? (
+                    <div className="px-6 py-20 flex flex-col items-center gap-3 text-center">
+                        <Search className="w-8 h-8 text-[#1e1e2e]" />
+                        <span className="text-sm text-[#475569]">No matching execution records found.</span>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-white/10">
+                        <table className="w-full text-left border-collapse min-w-[700px]">
+                            <thead>
+                                <tr className="border-b border-white/5 bg-white/[0.02]">
+                                    <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Workflow</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Triggered At</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Duration</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-[#475569] uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 w-10"></th>
                                 </tr>
-                            ) : errorMsg ? (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-20 text-center text-red-400 text-sm">
-                                        {errorMsg}
-                                    </td>
-                                </tr>
-                            ) : logs.length === 0 ? (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-20 text-center">
-                                        <div className="flex flex-col items-center gap-3">
-                                            <Search className="w-8 h-8 text-[#1e1e2e]" />
-                                            <span className="text-sm text-[#475569]">No matching execution records found.</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : (
-                                logs.map((log) => (
-                                    <React.Fragment key={log.id}>
-                                        <tr 
-                                            onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' || e.key === ' ') {
-                                                    e.preventDefault();
-                                                    setExpandedRow(expandedRow === log.id ? null : log.id);
-                                                }
-                                            }}
-                                            tabIndex={0}
-                                            role="button"
-                                            aria-expanded={expandedRow === log.id}
-                                            className={`group cursor-pointer hover:bg-white/[0.03] border-b border-white/[0.02] transition-colors focus-visible:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500/50 ${expandedRow === log.id ? 'bg-white/[0.02]' : ''}`}
-                                        >
-                                            <td className="px-6 py-4">
-                                                <div className="font-semibold text-[#f1f5f9]">
-                                                    {log.workflow_name || 'Untitled Workflow'}
-                                                </div>
-                                                <div className="text-[10px] text-[#475569] font-mono mt-0.5 opacity-50">
-                                                    ID: {log.workflow_id.slice(0, 8)}...
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm font-mono text-[#94a3b8]">
-                                                {new Date(log.triggered_at).toLocaleString([], { 
-                                                    month: 'short', 
-                                                    day: 'numeric', 
-                                                    hour: '2-digit', 
-                                                    minute: '2-digit' 
-                                                })}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm font-mono text-[#94a3b8]">
-                                                {log.duration_ms !== undefined && log.duration_ms !== null 
-                                                    ? `${(log.duration_ms / 1000).toFixed(2)}s` 
-                                                    : '-'}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <Badge variant={log.status === 'success' ? 'success' : 'error'} className="rounded-md px-2 py-0.5 text-[10px] font-bold">
-                                                    {log.status === 'success' ? 'SUCCESS' : 'FAILED'}
-                                                </Badge>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="text-[#475569] group-hover:text-indigo-400 transition-colors">
-                                                    {expandedRow === log.id ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                        {expandedRow === log.id && (
-                                            <tr>
-                                                <td colSpan={5} className="px-8 py-6 bg-[#0a0a0f]/50">
-                                                    <StaggerContainer>
-                                                        <StaggerItem>
-                                                            <div className="flex items-center gap-2 mb-3 text-[10px] font-bold text-[#475569] uppercase tracking-widest">
-                                                                <Zap size={20} className="text-indigo-500" />
-                                                                Execution Output
-                                                            </div>
-                                                            <div className="relative group/code">
-                                                                <div className="absolute -inset-2 bg-indigo-500/5 rounded-xl blur opacity-0 group-hover/code:opacity-100 transition-opacity" />
-                                                                <pre className="relative font-mono text-xs leading-relaxed text-[#94a3b8] bg-[#0d0d12] p-5 rounded-xl border border-white/5 overflow-x-auto whitespace-pre-wrap break-all">
-                                                                    {log.error ? log.error : JSON.stringify(log.output, null, 2)}
-                                                                </pre>
-                                                            </div>
-                                                        </StaggerItem>
-                                                    </StaggerContainer>
+                            </thead>
+                            <tbody>
+                                {logs.map((log) => (
+                                        <React.Fragment key={log.id}>
+                                            <tr 
+                                                onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                        e.preventDefault();
+                                                        setExpandedRow(expandedRow === log.id ? null : log.id);
+                                                    }
+                                                }}
+                                                tabIndex={0}
+                                                role="button"
+                                                aria-expanded={expandedRow === log.id}
+                                                className={`group cursor-pointer hover:bg-white/[0.03] border-b border-white/[0.02] transition-colors focus-visible:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500/50 ${expandedRow === log.id ? 'bg-white/[0.02]' : ''}`}
+                                            >
+                                                <td className="px-6 py-4">
+                                                    <div className="font-semibold text-[#f1f5f9]">
+                                                        {log.workflow_name || 'Untitled Workflow'}
+                                                    </div>
+                                                    <div className="text-[10px] text-[#475569] font-mono mt-0.5 opacity-50">
+                                                        ID: {log.workflow_id.slice(0, 8)}...
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-sm font-mono text-[#94a3b8]">
+                                                    {new Date(log.triggered_at).toLocaleString([], { 
+                                                        month: 'short', 
+                                                        day: 'numeric', 
+                                                        hour: '2-digit', 
+                                                        minute: '2-digit' 
+                                                    })}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm font-mono text-[#94a3b8]">
+                                                    {log.duration_ms !== undefined && log.duration_ms !== null 
+                                                        ? `${(log.duration_ms / 1000).toFixed(2)}s` 
+                                                        : '-'}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <Badge variant={log.status === 'success' ? 'success' : 'error'} className="rounded-md px-2 py-0.5 text-[10px] font-bold">
+                                                        {log.status === 'success' ? 'SUCCESS' : 'FAILED'}
+                                                    </Badge>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="text-[#475569] group-hover:text-indigo-400 transition-colors">
+                                                        {expandedRow === log.id ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                                                    </div>
                                                 </td>
                                             </tr>
-                                        )}
-                                    </React.Fragment>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+
+                                            {expandedRow === log.id && (
+                                                <tr>
+                                                    <td colSpan={5} className="px-8 py-6 bg-[#0a0a0f]/50">
+                                                        <StaggerContainer>
+                                                            <StaggerItem>
+                                                                <div className="flex items-center gap-2 mb-3 text-[10px] font-bold text-[#475569] uppercase tracking-widest">
+                                                                    <Zap size={20} className="text-indigo-500" />
+                                                                    Execution Output
+                                                                </div>
+                                                                <div className="relative group/code">
+                                                                    <div className="absolute -inset-2 bg-indigo-500/5 rounded-xl blur opacity-0 group-hover/code:opacity-100 transition-opacity" />
+                                                                    <pre className="relative font-mono text-xs leading-relaxed text-[#94a3b8] bg-[#0d0d12] p-5 rounded-xl border border-white/5 overflow-x-auto whitespace-pre-wrap break-all">
+                                                                        {log.error ? log.error : JSON.stringify(log.output, null, 2)}
+                                                                    </pre>
+                                                                </div>
+                                                            </StaggerItem>
+                                                        </StaggerContainer>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
             {/* Pagination */}

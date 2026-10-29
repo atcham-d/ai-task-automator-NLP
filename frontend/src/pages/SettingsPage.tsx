@@ -182,7 +182,7 @@ export const SettingsPage: React.FC = () => {
     }
 
     return (
-        <AnimatedPage>
+        <AnimatedPage className="container mx-auto px-4 py-8">
             <h1
                 style={{
                     fontFamily: "'Syne', sans-serif",

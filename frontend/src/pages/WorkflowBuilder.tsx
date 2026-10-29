@@ -258,7 +258,8 @@ export const WorkflowBuilder: React.FC = () => {
     const [parseError, setParseError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const [savedId, setSavedId] = useState<string | null>(workflowId && workflowId !== 'new' ? workflowId : null);
-    const [nlPanelOpen, setNlPanelOpen] = useState(true);
+    // On phones the assistant panel overlays the canvas and toolbar, so start it closed there
+    const [nlPanelOpen, setNlPanelOpen] = useState(() => window.matchMedia('(min-width: 768px)').matches);
 
     // Load existing workflow
     useEffect(() => {
@@ -455,7 +456,7 @@ export const WorkflowBuilder: React.FC = () => {
                     <button
                         onClick={() => setNlPanelOpen(true)}
                         aria-label="Open AI Assistant"
-                        className="fixed bottom-6 left-6 z-50 p-4 bg-[#6366f1] text-white rounded-full shadow-xl shadow-indigo-500/40 lg:hidden hover:scale-110 transition-transform active:scale-95"
+                        className="fixed bottom-6 right-6 z-50 p-4 bg-[#6366f1] text-white rounded-full shadow-xl shadow-indigo-500/40 lg:hidden hover:scale-110 transition-transform active:scale-95"
                     >
                         <Sparkles size={20} aria-hidden="true" />
                     </button>

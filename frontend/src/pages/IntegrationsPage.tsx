@@ -79,7 +79,7 @@ export const IntegrationsPage: React.FC = () => {
     }
 
     return (
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-5xl px-4 py-8">
             <div className="mb-10">
                 <h1 className="font-display text-2xl md:text-3xl font-bold text-[#f1f5f9] mb-2">
                     Integrations

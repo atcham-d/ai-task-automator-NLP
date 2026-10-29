@@ -12,15 +12,13 @@ import { Button } from '../components/Button';
 export function AuthCallback() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const [error, setError] = useState<string | null>(null);
+    const [timeoutError, setTimeoutError] = useState<string | null>(null);
+    // Errors reported by the OAuth provider arrive as URL parameters
+    const urlError = searchParams.get('error_description') || searchParams.get('error');
+    const error = urlError || timeoutError;
 
     useEffect(() => {
-        // Check for error parameters in URL
-        const errorMsg = searchParams.get('error_description') || searchParams.get('error');
-        if (errorMsg) {
-            setError(errorMsg);
-            return;
-        }
+        if (urlError) return;
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
             if (event === 'SIGNED_IN') {
@@ -33,9 +31,9 @@ export function AuthCallback() {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
                 navigate('/dashboard', { replace: true });
-            } else if (!error) {
-                // If no session and no error after timeout, something is wrong
-                setError("Authentication timed out. Please try again.");
+            } else {
+                // If no session after timeout, something is wrong
+                setTimeoutError("Authentication timed out. Please try again.");
             }
         }, 5000);
 
@@ -43,7 +41,7 @@ export function AuthCallback() {
             subscription.unsubscribe();
             clearTimeout(timeout);
         };
-    }, [navigate, searchParams, error]);
+    }, [navigate, urlError]);
 
     if (error) {
         return (
