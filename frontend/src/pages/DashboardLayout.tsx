@@ -102,7 +102,7 @@ export const DashboardLayout: React.FC = () => {
         </div>
       </aside>
 
-      <main className="md:ml-[240px] flex-1 h-screen overflow-y-auto bg-[#131318] relative">
+      <main className="pt-16 md:pt-0 md:ml-[240px] flex-1 h-screen overflow-y-auto bg-[#131318] relative">
         <Outlet />
       </main>
     </div>

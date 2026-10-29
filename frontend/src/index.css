@@ -23,10 +23,13 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Kept in the base layer so Tailwind utilities (padding, margin) can override it */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 }
 
 html {

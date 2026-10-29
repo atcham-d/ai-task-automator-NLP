@@ -42,7 +42,7 @@ export const DashboardHome: React.FC = () => {
     <>
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#c0c1ff]/5 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <header className="flex items-center justify-between pl-16 pr-6 md:px-10 py-8 sticky top-0 bg-[#131318]/80 backdrop-blur-md z-40">
+      <header className="flex items-center justify-between px-6 md:px-10 py-8 sticky top-0 bg-[#131318]/80 backdrop-blur-md z-40">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight text-[#e4e1e9]">Your Workflows</h1>
           <p className="text-[#c7c4d7] mt-1 text-sm">Automate your logic with {filtered.length} active processes.</p>
