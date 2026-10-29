@@ -1,73 +1,65 @@
-# React + TypeScript + Vite
+# FlowAI — Visual Workflow Automation
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+FlowAI is a powerful visual workflow automation platform that allows you to build, manage, and execute complex automated sequences using natural language or a drag-and-drop editor.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Natural Language Parsing**: Describe your workflow in plain English (e.g., "When a Trello card moves to Done, send a Slack message and log it to HTTP").
+- **Visual Flow Editor**: Fine-tune automated sequences with a high-fidelity visual canvas powered by React Flow and Lucide icons.
+- **Service Integrations**: Connect Trello, Slack, Gmail, and custom HTTP endpoints.
+- **Execution Monitoring**: Real-time logs and performance tracking for every automated step.
+- **Secure Authentication**: Built-in Google OAuth and email/password support via Supabase.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React (Vite), Tailwind CSS (Stitch UI), Lucide Icons, React Flow.
+- **Backend**: FastAPI (Python), Gunicorn/Uvicorn, Pytest.
+- **Database/Auth**: Supabase.
+- **Deployment**: Vercel (Frontend), Render (Backend).
 
-## Expanding the ESLint configuration
+## Setup & Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Backend Setup
+1. `cd backend`
+2. `pip install -r requirements.txt`
+3. Create a `.env` file based on the environment variables section below.
+4. Run locally: `uvicorn app.main:app --reload`
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Frontend Setup
+1. `cd frontend`
+2. `npm install`
+3. Create a `.env` file with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+4. Run locally: `npm run dev`
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Production Deployment
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Backend (Render)
+- **Runtime**: Python 3.11+
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `gunicorn -k uvicorn.workers.UvicornWorker -c gunicorn_conf.py app.main:app`
+- **Port**: 8000 (standardized)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Frontend (Vercel)
+- **Framework Preset**: Vite
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Rewrites**: Configured in `vercel.json` for SPA support.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Environment Variables
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+| Variable | Description |
+|----------|-------------|
+| `SUPABASE_URL` | Your Supabase project URL |
+| `SUPABASE_ANON_KEY` | Supabase anonymous key |
+| `DATABASE_URL` | Supabase Postgres connection string |
+| `TRELLO_API_KEY` | Trello Power-Up API Key |
+| `TRELLO_TOKEN` | Trello OAuth Token |
+| `ALLOWED_ORIGINS` | Comma-separated list of allowed CORS origins (e.g., `https://flow-ai.vercel.app`) |
+| `NODE_ENV` | Set to `production` in live environments |
+
+## Documentation
+- [NLP Syntax Reference](docs/NLP_SYNTAX.md)
+- [API Documentation](/api/docs) (once backend is running)
+
+## License
+MIT

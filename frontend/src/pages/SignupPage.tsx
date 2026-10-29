@@ -63,7 +63,7 @@ export const SignupPage: React.FC = () => {
                 {/* Logo */}
                 <div className="text-center mb-10">
                     <Link to="/" className="inline-flex items-center gap-3 transition-transform hover:scale-105">
-                        <Zap size={32} className="text-[#6366f1]" />
+                        <Zap size={20} className="text-[#6366f1]" />
                         <span className="font-display font-extrabold text-2xl text-[#f1f5f9] tracking-tight">FlowAI</span>
                     </Link>
                 </div>
@@ -150,7 +150,7 @@ export const SignupPage: React.FC = () => {
                             >
                                 {loading ? (
                                     <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        <Loader2 size={20} className="mr-2 h-5 w-5 animate-spin" />
                                         Creating account...
                                     </>
                                 ) : (

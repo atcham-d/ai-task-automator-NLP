@@ -107,25 +107,25 @@ export const IntegrationsPage: React.FC = () => {
                             const Icon = meta ? IconMap[meta.icon_name] || Globe : Globe;
 
                             return (
-                                <Card key={active.id} className="flex flex-col gap-6">
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-[#6366f1]/10 rounded-xl text-[#6366f1] shrink-0">
-                                            <Icon size={24} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-base font-bold text-[#f1f5f9] truncate">
-                                                {active.name}
-                                            </h3>
-                                            <div className="text-[12px] text-[#10b981] flex items-center gap-1.5 mt-0.5 font-medium">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
-                                                Connected
-                                            </div>
-                                        </div>
+                                <Card key={active.id} className="flex flex-col gap-5 p-4 sm:p-6">
+                                    <div className="flex items-center gap-3 sm:gap-4">
+                                         <div className="p-2.5 sm:p-3 bg-[#6366f1]/10 rounded-xl text-[#6366f1] shrink-0">
+                                             <Icon size={28} />
+                                         </div>
+                                         <div className="flex-1 min-w-0">
+                                             <h3 className="text-base font-bold text-[#f1f5f9] truncate">
+                                                 {active.name}
+                                             </h3>
+                                             <div className="text-[11px] sm:text-[12px] text-[#10b981] flex items-center gap-1.5 mt-0.5 font-medium">
+                                                 <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                                                 Connected
+                                             </div>
+                                         </div>
                                     </div>
                                     <div className="flex gap-2 mt-auto">
                                         <Button
                                             variant="ghost"
-                                            className="flex-1 py-1 px-2 text-xs"
+                                            className="flex-1 py-1 px-1.5 text-[10px] sm:text-xs"
                                             onClick={async () => {
                                                 const promise = integrationsApi.test(active.id);
                                                 toast.promise(promise, {
@@ -135,22 +135,22 @@ export const IntegrationsPage: React.FC = () => {
                                                 });
                                             }}
                                         >
-                                            <Zap size={14} className="mr-1.5" /> Test
+                                            <Zap size={20} className="mr-1" /> Test
                                         </Button>
                                         <Button 
                                             variant="ghost" 
-                                            className="flex-1 py-1 px-2 text-xs" 
+                                            className="flex-1 py-1 px-1.5 text-[10px] sm:text-xs" 
                                             onClick={() => openEditModal(active)}
                                         >
-                                            <Edit size={14} className="mr-1.5" /> Config
+                                            <Edit size={20} className="mr-1" /> Config
                                         </Button>
                                         <Button 
                                             variant="danger" 
-                                            className="px-3 shrink-0" 
+                                            className="px-2 sm:px-3 shrink-0" 
                                             onClick={() => handleDelete(active.id, active.name)}
                                             aria-label="Disconnect"
                                         >
-                                            <Trash2 size={14} />
+                                            <Trash2 size={20} />
                                         </Button>
                                     </div>
                                 </Card>
@@ -172,46 +172,46 @@ export const IntegrationsPage: React.FC = () => {
 
                         return (
                             <Card 
-                                key={app.type} 
-                                hover 
-                                role={!isConnected ? "button" : undefined}
-                                tabIndex={!isConnected ? 0 : undefined}
-                                className={`flex flex-col h-full ${!isConnected ? 'cursor-pointer focus-within:ring-2 focus-within:ring-violet-500/50 outline-none' : ''}`}
-                                onClick={() => !isConnected && openCreateModal(app.type)}
-                                onKeyDown={(e: React.KeyboardEvent) => {
-                                    if (!isConnected && (e.key === 'Enter' || e.key === ' ')) {
-                                        e.preventDefault();
-                                        openCreateModal(app.type);
-                                    }
-                                }}
+                                 key={app.type} 
+                                 hover 
+                                 role={!isConnected ? "button" : undefined}
+                                 tabIndex={!isConnected ? 0 : undefined}
+                                 className={`flex flex-col h-full p-4 sm:p-6 ${!isConnected ? 'cursor-pointer focus-within:ring-2 focus-within:ring-violet-500/50 outline-none' : ''}`}
+                                 onClick={() => !isConnected && openCreateModal(app.type)}
+                                 onKeyDown={(e: React.KeyboardEvent) => {
+                                     if (!isConnected && (e.key === 'Enter' || e.key === ' ')) {
+                                         e.preventDefault();
+                                         openCreateModal(app.type);
+                                     }
+                                 }}
                             >
-                                <div className="flex items-start gap-4 mb-5">
-                                    <div className="p-3 bg-white/5 rounded-xl text-[#a78bfa] shrink-0 group-hover:bg-[#a78bfa]/10 transition-colors">
-                                        <Icon size={28} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-base font-bold text-[#f1f5f9] truncate">{app.name}</h3>
-                                        <p className="text-[13px] text-[#94a3b8] mt-1.5 leading-relaxed line-clamp-2">
-                                            {app.description}
-                                        </p>
-                                    </div>
-                                </div>
+                                 <div className="flex items-start gap-3 sm:gap-4 mb-5">
+                                     <div className="p-2.5 sm:p-3 bg-white/5 rounded-xl text-[#a78bfa] shrink-0 group-hover:bg-[#a78bfa]/10 transition-colors">
+                                         <Icon size={28} />
+                                     </div>
+                                     <div className="flex-1 min-w-0">
+                                         <h3 className="text-base font-bold text-[#f1f5f9] truncate">{app.name}</h3>
+                                         <p className="text-[12px] sm:text-[13px] text-[#94a3b8] mt-1.5 leading-relaxed line-clamp-2">
+                                             {app.description}
+                                         </p>
+                                     </div>
+                                 </div>
 
-                                <div className="mt-auto">
-                                    {isConnected ? (
-                                        <div className="w-full text-[13px] font-medium text-[#10b981] py-2.5 text-center bg-[#10b981]/10 rounded-lg">
-                                            Already Connected
-                                        </div>
-                                    ) : (
-                                        <Button 
-                                            variant="ghost" 
-                                            className="w-full" 
-                                            onClick={(e) => { e.stopPropagation(); openCreateModal(app.type); }}
-                                        >
-                                            <Plus size={16} className="mr-2" /> Connect
-                                        </Button>
-                                    )}
-                                </div>
+                                 <div className="mt-auto">
+                                     {isConnected ? (
+                                         <div className="w-full text-[12px] sm:text-[13px] font-medium text-[#10b981] py-2 text-center bg-[#10b981]/10 rounded-lg">
+                                             Already Connected
+                                         </div>
+                                     ) : (
+                                         <Button 
+                                             variant="ghost" 
+                                             className="w-full text-xs sm:text-sm" 
+                                             onClick={(e) => { e.stopPropagation(); openCreateModal(app.type); }}
+                                         >
+                                             <Plus size={20} className="mr-2" /> Connect
+                                         </Button>
+                                     )}
+                                 </div>
                             </Card>
                         );
                     })}

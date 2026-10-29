@@ -75,7 +75,7 @@ export const LogsPage: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <h1 className="font-display text-3xl font-bold text-[#f1f5f9] tracking-tight">Execution Logs</h1>
                 <div className="flex items-center gap-2 text-xs text-[#475569] font-medium uppercase tracking-wider bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
-                    <Activity size={14} className="text-indigo-400" />
+                    <Activity size={20} className="text-indigo-400" />
                     Real-time monitoring
                 </div>
             </div>
@@ -88,7 +88,7 @@ export const LogsPage: React.FC = () => {
             <Card className="p-4 mb-6 border-white/5 bg-[#111118]/60 backdrop-blur-xl">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     <div className="flex items-center gap-2 text-[#94a3b8] text-sm">
-                        <Filter size={16} />
+                        <Filter size={20} />
                         <span className="font-medium">Filter by:</span>
                     </div>
                     
@@ -198,7 +198,7 @@ export const LogsPage: React.FC = () => {
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="text-[#475569] group-hover:text-indigo-400 transition-colors">
-                                                    {expandedRow === log.id ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                                                    {expandedRow === log.id ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                                                 </div>
                                             </td>
                                         </tr>
@@ -209,7 +209,7 @@ export const LogsPage: React.FC = () => {
                                                     <StaggerContainer>
                                                         <StaggerItem>
                                                             <div className="flex items-center gap-2 mb-3 text-[10px] font-bold text-[#475569] uppercase tracking-widest">
-                                                                <Zap size={10} className="text-indigo-500" />
+                                                                <Zap size={20} className="text-indigo-500" />
                                                                 Execution Output
                                                             </div>
                                                             <div className="relative group/code">

@@ -396,7 +396,7 @@ export const WorkflowBuilder: React.FC = () => {
             <div className="h-[60px] bg-[#0a0a0f] border-b border-[#1e1e2e] flex items-center justify-between px-4 md:px-6 shrink-0">
                 <div className="flex items-center gap-3 md:gap-4 min-w-0">
                     <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="shrink-0">
-                        <ArrowLeft size={16} />
+                        <ArrowLeft size={20} />
                     </Button>
                     <input
                         value={workflowName}
@@ -410,19 +410,19 @@ export const WorkflowBuilder: React.FC = () => {
                     {savedId && (
                         <div className="hidden sm:flex items-center gap-2">
                             <Button variant="ghost" size="sm" onClick={handleDelete} className="text-[#ef4444] hover:bg-red-500/10">
-                                <Trash2 size={14} />
+                                <Trash2 size={20} />
                             </Button>
                             <Button variant="ghost" size="sm" onClick={handleRun} title="Run Workflow">
-                                <Play size={14} />
+                                <Play size={20} />
                             </Button>
                         </div>
                     )}
                     <Button variant="ghost" size="sm" onClick={handleSave} disabled={saving} className="flex">
-                        {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                        {saving ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
                         <span className="ml-2 hidden md:inline">Save</span>
                     </Button>
                     <Button variant="primary" size="sm" onClick={handleToggleActive} className="whitespace-nowrap px-3 md:px-4">
-                        {workflowStatus === 'active' ? <Pause size={14} /> : <Play size={14} />}
+                        {workflowStatus === 'active' ? <Pause size={20} /> : <Play size={20} />}
                         <span className="ml-2">{workflowStatus === 'active' ? 'Pause' : 'Activate'}</span>
                     </Button>
                 </div>
@@ -458,7 +458,7 @@ export const WorkflowBuilder: React.FC = () => {
                         className="hidden lg:flex absolute top-4 left-4 z-10 p-2 bg-[#111118]/80 border border-[#1e1e2e] text-[#94a3b8] hover:text-[#f1f5f9] rounded-lg backdrop-blur-md transition-all group"
                         title={nlPanelOpen ? "Close AI Assistant" : "Open AI Assistant"}
                     >
-                        <Sparkles size={18} className={nlPanelOpen ? "text-[#6366f1]" : ""} />
+                        <Sparkles size={20} className={nlPanelOpen ? "text-[#6366f1]" : ""} />
                         {!nlPanelOpen && <span className="ml-2 text-xs font-semibold uppercase tracking-wider">Assistant</span>}
                     </button>
 

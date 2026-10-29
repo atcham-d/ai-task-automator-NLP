@@ -48,7 +48,7 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({
                         aria-label="Close AI Assistant"
                         className="md:hidden p-1.5 text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-white/5 rounded-md transition-colors"
                     >
-                        <X size={18} aria-hidden="true" />
+                        <X size={20} aria-hidden="true" />
                     </button>
                 </div>
 
@@ -87,9 +87,9 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({
                     disabled={parsing || !localNlInput.trim()}
                 >
                     {parsing ? (
-                        <Loader2 size={14} className="animate-spin mr-2" />
+                        <Loader2 size={20} className="animate-spin mr-2" />
                     ) : (
-                        <Sparkles size={14} className="mr-2" />
+                        <Sparkles size={20} className="mr-2" />
                     )}
                     {parsing ? 'Parsing...' : 'Parse Workflow'}
                 </Button>
@@ -101,7 +101,7 @@ export const NlInputPanel: React.FC<NlInputPanelProps> = ({
                             onClick={() => setJsonVisible(!jsonVisible)}
                             className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f1f5f9] font-medium transition-colors py-1 group"
                         >
-                            {jsonVisible ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                            {jsonVisible ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                             <span className="font-mono tracking-tight uppercase">Parsed Schema</span>
                         </button>
                         {jsonVisible && (

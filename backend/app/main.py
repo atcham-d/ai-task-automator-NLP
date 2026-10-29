@@ -4,6 +4,7 @@ Sets up CORS, registers all routers, and starts the scheduler on startup.
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -20,7 +21,21 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan — start scheduler on startup, stop on shutdown."""
-    logger.info("Starting workflow scheduler...")
+    # Try to read version
+    version = "unknown"
+    try:
+        with open("../VERSION", "r") as f:
+            version = f.read().strip()
+    except Exception:
+        try:
+            with open("VERSION", "r") as f:
+                version = f.read().strip()
+        except Exception:
+            pass
+            
+    logger.info(f"Starting Workflow Automation API v{version}...")
+    logger.info(f"Environment: {os.getenv('NODE_ENV', 'development')}")
+    
     workflow_scheduler.start()
     yield
     logger.info("Stopping workflow scheduler...")
@@ -58,4 +73,19 @@ app.include_router(webhooks.router)
 @app.get("/health", tags=["health"])
 async def health_check():
     """Health check endpoint."""
-    return {"status": "ok", "version": "1.0.0"}
+    version = "unknown"
+    try:
+        with open("../VERSION", "r") as f:
+            version = f.read().strip()
+    except Exception:
+        try:
+            with open("VERSION", "r") as f:
+                version = f.read().strip()
+        except Exception:
+            pass
+            
+    return {
+        "status": "ok", 
+        "version": version,
+        "environment": os.getenv("NODE_ENV", "development")
+    }

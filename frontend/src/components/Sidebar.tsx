@@ -10,11 +10,11 @@ interface SidebarLink {
 }
 
 const links: SidebarLink[] = [
-    { label: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard size={16} /> },
-    { label: 'Workflows', to: '/dashboard/workflows/new', icon: <GitBranch size={16} /> },
-    { label: 'Logs', to: '/dashboard/logs', icon: <ScrollText size={16} /> },
-    { label: 'Integrations', to: '/dashboard/integrations', icon: <Blocks size={16} /> },
-    { label: 'Settings', to: '/dashboard/settings', icon: <Settings size={16} /> },
+    { label: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard size={20} /> },
+    { label: 'Workflows', to: '/dashboard/workflows/new', icon: <GitBranch size={20} /> },
+    { label: 'Logs', to: '/dashboard/logs', icon: <ScrollText size={20} /> },
+    { label: 'Integrations', to: '/dashboard/integrations', icon: <Blocks size={20} /> },
+    { label: 'Settings', to: '/dashboard/settings', icon: <Settings size={20} /> },
 ];
 
 interface SidebarProps {
@@ -57,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 // @ts-expect-error - inert is relatively new in React types but supported in browsers
                 inert={!isOpen && isMobile ? "" : undefined}
                 className={`
-                    fixed left-0 top-0 h-screen w-48 bg-surface-container-low
+                    fixed left-0 top-0 h-screen w-56 bg-surface-container-low
                     flex flex-col z-[70] transition-transform duration-300 ease-in-out
                     ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
                 `}
@@ -94,7 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                 to={link.to}
                                 onClick={onClose}
                                 className={`
-                                    flex items-center gap-3 px-3 py-2.5 rounded-lg no-underline text-sm font-medium transition-all
+                                    flex items-center gap-4 px-3 py-3 rounded-xl no-underline text-sm font-medium transition-all
                                     ${isActive 
                                         ? 'text-[#c0c1ff] bg-[#1b1b20]' 
                                         : 'text-on-surface-variant hover:bg-white/5 hover:text-on-surface'
@@ -112,8 +112,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
                 {/* User Info */}
                 <div className="p-4 flex items-center gap-3 mt-auto">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shrink-0">
-                        <User size={18} className="text-surface" />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shrink-0">
+                        <User size={20} className="text-surface" />
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold text-on-surface truncate">
@@ -128,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         className="p-1 text-outline-variant hover:text-error transition-colors cursor-pointer"
                         title="Sign out"
                     >
-                        <LogOut size={16} />
+                        <LogOut size={20} />
                     </button>
                 </div>
             </aside>
