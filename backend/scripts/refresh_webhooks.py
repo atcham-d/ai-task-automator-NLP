@@ -67,28 +67,34 @@ def main():
         logger.info(f"  - New URL: {new_callback_url}")
 
         if is_dry_run:
-            logger.info(f"  [DRY-RUN] Would delete {wh_id} and create new one for model {id_model}")
+            logger.info(f"  [DRY-RUN] Would create new webhook for model {id_model}, then delete {wh_id}")
         else:
-            # Trello webhooks are immutable for callbackURL, so we delete and recreate
+            # Create the new webhook first so the board is never left without one
+            create_url = "https://api.trello.com/1/webhooks"
+            create_data = {
+                "key": trello_key,
+                "token": trello_token,
+                "callbackURL": new_callback_url,
+                "idModel": id_model,
+                "description": f"{description} (Refreshed for Prod)"
+            }
             try:
-                # Delete old
-                del_url = f"https://api.trello.com/1/webhooks/{wh_id}"
-                httpx.delete(del_url, params=params)
-                logger.info(f"  Deleted old webhook {wh_id}")
-
-                # Create new
-                create_url = "https://api.trello.com/1/webhooks"
-                create_data = {
-                    "key": trello_key,
-                    "token": trello_token,
-                    "callbackURL": new_callback_url,
-                    "idModel": id_model,
-                    "description": f"{description} (Refreshed for Prod)"
-                }
-                httpx.post(create_url, data=create_data)
-                logger.info(f"  Created new webhook for model {id_model}")
+                create_resp = httpx.post(create_url, data=create_data)
+                create_resp.raise_for_status()
+                new_id = create_resp.json().get("id", "unknown")
+                logger.info(f"  Created new webhook {new_id} for model {id_model}")
             except Exception as e:
-                logger.error(f"  Failed to update webhook {wh_id}: {e}")
+                logger.error(f"  Failed to create new webhook for model {id_model}; keeping old webhook {wh_id}: {e}")
+                continue
+
+            # Only remove the old webhook once the new one is confirmed
+            try:
+                del_url = f"https://api.trello.com/1/webhooks/{wh_id}"
+                del_resp = httpx.delete(del_url, params=params)
+                del_resp.raise_for_status()
+                logger.info(f"  Deleted old webhook {wh_id}")
+            except Exception as e:
+                logger.warning(f"  New webhook created but failed to delete old webhook {wh_id} (both now active): {e}")
 
     logger.info("Done.")
 
