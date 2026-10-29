@@ -2,11 +2,27 @@ import hmac
 import hashlib
 import base64
 import pytest
+from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 from app.main import app
 from app.core.config import settings
 
 client = TestClient(app)
+
+
+def _mock_workflows(rows):
+    """Return a patch that makes the Supabase workflows lookup yield the given rows."""
+    mock_supabase = MagicMock()
+    query = mock_supabase.table.return_value.select.return_value.eq.return_value
+    query.execute.return_value = MagicMock(data=rows)
+    return patch("app.api.routes.webhooks.supabase", mock_supabase)
+
+
+@pytest.fixture(autouse=True)
+def no_workflows():
+    """Default to an empty workflow table so tests never hit the real Supabase."""
+    with _mock_workflows([]):
+        yield
 
 def test_trello_webhook_no_signature_returns_401():
     """Test that requests without a signature header are rejected when bypass is off."""
@@ -109,5 +125,68 @@ def test_trello_webhook_non_object_json_returns_400():
         )
         assert response.status_code == 400
         assert "JSON body must be an object" in response.json()["detail"]
+    finally:
+        settings.ENABLE_AUTH_BYPASS = original_bypass
+
+
+def test_trello_webhook_missing_action_returns_400():
+    """Payloads without an action object are rejected."""
+    original_bypass = settings.ENABLE_AUTH_BYPASS
+    settings.ENABLE_AUTH_BYPASS = True
+    try:
+        response = client.post("/api/webhooks/trello", json={"model": {}})
+        assert response.status_code == 400
+        assert "action object" in response.json()["detail"]
+    finally:
+        settings.ENABLE_AUTH_BYPASS = original_bypass
+
+
+def test_trello_webhook_lookup_failure_returns_503():
+    """A failed workflow lookup is not acknowledged, so Trello retries."""
+    original_bypass = settings.ENABLE_AUTH_BYPASS
+    settings.ENABLE_AUTH_BYPASS = True
+    failing = MagicMock()
+    failing.table.side_effect = RuntimeError("db down")
+    try:
+        with patch("app.api.routes.webhooks.supabase", failing):
+            response = client.post("/api/webhooks/trello", json={"action": {"type": "createCard"}})
+        assert response.status_code == 503
+    finally:
+        settings.ENABLE_AUTH_BYPASS = original_bypass
+
+
+def test_trello_webhook_applies_trigger_filters():
+    """Only workflows whose trigger filters match the event are queued, with event context."""
+    def workflow(wf_id, config):
+        return {
+            "id": wf_id,
+            "name": wf_id,
+            "definition": {
+                "trigger": {"type": "trello", "config": config},
+                "actions": [{"type": "http", "config": {}}],
+            },
+        }
+
+    rows = [
+        workflow("any", {}),
+        workflow("type-match", {"action_types": ["updateCard"]}),
+        workflow("type-miss", {"action_types": "createCard"}),
+        workflow("board-match", {"board_id": "b1"}),
+        workflow("board-miss", {"board_id": "b2"}),
+    ]
+    payload = {"action": {"id": "a1", "type": "updateCard", "data": {"board": {"id": "b1"}, "card": {"id": "c1"}}}}
+
+    original_bypass = settings.ENABLE_AUTH_BYPASS
+    settings.ENABLE_AUTH_BYPASS = True
+    try:
+        with _mock_workflows(rows), patch("app.api.routes.webhooks.runner") as mock_runner:
+            mock_runner.run = MagicMock(return_value=None)
+            response = client.post("/api/webhooks/trello", json=payload)
+
+        assert response.status_code == 200
+        queued = {c.kwargs["workflow_id"] for c in mock_runner.run.call_args_list}
+        assert queued == {"any", "type-match", "board-match"}
+        ctx = mock_runner.run.call_args_list[0].kwargs["trigger_payload"]
+        assert ctx["board_id"] == "b1" and ctx["card_id"] == "c1" and ctx["action_type"] == "updateCard"
     finally:
         settings.ENABLE_AUTH_BYPASS = original_bypass

@@ -95,7 +95,10 @@ export const LogsPage: React.FC = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full sm:w-auto">
                         <select
                             value={workflowFilter}
-                            onChange={(e) => setWorkflowFilter(e.target.value)}
+                            onChange={(e) => {
+                                setWorkflowFilter(e.target.value);
+                                setPage(1);
+                            }}
                             className="bg-[#0a0a0f] border border-white/10 rounded-lg px-4 py-2 text-sm text-[#f1f5f9] outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer"
                         >
                             <option value="all">All Workflows</option>
@@ -105,7 +108,10 @@ export const LogsPage: React.FC = () => {
                         </select>
                         <select
                             value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'success' | 'failed')}
+                            onChange={(e) => {
+                                setStatusFilter(e.target.value as 'all' | 'success' | 'failed');
+                                setPage(1);
+                            }}
                             className="bg-[#0a0a0f] border border-white/10 rounded-lg px-4 py-2 text-sm text-[#f1f5f9] outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer"
                         >
                             <option value="all">All Status</option>

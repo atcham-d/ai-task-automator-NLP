@@ -10,6 +10,16 @@ from app.services.log_service import log_service
 from app.services.workflow_service import workflow_service
 
 
+def _build_output(action_results: list, trigger_payload: Optional[dict]) -> Optional[dict]:
+    """Assemble the log output, including the triggering event when present."""
+    output: dict = {}
+    if action_results:
+        output["actions"] = action_results
+    if trigger_payload:
+        output["trigger"] = trigger_payload
+    return output or None
+
+
 class WorkflowRunner:
     """Executes workflow actions and creates execution log entries."""
 
@@ -19,6 +29,7 @@ class WorkflowRunner:
         workflow_name: str,
         definition: WorkflowDefinition,
         trigger_type: str = "manual",
+        trigger_payload: Optional[dict] = None,
     ) -> dict:
         """Execute all actions in a workflow definition and log the result.
 
@@ -27,6 +38,8 @@ class WorkflowRunner:
             workflow_name: Human-readable name for log entries.
             definition: Parsed WorkflowDefinition with actions to execute.
             trigger_type: How the run was triggered (manual, schedule, webhook).
+            trigger_payload: Optional event context (e.g. Trello board/card IDs)
+                recorded in the execution log.
 
         Returns:
             The created execution log entry dict.
@@ -59,7 +72,7 @@ class WorkflowRunner:
             trigger_type=trigger_type,
             log_status=final_status,
             duration_ms=duration_ms,
-            output={"actions": action_results} if action_results else None,
+            output=_build_output(action_results, trigger_payload),
             error=error_message,
         )
 

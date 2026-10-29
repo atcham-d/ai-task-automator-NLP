@@ -63,13 +63,13 @@ export const LandingPage: React.FC = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-          <button className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#2c2fed] to-[#a78bfa] text-white font-bold rounded-full text-lg shadow-xl shadow-[#2c2fed]/20 hover:scale-105 transition-transform">
+          <Link to="/signup" className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#2c2fed] to-[#a78bfa] text-white font-bold rounded-full text-lg shadow-xl shadow-[#2c2fed]/20 hover:scale-105 transition-transform text-center">
             Get Started Now
-          </button>
-          <button className="w-full sm:w-auto px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-full text-lg hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+          </Link>
+          <a href="#how-it-works" className="w-full sm:w-auto px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-full text-lg hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
             <span className="material-symbols-outlined">play_circle</span>
             See How It Works
-          </button>
+          </a>
         </div>
 
         {/* Mockup */}
@@ -159,9 +159,9 @@ export const LandingPage: React.FC = () => {
         <div className="p-12 rounded-3xl bg-gradient-to-br from-[#2c2fed]/20 to-[#a78bfa]/10 border border-[#2c2fed]/20">
           <h2 className="font-syne text-4xl font-bold mb-6">Ready to scale your workflows?</h2>
           <p className="text-slate-300 mb-10 text-lg">Join 50,000+ developers building the future with FlowAI.</p>
-          <button className="px-10 py-4 bg-[#2c2fed] text-white font-bold rounded-full text-lg hover:scale-105 transition-transform glow-indigo">
+          <Link to="/signup" className="inline-block px-10 py-4 bg-[#2c2fed] text-white font-bold rounded-full text-lg hover:scale-105 transition-transform glow-indigo">
             Get Started Free
-          </button>
+          </Link>
         </div>
       </section>
 

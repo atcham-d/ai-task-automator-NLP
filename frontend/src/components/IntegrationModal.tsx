@@ -42,7 +42,7 @@ export const IntegrationModal: React.FC<IntegrationModalProps> = ({
     useEffect(() => {
         if (isOpen && type) {
             if (existingIntegration) {
-                reset({ name: existingIntegration.name, ...existingIntegration.config });
+                reset({ ...existingIntegration.config, name: existingIntegration.name });
             } else {
                 reset({}); // fresh form
             }
@@ -59,17 +59,17 @@ export const IntegrationModal: React.FC<IntegrationModalProps> = ({
         try {
             if (existingIntegration) {
                 const { name, ...configData } = data;
+                const normalizedName = typeof name === 'string' ? name.trim() : '';
                 await integrationsApi.update(existingIntegration.id, {
-                    name: typeof name === 'string' && name.trim().length > 0 
-                        ? name 
-                        : existingIntegration.name,
+                    name: normalizedName.length > 0 ? normalizedName : existingIntegration.name,
                     config: configData
                 });
                 toast.success('Integration updated successfully');
             } else {
                 const { name, ...configData } = data;
+                const normalizedName = typeof name === 'string' ? name.trim() : '';
                 await integrationsApi.create({
-                    name: String(name || (type.charAt(0).toUpperCase() + type.slice(1))),
+                    name: normalizedName || (type.charAt(0).toUpperCase() + type.slice(1)),
                     type,
                     config: configData,
                     is_active: true,

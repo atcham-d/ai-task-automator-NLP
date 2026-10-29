@@ -86,7 +86,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         const isActive =
                             link.to === '/dashboard'
                                 ? location.pathname === '/dashboard'
-                                : location.pathname.startsWith(link.to);
+                                : link.to === '/dashboard/workflows/new'
+                                  ? location.pathname.startsWith('/dashboard/workflows/')
+                                  : location.pathname.startsWith(link.to);
 
                         return (
                             <Link

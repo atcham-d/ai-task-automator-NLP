@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import { apiGet } from "../lib/api";
-
-interface WorkflowResponse {
-  id: string;
-  name: string;
-  description: string | null;
-  status: string;
-  definition: { trigger?: { type?: string } };
-  last_run_at: string | null;
-}
+import type { WorkflowResponse } from "../types/workflow";
 
 const statusChip = (status: string) => {
   if (status === "active") return "Active";
@@ -22,9 +16,22 @@ export const DashboardHome: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiGet<WorkflowResponse[]>("/api/workflows/")
-      .then(setWorkflows)
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await apiGet<WorkflowResponse[]>("/api/workflows/");
+        if (!cancelled) setWorkflows(data);
+      } catch (err) {
+        if (!cancelled) {
+          toast.error(err instanceof Error ? err.message : "Failed to load workflows");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = workflows.filter((w) =>
@@ -35,15 +42,18 @@ export const DashboardHome: React.FC = () => {
     <>
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#c0c1ff]/5 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <header className="flex items-center justify-between px-10 py-8 sticky top-0 bg-[#131318]/80 backdrop-blur-md z-40">
+      <header className="flex items-center justify-between pl-16 pr-6 md:px-10 py-8 sticky top-0 bg-[#131318]/80 backdrop-blur-md z-40">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight text-[#e4e1e9]">Your Workflows</h1>
           <p className="text-[#c7c4d7] mt-1 text-sm">Automate your logic with {filtered.length} active processes.</p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 primary-gradient text-[#1000a9] font-semibold rounded-xl glow-effect transition-all active:scale-95">
-          <span className="material-symbols-outlined">add</span>
+        <Link
+          to="/dashboard/workflows/new"
+          className="flex items-center gap-2 px-6 py-3 primary-gradient text-[#1000a9] font-semibold rounded-xl glow-effect transition-all active:scale-95 no-underline"
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">add</span>
           New Workflow
-        </button>
+        </Link>
       </header>
 
       <section className="px-10 pb-6">
@@ -91,13 +101,16 @@ export const DashboardHome: React.FC = () => {
               </div>
             ))}
 
-            <div className="group bg-transparent border-2 border-dashed border-[#464554]/20 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:border-[#c0c1ff]/40 hover:bg-[#c0c1ff]/5 transition-all duration-300 cursor-pointer">
+            <Link
+              to="/dashboard/workflows/new"
+              className="group bg-transparent border-2 border-dashed border-[#464554]/20 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:border-[#c0c1ff]/40 hover:bg-[#c0c1ff]/5 transition-all duration-300 cursor-pointer no-underline"
+            >
               <div className="w-12 h-12 rounded-full bg-[#35343a] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined text-[#c0c1ff]">add</span>
               </div>
               <span className="text-[#e4e1e9] font-semibold">Create New</span>
               <span className="text-xs text-[#c7c4d7] mt-1">Start from a blank canvas</span>
-            </div>
+            </Link>
           </div>
         )}
       </section>
