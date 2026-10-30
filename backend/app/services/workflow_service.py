@@ -1,5 +1,6 @@
 """Service layer for workflow CRUD operations against Supabase."""
 
+import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -9,12 +10,22 @@ from app.core.supabase import supabase
 from app.models.workflow_graph import migrate_definition
 from app.schemas.workflow import WorkflowCreate, WorkflowUpdate
 
+logger = logging.getLogger(__name__)
+
 
 def _upgrade_row(row: dict) -> dict:
-    """Return a workflow row with its definition in schema v2, leaving stored data untouched."""
+    """Return a workflow row with its definition in schema v2, leaving stored data untouched.
+
+    A row whose stored definition cannot be upgraded is returned as stored, so one bad
+    row does not fail the whole list. The builder reports the problem when it is opened.
+    """
     if "definition" not in row:
         return row
-    return {**row, "definition": migrate_definition(row["definition"])}
+    try:
+        return {**row, "definition": migrate_definition(row["definition"])}
+    except ValueError:
+        logger.warning("Workflow %s has a definition that cannot be upgraded", row.get("id"))
+        return row
 
 
 class WorkflowService:

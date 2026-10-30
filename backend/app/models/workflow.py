@@ -93,6 +93,25 @@ class Edge(BaseModel):
     target: str
 
 
+def _condition_value(value: Any) -> str:
+    """Store a condition value as text, matching the builder: booleans become true/false."""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value)
+
+
+def _check_condition(node: "Node") -> None:
+    """A condition needs text field and operator, and a string, number or boolean value."""
+    config = node.config
+    for key in ("field", "operator"):
+        if not isinstance(config.get(key), str) or not config.get(key):
+            raise ValueError(f"condition node {node.id} needs a non-empty '{key}'")
+    value = config.get("value")
+    if isinstance(value, bool) or isinstance(value, (int, float, str)):
+        return
+    raise ValueError(f"condition node {node.id} needs a string, number or boolean 'value'")
+
+
 class WorkflowDefinition(BaseModel):
     """Workflow graph (schema v2). Schema v1 input (trigger, conditions, actions) is upgraded on load."""
 
@@ -114,6 +133,8 @@ class WorkflowDefinition(BaseModel):
                 TriggerType(node.type)
             elif node.kind == NodeKind.ACTION:
                 ActionType(node.type)
+            elif node.kind == NodeKind.CONDITION:
+                _check_condition(node)
         return self
 
     @classmethod
@@ -142,7 +163,11 @@ class WorkflowDefinition(BaseModel):
 
     @property
     def conditions(self) -> List[Condition]:
-        return [Condition(**n.config) for n in self._ordered_nodes() if n.kind == NodeKind.CONDITION]
+        return [
+            Condition(**{**n.config, "value": _condition_value(n.config.get("value"))})
+            for n in self._ordered_nodes()
+            if n.kind == NodeKind.CONDITION
+        ]
 
     @property
     def actions(self) -> List[Action]:

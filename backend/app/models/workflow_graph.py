@@ -4,7 +4,7 @@ These functions work on plain dicts so they can run on rows read from storage
 as well as on validated models, without importing either.
 """
 
-from collections import deque
+from collections import Counter, deque
 from typing import Dict, Iterable, List, Tuple
 
 SCHEMA_VERSION = 2
@@ -33,12 +33,16 @@ def migrate_definition(raw: dict) -> dict:
     previous = "trigger"
 
     for index, condition in enumerate(raw.get("conditions") or []):
+        if not isinstance(condition, dict):
+            raise ValueError(f"condition {index} must be an object")
         node_id = f"condition-{index}"
         nodes.append({"id": node_id, "kind": CONDITION_KIND, "type": None, "config": dict(condition)})
         edges.append({"source": previous, "target": node_id})
         previous = node_id
 
     for index, action in enumerate(raw.get("actions") or []):
+        if not isinstance(action, dict):
+            raise ValueError(f"action {index} must be an object")
         node_id = f"action-{index}"
         nodes.append({
             "id": node_id,
@@ -84,7 +88,8 @@ def topological_order(node_ids: Iterable[str], edges: Iterable[Tuple[str, str]])
                 queue.append(child)
 
     if len(order) != len(ids):
-        stuck = sorted(node_id for node_id in ids if node_id not in set(order))
+        placed = set(order)
+        stuck = sorted(str(node_id) for node_id in ids if node_id not in placed)
         raise ValueError(f"Workflow graph contains a cycle involving nodes: {', '.join(stuck)}")
     return order
 
@@ -98,9 +103,10 @@ def validate_graph(nodes: List[dict], edges: List[dict]) -> None:
     problems: List[str] = []
 
     ids = [node.get("id") for node in nodes]
-    duplicates = sorted({node_id for node_id in ids if ids.count(node_id) > 1})
+    counts = Counter(ids)
+    duplicates = sorted(str(node_id) for node_id, count in counts.items() if count > 1)
     if duplicates:
-        problems.append(f"duplicate node ids: {', '.join(map(str, duplicates))}")
+        problems.append(f"duplicate node ids: {', '.join(duplicates)}")
 
     known = set(ids)
     pairs: List[Tuple[str, str]] = []

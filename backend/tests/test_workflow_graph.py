@@ -184,3 +184,88 @@ def test_manual_run_blocks_a_stored_invalid_graph(monkeypatch):
 
     assert response.status_code == 422
     assert "cycle" in response.json()["detail"]
+
+
+# ── Review follow-ups ──
+
+def _condition_graph(config):
+    return _v2(
+        [TRIGGER, {"id": "c", "kind": "condition", "type": None, "config": config}, ACTION_A],
+        [{"source": "t", "target": "c"}, {"source": "c", "target": "a"}],
+    )
+
+
+@pytest.mark.parametrize("config", [
+    {"field": "label", "operator": "equals"},
+    {"field": "label", "operator": "equals", "value": None},
+    {"field": "label", "operator": "equals", "value": ["x"]},
+    {"operator": "equals", "value": "x"},
+])
+def test_condition_without_a_valid_value_or_fields_is_rejected(config):
+    with pytest.raises(ValidationError, match="condition node c"):
+        WorkflowDefinition(**_condition_graph(config))
+
+
+def test_condition_with_number_or_boolean_value_is_accepted():
+    definition = WorkflowDefinition(**_condition_graph({"field": "count", "operator": "gt", "value": 3}))
+    assert definition.conditions[0].value == "3"
+    flagged = WorkflowDefinition(**_condition_graph({"field": "done", "operator": "equals", "value": True}))
+    assert flagged.conditions[0].value == "true"
+
+
+def test_non_object_condition_or_action_entry_raises_value_error_on_upgrade():
+    with pytest.raises(ValueError, match="condition 0 must be an object"):
+        migrate_definition({"trigger": {"type": "trello"}, "conditions": ["x"], "actions": []})
+    with pytest.raises(ValueError, match="action 0 must be an object"):
+        migrate_definition({"trigger": {"type": "trello"}, "actions": ["x"]})
+
+
+def test_large_graph_validates_and_reports_duplicates_once():
+    count = 3000
+    nodes = [TRIGGER] + [{"id": f"a{i}", "kind": "action", "type": "http", "config": {}} for i in range(count)]
+    edges = [{"source": "t", "target": "a0"}] + [{"source": f"a{i}", "target": f"a{i + 1}"} for i in range(count - 1)]
+    WorkflowDefinition(**_v2(nodes, edges))
+
+    with pytest.raises(ValueError) as info:
+        validate_graph(nodes + [dict(nodes[1]), dict(nodes[1])], edges)
+    assert str(info.value).count("duplicate node ids: a0") == 1
+
+
+def test_list_still_returns_other_workflows_when_one_definition_is_malformed():
+    from app.services.workflow_service import WorkflowService
+
+    dev_user = "00000000-0000-0000-0000-000000000000"
+    good = {"id": "good", "name": "ok", "definition": V1, "updated_at": "2026-01-02"}
+    bad = {"id": "bad", "name": "broken", "definition": {"trigger": {"type": "trello"}, "actions": ["x"]}, "updated_at": "2026-01-01"}
+    WorkflowService._dev_workflows.update({"good": good, "bad": bad})
+    try:
+        rows = WorkflowService().get_all(dev_user)
+    finally:
+        WorkflowService._dev_workflows.clear()
+
+    assert [row["id"] for row in rows] == ["good", "bad"]
+    assert rows[0]["definition"]["schema_version"] == 2
+    assert rows[1]["definition"] == bad["definition"]
+
+
+def test_scheduler_startup_enrolls_other_schedules_when_one_row_is_malformed(monkeypatch):
+    from unittest.mock import MagicMock
+
+    from app.scheduler import scheduler
+
+    rows = [
+        {"id": "bad", "name": "broken", "definition": {"trigger": {"type": "schedule"}, "actions": ["x"]}},
+        {"id": "good", "name": "daily", "definition": {
+            "trigger": {"type": "schedule", "config": {"cron": "0 9 * * *"}},
+            "actions": [{"type": "http", "config": {}}],
+        }},
+    ]
+    fake_supabase = MagicMock()
+    fake_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value = MagicMock(data=rows)
+    scheduled = []
+    monkeypatch.setattr(scheduler, "supabase", fake_supabase)
+    monkeypatch.setattr(scheduler, "add_workflow_job", lambda wf_id, name, cron, definition: scheduled.append(wf_id))
+    monkeypatch.setattr(scheduler, "_scheduler", MagicMock())
+
+    scheduler.start()
+    assert scheduled == ["good"]
