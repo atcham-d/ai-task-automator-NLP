@@ -72,7 +72,7 @@ export interface Integration {
     user_id: string;
     type: IntegrationType;
     name: string;
-    config: Record<string, any>;
+    config: Record<string, unknown>;
     is_active: boolean;
 }
 

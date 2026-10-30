@@ -3,11 +3,11 @@ import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { Webhook, Clock, Mail, Zap } from 'lucide-react';
 
 const iconMap: Record<string, React.ReactNode> = {
-    webhook: <Webhook size={16} />,
-    schedule: <Clock size={16} />,
-    email: <Mail size={16} />,
-    trello: <Zap size={16} />, // Use Zap as placeholder or find Trello-like icon
-    default: <Zap size={16} />,
+    webhook: <Webhook size={20} />,
+    schedule: <Clock size={20} />,
+    email: <Mail size={20} />,
+    trello: <Zap size={20} />, // Use Zap as placeholder or find Trello-like icon
+    default: <Zap size={20} />,
 };
 
 const NODE_STYLE: React.CSSProperties = {

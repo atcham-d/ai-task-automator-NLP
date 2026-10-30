@@ -1,48 +1,27 @@
 import React from 'react';
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
-    className?: string;
-    style?: React.CSSProperties;
     hover?: boolean;
-    onClick?: () => void;
 }
 
 export const Card: React.FC<CardProps> = ({
     children,
     className = '',
-    style,
     hover = false,
-    onClick,
+    ...props
 }) => {
     return (
         <div
-            className={className}
-            onClick={onClick}
-            style={{
-                background: '#111118',
-                border: '1px solid #1e1e2e',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 0 0 1px rgba(99,102,241,0.05), 0 4px 24px rgba(0,0,0,0.4)',
-                transition: 'all 0.3s ease',
-                cursor: onClick ? 'pointer' : undefined,
-                ...style,
-            }}
-            onMouseEnter={(e) => {
-                if (!hover) return;
-                const el = e.currentTarget;
-                el.style.borderColor = 'rgba(99,102,241,0.3)';
-                el.style.transform = 'translateY(-2px)';
-                el.style.boxShadow = '0 0 0 1px rgba(99,102,241,0.15), 0 8px 32px rgba(0,0,0,0.5)';
-            }}
-            onMouseLeave={(e) => {
-                if (!hover) return;
-                const el = e.currentTarget;
-                el.style.borderColor = '#1e1e2e';
-                el.style.transform = 'translateY(0)';
-                el.style.boxShadow = '0 0 0 1px rgba(99,102,241,0.05), 0 4px 24px rgba(0,0,0,0.4)';
-            }}
+            {...props}
+            className={`
+                bg-[#111118] border border-[#1e1e2e] rounded-2xl p-6
+                shadow-[0_0_0_1px_rgba(99,102,241,0.05),_0_4px_24px_rgba(0,0,0,0.4)]
+                transition-all duration-300
+                ${props.onClick ? 'cursor-pointer' : ''}
+                ${hover ? 'hover:border-[#6366f1]/30 hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(99,102,241,0.15),_0_8px_32px_rgba(0,0,0,0.5)]' : ''}
+                ${className}
+            `}
         >
             {children}
         </div>

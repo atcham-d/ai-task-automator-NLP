@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Zap } from 'lucide-react';
-import { Button } from './Button';
+import { Button } from './ui/button';
 
 interface NavLink {
     label: string;
@@ -19,70 +19,46 @@ export const FloatingNav: React.FC = () => {
     const isLanding = location.pathname === '/';
 
     return (
-        <nav
-            style={{
-                position: 'fixed',
-                top: '16px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                zIndex: 1000,
-                background: 'rgba(17,17,24,0.8)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                border: '1px solid #1e1e2e',
-                borderRadius: '9999px',
-                padding: '8px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '24px',
-            }}
+        <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] 
+            w-max max-w-[calc(100%-2rem)]
+            bg-black/60 backdrop-blur-md 
+            border border-violet-500/30
+            rounded-full 
+            px-8 py-3 md:px-10 md:py-4
+            flex items-center gap-8 md:gap-14
+            shadow-2xl shadow-violet-500/10 overflow-hidden whitespace-nowrap"
         >
-            <Link
-                to="/"
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    textDecoration: 'none',
-                    color: '#f1f5f9',
-                    fontFamily: "'Syne', sans-serif",
-                    fontWeight: 700,
-                    fontSize: '18px',
-                }}
-            >
-                <Zap size={20} style={{ color: '#6366f1' }} />
-                FlowAI
-            </Link>
-
-            {isLanding && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    {navLinks.map((link) => (
-                        <a
-                            key={link.label}
-                            href={link.to}
-                            style={{
-                                textDecoration: 'none',
-                                color: '#94a3b8',
-                                fontSize: '14px',
-                                fontWeight: 500,
-                                transition: 'color 0.2s',
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = '#f1f5f9')}
-                            onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
-                        >
-                            {link.label}
-                        </a>
-                    ))}
-                </div>
-            )}
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
-                <Link to="/login" style={{ textDecoration: 'none' }}>
-                    <Button variant="ghost" size="sm">Sign In</Button>
+            <div className="flex items-center gap-8">
+                <Link
+                    to="/"
+                    className="flex items-center gap-2 no-underline text-[#f1f5f9] font-display font-bold text-lg md:text-xl transition-transform hover:scale-105 shrink-0"
+                >
+                    <Zap size={20} className="text-[#6366f1]" />
+                    FlowAI
                 </Link>
-                <Link to="/signup" style={{ textDecoration: 'none' }}>
-                    <Button variant="primary" size="sm">Get Started</Button>
-                </Link>
+
+                {isLanding && (
+                    <div className="hidden md:flex items-center gap-8">
+                        {navLinks.map((link) => (
+                            <a
+                                key={link.label}
+                                href={link.to}
+                                className="no-underline text-[#94a3b8] text-sm font-medium transition-colors hover:text-[#f1f5f9]"
+                            >
+                                {link.label}
+                            </a>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div className="flex items-center gap-4">
+                <Button asChild variant="ghost" className="h-10 px-4 text-sm text-[#f1f5f9] hover:bg-white/5 border-none hidden md:block">
+                    <Link to="/login">Sign In</Link>
+                </Button>
+                <Button asChild className="h-10 px-6 text-sm bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20 border-none transition-all rounded-full font-medium">
+                    <Link to="/signup">Get Started</Link>
+                </Button>
             </div>
         </nav>
     );

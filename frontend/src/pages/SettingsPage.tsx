@@ -182,7 +182,7 @@ export const SettingsPage: React.FC = () => {
     }
 
     return (
-        <AnimatedPage>
+        <AnimatedPage className="container mx-auto px-4 py-8">
             <h1
                 style={{
                     fontFamily: "'Syne', sans-serif",
@@ -212,7 +212,7 @@ export const SettingsPage: React.FC = () => {
                                     color: '#6366f1',
                                 }}
                             >
-                                <User size={18} />
+                                <User size={20} />
                             </div>
                             <h2
                                 style={{
@@ -245,7 +245,7 @@ export const SettingsPage: React.FC = () => {
                                 disabled={savingProfile}
                                 style={{ alignSelf: 'flex-start' }}
                             >
-                                {savingProfile ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                                {savingProfile ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
                                 Update Profile
                             </Button>
                         </form>
@@ -268,7 +268,7 @@ export const SettingsPage: React.FC = () => {
                                     color: '#6366f1',
                                 }}
                             >
-                                <Lock size={18} />
+                                <Lock size={20} />
                             </div>
                             <h2
                                 style={{
@@ -313,7 +313,7 @@ export const SettingsPage: React.FC = () => {
                                 disabled={savingPassword}
                                 style={{ alignSelf: 'flex-start' }}
                             >
-                                {savingPassword ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
+                                {savingPassword ? <Loader2 size={20} className="animate-spin" /> : <Lock size={20} />}
                                 Change Password
                             </Button>
                         </form>
@@ -336,7 +336,7 @@ export const SettingsPage: React.FC = () => {
                                     color: '#6366f1',
                                 }}
                             >
-                                <Bell size={18} />
+                                <Bell size={20} />
                             </div>
                             <h2
                                 style={{
@@ -351,9 +351,9 @@ export const SettingsPage: React.FC = () => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {[
-                                { label: 'Email on workflow failure', key: 'notify_on_failure' as const, icon: <Mail size={14} /> },
-                                { label: 'Notification on execution success', key: 'notify_on_success' as const, icon: <Bell size={14} /> },
-                                { label: 'Weekly analytics report', key: 'weekly_digest' as const, icon: <Bell size={14} /> },
+                                { label: 'Email on workflow failure', key: 'notify_on_failure' as const, icon: <Mail size={20} /> },
+                                { label: 'Notification on execution success', key: 'notify_on_success' as const, icon: <Bell size={20} /> },
+                                { label: 'Weekly analytics report', key: 'weekly_digest' as const, icon: <Bell size={20} /> },
                             ].map((item, i) => (
                                 <div
                                     key={i}
@@ -395,7 +395,7 @@ export const SettingsPage: React.FC = () => {
                                     color: '#f87171',
                                 }}
                             >
-                                <AlertTriangle size={18} />
+                                <AlertTriangle size={20} />
                             </div>
                             <h2
                                 style={{
@@ -417,7 +417,7 @@ export const SettingsPage: React.FC = () => {
                             onClick={handleDeleteAccount}
                             disabled={deleting}
                         >
-                            {deleting ? <Loader2 size={14} className="animate-spin" /> : <AlertTriangle size={14} />}
+                            {deleting ? <Loader2 size={20} className="animate-spin" /> : <AlertTriangle size={20} />}
                             {deleting ? 'Deleting...' : 'Delete Account'}
                         </Button>
                     </Card>

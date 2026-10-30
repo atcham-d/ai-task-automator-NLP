@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*
@@ -23,17 +26,47 @@ dist-ssr
 *.sln
 *.sw?
 
+# Agent / AI scaffolding
 .agent/
 .agent-backup/
 .gemini/
-# .gsd/ (unignored for GSD history)
+.gsd/
 .gsd-update-temp/
-
 adapters/
 docs/
 
-# Project docs
+# Agent-generated project docs
 GSD-STYLE.md
 model_capabilities*
 PRD.md
 PROJECT_RULES*
+VERSION
+/VERSION
+CHANGELOG.md
+progress.txt
+
+# Stitch MCP artifacts
+frontend/stitch_original.html
+stitch_original.html
+
+# Pyre (type-checker config)
+.pyre_configuration
+.pyre/
+
+# Misc scripts
+test_curl.sh
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+env/
+.env
+
+# Build
+build/
+dist/
+.DS_Store

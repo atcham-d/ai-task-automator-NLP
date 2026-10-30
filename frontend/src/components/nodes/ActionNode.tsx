@@ -3,12 +3,12 @@ import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { Send, MessageSquare, Globe, Bell, Zap } from 'lucide-react';
 
 const iconMap: Record<string, React.ReactNode> = {
-    slack: <MessageSquare size={16} />,
-    http: <Globe size={16} />,
-    email: <Send size={16} />,
-    smtp: <Send size={16} />,
-    notification: <Bell size={16} />,
-    default: <Zap size={16} />,
+    slack: <MessageSquare size={20} />,
+    http: <Globe size={20} />,
+    email: <Send size={20} />,
+    smtp: <Send size={20} />,
+    notification: <Bell size={20} />,
+    default: <Zap size={20} />,
 };
 
 const NODE_STYLE: React.CSSProperties = {

@@ -10,15 +10,6 @@ from app.schemas.auth import LoginRequest, SignupRequest, TokenResponse
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
-# ── Schema for Google OAuth response ──
-class GoogleAuthResponse(BaseModel):
-    url: str
-
-
-class GoogleCallbackRequest(BaseModel):
-    code: str
-
-
 @router.post("/signup", response_model=TokenResponse)
 async def signup(body: SignupRequest):
     """Register a new user and return an access token.
@@ -122,63 +113,4 @@ async def logout():
         pass  # Best-effort logout
 
 
-# ── Google OAuth ──
-
-@router.post("/google", response_model=GoogleAuthResponse)
-async def google_sign_in():
-    """Initiate Google OAuth sign-in via Supabase.
-
-    Returns the OAuth URL that the frontend should redirect the user to.
-    The user will authenticate with Google and be redirected back to the
-    frontend callback URL.
-    """
-    try:
-        # Determine the redirect URL (frontend callback page)
-        origins = settings.cors_origins
-        redirect_url = f"{origins[0]}/auth/callback" if origins else "http://localhost:5173/auth/callback"
-
-        result = supabase.auth.sign_in_with_oauth(
-            {
-                "provider": "google",
-                "options": {"redirect_to": redirect_url},
-            }
-        )
-
-        return GoogleAuthResponse(url=result.url)
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Google sign-in failed: {str(e)}",
-        )
-
-
-@router.post("/callback", response_model=TokenResponse)
-async def auth_callback(body: GoogleCallbackRequest):
-    """Exchange an OAuth authorization code for a session token.
-
-    Called by the frontend after Google redirects back with a code.
-    """
-    try:
-        result = supabase.auth.exchange_code_for_session({"auth_code": body.code})
-
-        session = result.session
-        if not session:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Failed to exchange code for session",
-            )
-
-        return TokenResponse(
-            access_token=session.access_token,
-            refresh_token=session.refresh_token
-        )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Auth callback failed: {str(e)}",
-        )
 

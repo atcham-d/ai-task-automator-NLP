@@ -12,7 +12,7 @@ const MOCK_USER = {
     user_metadata: { full_name: 'Dev User' },
     aud: 'authenticated',
     created_at: '2024-01-01T00:00:00Z',
-} as any;
+} as User;
 
 const MOCK_SESSION = {
     access_token: 'DEV_BYPASS_TOKEN',
@@ -20,7 +20,13 @@ const MOCK_SESSION = {
     expires_in: 3600,
     refresh_token: '',
     user: MOCK_USER,
-} as any;
+} as Session;
+
+/** True when the dev bypass is enabled and a bypass login is stored. */
+function isBypassActive(): boolean {
+    return import.meta.env.VITE_DEV_BYPASS === 'true'
+        && localStorage.getItem('sb-bypass-token') === 'DEV_BYPASS_TOKEN';
+}
 
 interface AuthContextType {
     user: User | null;
@@ -40,27 +46,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check for dev bypass token first
-        if (import.meta.env.VITE_DEV_BYPASS === 'true') {
-            const bypassToken = localStorage.getItem('sb-bypass-token');
-            if (bypassToken === 'DEV_BYPASS_TOKEN') {
-                setSession(MOCK_SESSION);
-                setUser(MOCK_USER);
-                setLoading(false);
-                return;
-            }
-        }
+        const initializeAuth = async () => {
+            try {
+                // Check for dev bypass token first
+                if (isBypassActive()) {
+                    setSession(MOCK_SESSION);
+                    setUser(MOCK_USER);
+                    return;
+                }
 
-        // Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
+                // Get initial session
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) throw error;
+                setSession(session);
+                setUser(session?.user ?? null);
+            } catch (err: unknown) {
+                console.error("Auth initialization failed:", err instanceof Error ? err.message : err);
+                setUser(null);
+                setSession(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initializeAuth();
 
         // Listen for auth state changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (_event, session) => {
+                // Supabase has no session for the mock user; don't let it clear the bypass login
+                if (isBypassActive()) return;
                 setSession(session);
                 setUser(session?.user ?? null);
                 setLoading(false);
@@ -116,20 +131,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const googleSignIn = useCallback(async () => {
-        const res = await fetch(`${API_URL}/api/auth/google`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+            },
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Google sign-in failed');
-
-        // Redirect to Google OAuth URL
-        window.location.href = data.url;
+        if (error) throw error;
     }, []);
 
+
     const logout = useCallback(async () => {
-        await supabase.auth.signOut();
         localStorage.removeItem('sb-bypass-token');
+        await supabase.auth.signOut();
         setUser(null);
         setSession(null);
     }, []);

@@ -39,7 +39,7 @@ function ConditionNode({ data }: NodeProps) {
                         color: '#fbbf24',
                     }}
                 >
-                    <GitBranch size={16} />
+                    <GitBranch size={20} />
                 </div>
                 <span
                     style={{
