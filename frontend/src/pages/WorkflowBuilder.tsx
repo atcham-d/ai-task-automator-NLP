@@ -58,12 +58,55 @@ function requireNonEmptyString(value: unknown, message: string): string {
  * Validates a workflow definition (from the NLP engine or a saved workflow)
  * against the WorkflowDefinition interface before propagating it to the UI.
  */
+/**
+ * Converts a schema-v2 graph (nodes + edges) into the flat trigger/conditions/actions
+ * shape the builder works with. Nodes are listed in dependency order, so the flat
+ * lists keep the order the backend runs them in.
+ */
+function graphToFlatDefinition(graph: Record<string, unknown>): Record<string, unknown> {
+    const nodes = (Array.isArray(graph.nodes) ? graph.nodes : []) as Record<string, unknown>[];
+    const edges = (Array.isArray(graph.edges) ? graph.edges : []) as Record<string, unknown>[];
+
+    const indegree = new Map<string, number>(nodes.map((n) => [String(n.id), 0]));
+    const children = new Map<string, string[]>(nodes.map((n) => [String(n.id), []]));
+    for (const edge of edges) {
+        const source = String(edge.source);
+        const target = String(edge.target);
+        if (!children.has(source) || !indegree.has(target)) continue;
+        children.get(source)!.push(target);
+        indegree.set(target, (indegree.get(target) ?? 0) + 1);
+    }
+
+    const queue = nodes.map((n) => String(n.id)).filter((id) => indegree.get(id) === 0);
+    const order: string[] = [];
+    while (queue.length) {
+        const current = queue.shift()!;
+        order.push(current);
+        for (const child of children.get(current) ?? []) {
+            indegree.set(child, indegree.get(child)! - 1);
+            if (indegree.get(child) === 0) queue.push(child);
+        }
+    }
+
+    const byId = new Map(nodes.map((n) => [String(n.id), n]));
+    const ordered = order.map((id) => byId.get(id)!).filter(Boolean);
+    const trigger = ordered.find((n) => n.kind === 'trigger');
+
+    return {
+        trigger: trigger ? { type: trigger.type, config: trigger.config } : undefined,
+        conditions: ordered.filter((n) => n.kind === 'condition').map((n) => n.config),
+        actions: ordered.filter((n) => n.kind === 'action').map((n) => ({ type: n.type, config: n.config })),
+    };
+}
+
 function validateWorkflowDefinition(data: unknown): WorkflowDefinition {
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
         throw new Error('Invalid workflow definition: Response is not a valid object');
     }
 
-    const workflowData = data as Record<string, unknown>;
+    const workflowData = ('nodes' in data
+        ? graphToFlatDefinition(data as Record<string, unknown>)
+        : data) as Record<string, unknown>;
 
     // 1. Trigger Validation
     const trigger = workflowData.trigger;
@@ -273,7 +316,7 @@ export const WorkflowBuilder: React.FC = () => {
                 setWorkflowStatus(wf.status);
                 setSavedId(wf.id);
                 if (wf.description) setNlInput(wf.description);
-                if (wf.definition?.trigger) {
+                if (wf.definition) {
                     const def = validateWorkflowDefinition(wf.definition);
                     setParsedDef(def);
                     const { nodes: n, edges: e } = definitionToNodes(def);

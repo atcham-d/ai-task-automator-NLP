@@ -47,11 +47,7 @@ def parse_nl_to_workflow(text: str) -> WorkflowDefinition:
     conditions = _detect_conditions(lower_text, text)
     actions = _detect_actions(action_part.lower(), action_part)
 
-    return WorkflowDefinition(
-        trigger=trigger,
-        conditions=conditions,
-        actions=actions,
-    )
+    return WorkflowDefinition.from_parts(trigger=trigger, conditions=conditions, actions=actions)
 
 def _parse_time_to_hour(time_str: str) -> str:
     """Convert a time string like '9am', '5pm', '14', '2:30pm' to a 24h hour."""

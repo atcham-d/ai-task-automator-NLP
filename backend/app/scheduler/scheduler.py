@@ -9,6 +9,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.core.supabase import supabase
 from app.models.workflow import WorkflowDefinition
+from app.models.workflow_graph import find_trigger
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ def start() -> None:
 
         for wf in result.data:
             definition = wf.get("definition", {})
-            trigger = definition.get("trigger", {})
+            trigger = find_trigger(definition)
 
             if trigger.get("type") == "schedule":
                 cron = trigger.get("config", {}).get("cron", "0 9 * * *")

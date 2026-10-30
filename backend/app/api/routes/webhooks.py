@@ -10,6 +10,7 @@ from fastapi import APIRouter, Request, status, BackgroundTasks, HTTPException
 from app.core.config import settings
 from app.core.supabase import supabase
 from app.models.workflow import WorkflowDefinition
+from app.models.workflow_graph import find_trigger
 from app.services.runner_service import runner
 
 router = APIRouter(prefix="/api/webhooks", tags=["webhooks"])
@@ -94,7 +95,7 @@ async def trello_webhook(request: Request, background_tasks: BackgroundTasks):
     for wf in result.data:
         try:
             definition_dict = wf.get("definition") or {}
-            trigger = definition_dict.get("trigger") or {}
+            trigger = find_trigger(definition_dict)
             if trigger.get("type") != "trello":
                 continue
             if not _trigger_matches(trigger.get("config") or {}, action_type, board_id):
