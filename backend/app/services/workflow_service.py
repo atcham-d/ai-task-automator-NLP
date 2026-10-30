@@ -1,12 +1,31 @@
 """Service layer for workflow CRUD operations against Supabase."""
 
+import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import HTTPException, status
 
 from app.core.supabase import supabase
+from app.models.workflow_graph import migrate_definition
 from app.schemas.workflow import WorkflowCreate, WorkflowUpdate
+
+logger = logging.getLogger(__name__)
+
+
+def _upgrade_row(row: dict) -> dict:
+    """Return a workflow row with its definition in schema v2, leaving stored data untouched.
+
+    A row whose stored definition cannot be upgraded is returned as stored, so one bad
+    row does not fail the whole list. The builder reports the problem when it is opened.
+    """
+    if "definition" not in row:
+        return row
+    try:
+        return {**row, "definition": migrate_definition(row["definition"])}
+    except ValueError:
+        logger.warning("Workflow %s has a definition that cannot be upgraded", row.get("id"))
+        return row
 
 
 class WorkflowService:
@@ -57,7 +76,7 @@ class WorkflowService:
     def get_all(self, user_id: str) -> List[dict]:
         """Retrieve all workflows for a user, ordered by most recently updated."""
         if user_id == "00000000-0000-0000-0000-000000000000":
-            return sorted(self._dev_workflows.values(), key=lambda x: x["updated_at"], reverse=True)
+            return [_upgrade_row(w) for w in sorted(self._dev_workflows.values(), key=lambda x: x["updated_at"], reverse=True)]
         try:
             result = (
                 supabase.table("workflows")
@@ -66,7 +85,7 @@ class WorkflowService:
                 .order("updated_at", desc=True)
                 .execute()
             )
-            return result.data
+            return [_upgrade_row(w) for w in result.data]
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -79,7 +98,7 @@ class WorkflowService:
             workflow = self._dev_workflows.get(workflow_id)
             if not workflow:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workflow not found")
-            return workflow
+            return _upgrade_row(workflow)
         try:
             result = (
                 supabase.table("workflows")
@@ -93,7 +112,7 @@ class WorkflowService:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Workflow not found",
                 )
-            return result.data[0]
+            return _upgrade_row(result.data[0])
         except HTTPException:
             raise
         except Exception as e:

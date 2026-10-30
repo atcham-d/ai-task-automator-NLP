@@ -2,10 +2,12 @@
 
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import ValidationError
 
 from app.core.deps import get_current_user
 from app.models.workflow import WorkflowDefinition
+from app.models.workflow_graph import find_trigger
 from app.schemas.workflow import WorkflowCreate, WorkflowResponse, WorkflowUpdate
 from app.services.runner_service import runner
 from app.services.workflow_service import workflow_service
@@ -65,7 +67,7 @@ async def activate_workflow(
 
     # Add scheduler job if it's a scheduled trigger
     definition = result.get("definition", {})
-    trigger = definition.get("trigger", {})
+    trigger = find_trigger(definition)
     if trigger.get("type") == "schedule":
         cron = trigger.get("config", {}).get("cron", "0 9 * * *")
         add_workflow_job(workflow_id, result["name"], cron, definition)
@@ -89,7 +91,13 @@ async def run_workflow(
 ):
     """Manually trigger a single run of a workflow."""
     workflow = workflow_service.get_by_id(workflow_id, user["id"])
-    definition = WorkflowDefinition(**workflow["definition"])
+    try:
+        definition = WorkflowDefinition(**workflow["definition"])
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Workflow definition is invalid: {exc.errors()[0]['msg']}",
+        ) from exc
     log_entry = await runner.run(
         workflow_id=workflow_id,
         workflow_name=workflow["name"],

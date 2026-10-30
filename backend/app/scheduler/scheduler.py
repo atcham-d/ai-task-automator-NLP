@@ -9,6 +9,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.core.supabase import supabase
 from app.models.workflow import WorkflowDefinition
+from app.models.workflow_graph import find_trigger
 
 logger = logging.getLogger(__name__)
 
@@ -86,12 +87,16 @@ def start() -> None:
         )
 
         for wf in result.data:
-            definition = wf.get("definition", {})
-            trigger = definition.get("trigger", {})
+            try:
+                definition = wf.get("definition", {})
+                trigger = find_trigger(definition)
 
-            if trigger.get("type") == "schedule":
-                cron = trigger.get("config", {}).get("cron", "0 9 * * *")
-                add_workflow_job(wf["id"], wf["name"], cron, definition)
+                if trigger.get("type") == "schedule":
+                    cron = trigger.get("config", {}).get("cron", "0 9 * * *")
+                    add_workflow_job(wf["id"], wf["name"], cron, definition)
+            except Exception:
+                # One bad stored row must not stop the other schedules from loading
+                logger.exception("Could not schedule workflow %s at startup", wf.get("id"))
 
         _scheduler.start()
         logger.info(
